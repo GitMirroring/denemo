@@ -14,7 +14,7 @@
   ")
   
   (d-DirectivePut-voice-postfix tag "\\stopStaff \\hideNotes ")
-   (d-DirectivePut-voice-prefix tag "\\with {\\remove \"Multi_measure_rest_engraver\"} ")
+
   (d-DirectivePut-voice-display tag "Ossia")
   (d-DirectivePut-voice-override tag  DENEMO_OVERRIDE_GRAPHIC)
   (d-DirectivePut-staff-override tag  (logior DENEMO_OVERRIDE_GRAPHIC DENEMO_ALT_OVERRIDE DENEMO_OVERRIDE_AFFIX))
