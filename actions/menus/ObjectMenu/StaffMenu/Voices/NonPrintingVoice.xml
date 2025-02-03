@@ -7,7 +7,7 @@
       <row type="scheme">
         <action>NonPrintingVoice</action>
         <after>EditVoiceDirective</after>
-        <_label>Non Printing Voiice</_label>
+        <_label>Non Printing Voice</_label>
         <_tooltip>This voice will be omitted when typeset.</_tooltip>
       </row>
     </map>

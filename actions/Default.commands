@@ -9082,7 +9082,7 @@ Marks can be deleted just like any other object or the Clear All Marks option ca
         <action>NonPrintingVoice</action>
         <after>EditVoiceDirective</after>
         <menupath>/ObjectMenu/StaffMenu/Voices</menupath>
-        <_label>Non Printing Voiice</_label>
+        <_label>Non Printing Voice</_label>
         <_tooltip>This voice will be omitted when typeset.</_tooltip>
       </row>
       <row type="scheme">
