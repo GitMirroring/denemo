@@ -1,8 +1,7 @@
 ;;;;;; CreateOssiaStaff
 (let ((current "voice 1")(tag "ossia"))
   (set! current (d-StaffProperties "query=denemo_name"))
-  (d-NewStructuredStaff)
-  (d-SwapStaffs)
+  (d-NewStructuredStaff 'before)
   (d-StaffProperties (string-append "denemo_name=" current "_ossia"))
   (d-DirectivePut-staff-prefix tag "
     \\remove \"Time_signature_engraver\"
