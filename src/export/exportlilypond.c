@@ -1003,12 +1003,17 @@ brace_count (gchar * str)
 {
   gint ret;
   gboolean inquotes = FALSE;
+  gboolean escaped = FALSE;
   for (ret = 0; *str; str++)
     {
 	 switch (*str)
 		{
+			case '\\':
+				escaped = TRUE;
+				break;
 			case '"':
-				inquotes = !inquotes;
+				if (!escaped)
+					inquotes = !inquotes;
 				break;
 			case '{':
 				if (!inquotes)
@@ -1019,6 +1024,8 @@ brace_count (gchar * str)
 					ret--;
 				break;
 			}
+	if (*str != '\\')
+		escaped = FALSE;
     }
   return ret;
 }
