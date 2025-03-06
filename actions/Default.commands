@@ -9092,6 +9092,13 @@ Marks can be deleted just like any other object or the Clear All Marks option ca
         <_label>Delete All Except Selection</_label>
         <_tooltip>Deletes the whole score apart from the current selection. All other movements, staffs and bars are deleted.</_tooltip>
       </row>
+      <row type="scheme">
+        <action>GlissToNothing</action>
+        <after>Glissando</after>
+        <menupath>/ObjectMenu/NotesRests/Markings/TextMarks</menupath>
+        <_label>Gliss to Nothing</_label>
+        <_tooltip>Places a glissando on the current not that ends at the height of the cursor (with nothing there).</_tooltip>
+      </row>
     </map>
   </merge>
 </Denemo>

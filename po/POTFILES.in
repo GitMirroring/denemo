@@ -1792,6 +1792,8 @@ actions/menus/ObjectMenu/NotesRests/Markings/TextMarks/FootnoteSeparator.xml
 actions/menus/ObjectMenu/NotesRests/Markings/TextMarks/Footnote.xml
 actions/menus/ObjectMenu/NotesRests/Markings/TextMarks/Glissando.scm
 actions/menus/ObjectMenu/NotesRests/Markings/TextMarks/Glissando.xml
+actions/menus/ObjectMenu/NotesRests/Markings/TextMarks/GlissToNothing.scm
+actions/menus/ObjectMenu/NotesRests/Markings/TextMarks/GlissToNothing.xml
 actions/menus/ObjectMenu/NotesRests/Markings/TextMarks/ParenthesizeChord.scm
 actions/menus/ObjectMenu/NotesRests/Markings/TextMarks/ParenthesizeChord.xml
 actions/menus/ObjectMenu/NotesRests/Markings/TextMarks/ParenthesizeNote.scm
