@@ -26,6 +26,13 @@
     <first-obj>0</first-obj>
     <last-obj>2147483647</last-obj>
   </thumbnail>
+  <sourcefile>
+    <x>27</x>
+    <y>25</y>
+    <width>1347</width>
+    <height>999</height>
+    <scale>2399</scale>
+  </sourcefile>
   <lilycontrol>
     <papersize>a4</papersize>
     <lilyversion>2.24</lilyversion>
@@ -59,7 +66,7 @@
   <movement>
     <edit-info>
       <staffno>1</staffno>
-      <measureno>7</measureno>
+      <measureno>1</measureno>
       <cursorposition>0</cursorposition>
       <tonalcenter>0</tonalcenter>
       <zoom>100</zoom>
@@ -155,11 +162,13 @@
           <hasfakechords>0</hasfakechords>
           <staff-directives>
             <directive>
-              <tag>test</tag>
-              <prefix>%{staff prefix%}
-</prefix>
-              <postfix>%{staff postfix%}
-</postfix>
+              <tag>test1</tag>
+              <prefix>%{ staff prefix with DENEMO_OVERRIDE_AFFIX DENEMO_ALT_OVERRIDE %} </prefix>
+              <override>18</override>
+            </directive>
+            <directive>
+              <tag>test2</tag>
+              <prefix>%{ staff prefix with NO OVERRIDE %} </prefix>
             </directive>
           </staff-directives>
           <voice-directives>
