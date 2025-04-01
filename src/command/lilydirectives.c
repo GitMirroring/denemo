@@ -2752,6 +2752,14 @@ typedef struct widgetAndField {
 
 static void edit_field (GtkWidget * widget, GdkEventKey * event, widgetAndField *entrywidget) 
 {
+	if (!GTK_IS_ENTRY (entrywidget->widget))
+		{
+				if (entrywidget->widget)
+					warningdialog ("BUG! Failed to open a text editor for this field");
+				else
+					warningdialog ("BUG! Null pointer was returned from gtk_entry_new() call - should mean out of memory!");					
+				return;
+		}
 	gchar *text = get_multiline_input (_("Edit Field"), _("Change the text (carefully!) and then click OK or Cancel to back out"), (gchar*)gtk_entry_get_text (GTK_ENTRY (entrywidget->widget)));
 	if (text)
 		{
@@ -2975,8 +2983,8 @@ text_edit_directive (DenemoDirective * directive, gchar * what)
   gtk_box_pack_start (GTK_BOX (hbox), labut, FALSE, FALSE, 0);\
   entrywidget = gtk_entry_new ();\
   g_string_sprintf (entrycontent, "%s", directive->field?directive->field->str:"");\
-  gtk_entry_set_text (GTK_ENTRY (entrywidget), entrycontent->str);\
-  gtk_box_pack_start (GTK_BOX (hbox), entrywidget, TRUE, TRUE, 0);\
+  if (GTK_IS_ENTRY (entrywidget)) gtk_entry_set_text (GTK_ENTRY (entrywidget), entrycontent->str);\
+  if (GTK_IS_ENTRY (entrywidget)) gtk_box_pack_start (GTK_BOX (hbox), entrywidget, TRUE, TRUE, 0);\
   if(directive->field==NULL) directive->field=g_string_new("");\
   g_signal_connect(G_OBJECT(entrywidget), "key-release-event", G_CALLBACK(set_gstring), directive->field);\
   { widgetAndField *entrywidgetfield = g_malloc (sizeof (widgetAndField)); \
