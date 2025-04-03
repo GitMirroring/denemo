@@ -2744,27 +2744,19 @@ set_gstring (GtkWidget * widget, GdkEventKey * event, GString * gstr)
   g_string_assign (gstr, (gchar *) gtk_entry_get_text (GTK_ENTRY (widget)));
   return TRUE;
 }
-typedef struct widgetAndField {
-	GtkWidget *widget;
-	GString *entry;
-} widgetAndField;
 
+typedef enum FIELD_TYPE
+{ TYPE_POSTFIX = 0, TYPE_PREFIX = 1, TYPE_DISPLAY = 2, TYPE_GRAPHIC = 3, TYPE_TAG = 4, TYPE_GROB = 5, TYPE_DATA = 6, TYPE_MIDIBYTES = 7} FIELD_TYPE;
+static GtkWidget *entry_widgets [8];
+static GString *directive_fields [8];
 
-static void edit_field (GtkWidget * widget, GdkEventKey * event, widgetAndField *entrywidget) 
+static void edit_field (GtkWidget * widget, GdkEventKey * event, gint field) 
 {
-	if (!GTK_IS_ENTRY (entrywidget->widget))
-		{
-				if (entrywidget->widget)
-					warningdialog ("BUG! Failed to open a text editor for this field");
-				else
-					warningdialog ("BUG! Null pointer was returned from gtk_entry_new() call - should mean out of memory!");					
-				return;
-		}
-	gchar *text = get_multiline_input (_("Edit Field"), _("Change the text (carefully!) and then click OK or Cancel to back out"), (gchar*)gtk_entry_get_text (GTK_ENTRY (entrywidget->widget)));
+	gchar *text = get_multiline_input (_("Edit Field"), _("Change the text (carefully!) and then click OK or Cancel to back out"), directive_fields [field]->str);
 	if (text)
 		{
-			gtk_entry_set_text (GTK_ENTRY (entrywidget->widget), text);
-			g_string_assign (entrywidget->entry, text);
+		 g_string_assign (directive_fields [field], text);
+		 gtk_entry_set_text (GTK_ENTRY (entry_widgets [field]), text);
 		}
 	return;	
 }
@@ -2973,8 +2965,7 @@ text_edit_directive (DenemoDirective * directive, gchar * what)
   GtkWidget *entrywidget;
   GtkWidget *label, *labut;
   GtkWidget *button;
-#define TEXTENTRY(thelabel, field) \
-  G_GNUC_UNUSED GtkWidget *field;\
+#define TEXTENTRY(field, thelabel, thefield) \
   hbox = gtk_hbox_new (FALSE, 8);\
   gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, TRUE, 0);\
   labut = gtk_button_new_with_label (_(thelabel));\
@@ -2983,15 +2974,13 @@ text_edit_directive (DenemoDirective * directive, gchar * what)
   gtk_box_pack_start (GTK_BOX (hbox), labut, FALSE, FALSE, 0);\
   entrywidget = gtk_entry_new ();\
   g_string_sprintf (entrycontent, "%s", directive->field?directive->field->str:"");\
-  if (GTK_IS_ENTRY (entrywidget)) gtk_entry_set_text (GTK_ENTRY (entrywidget), entrycontent->str);\
-  if (GTK_IS_ENTRY (entrywidget)) gtk_box_pack_start (GTK_BOX (hbox), entrywidget, TRUE, TRUE, 0);\
+  gtk_entry_set_text (GTK_ENTRY (entrywidget), entrycontent->str);\
+  gtk_box_pack_start (GTK_BOX (hbox), entrywidget, TRUE, TRUE, 0);\
   if(directive->field==NULL) directive->field=g_string_new("");\
   g_signal_connect(G_OBJECT(entrywidget), "key-release-event", G_CALLBACK(set_gstring), directive->field);\
-  { widgetAndField *entrywidgetfield = g_malloc (sizeof (widgetAndField)); \
-	    memToFree = g_list_append (memToFree, entrywidgetfield); \
-		entrywidgetfield->widget = entrywidget; \
-		entrywidgetfield->entry = directive->field; \
-		g_signal_connect(G_OBJECT(labut), "clicked", G_CALLBACK(edit_field), entrywidgetfield);}\
+  directive_fields [thefield] = directive->field;\
+  entry_widgets [thefield] = entrywidget;\
+  g_signal_connect(G_OBJECT(labut), "clicked", G_CALLBACK(edit_field), GINT_TO_POINTER (thefield));\
   g_string_assign(entrycontent, "");
 
 #define NEWINTENTRY(thelabel, field)\
@@ -3033,16 +3022,16 @@ text_edit_directive (DenemoDirective * directive, gchar * what)
   gtk_box_pack_start (GTK_BOX (hbox), entrywidget, TRUE, TRUE, 0);\
   g_signal_connect(G_OBJECT(entrywidget), "value-changed", G_CALLBACK(set_int), &directive->fieldy);
 
-  TEXTENTRY (_("Postfix"), postfix);
-  TEXTENTRY (_("Prefix"), prefix);
-  TEXTENTRY (_("Display text"), display);
+  TEXTENTRY (postfix, _("Postfix"), TYPE_POSTFIX);
+  TEXTENTRY (prefix, _("Prefix"), TYPE_PREFIX);
+  TEXTENTRY (display, _("Display"), TYPE_DISPLAY);
   ADDINTENTRY (_("Text Position"), tx, ty);
-  TEXTENTRY (_("Graphic"), graphic_name);
+  TEXTENTRY (graphic_name, _("Graphic"), TYPE_GRAPHIC);
   ADDINTENTRY (_("Graphic Position"), gx, gy);
-  TEXTENTRY (_("Tag"), tag);
-  TEXTENTRY (_("LilyPond Grob Name"), grob);
-  TEXTENTRY (_("Scheme Data"), data);
-  TEXTENTRY (_("MidiBytes"), midibytes);
+  TEXTENTRY (tag, _("Tag (id) of Directive"), TYPE_TAG);
+  TEXTENTRY (grob, _("LilyPond Grob"), TYPE_GROB);
+  TEXTENTRY (data, _("Scheme Data"), TYPE_DATA);
+  TEXTENTRY (midibytes, _("MIDI bytes"), TYPE_MIDIBYTES);
   NEWUINTENTRY (_("Override Mask"), override);
   NEWINTENTRY (_("Horizontal Display Space"), minpixels);
 #undef TEXTENTRY
