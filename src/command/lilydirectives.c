@@ -2755,6 +2755,9 @@ static void edit_field (GtkWidget * widget, GdkEventKey * event, gint field)
 	gchar *text = get_multiline_input (_("Edit Field"), _("Change the text (carefully!) and then click OK or Cancel to back out"), directive_fields [field]->str);
 	if (text)
 		{
+#ifdef G_OS_WIN32
+		 gtk_widget_destroy (gtk_widget_get_toplevel (widget));
+#endif
 		 g_string_assign (directive_fields [field], text);
 		 gtk_entry_set_text (GTK_ENTRY (entry_widgets [field]), text);
 		}
