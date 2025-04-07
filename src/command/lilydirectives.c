@@ -2745,18 +2745,26 @@ set_gstring (GtkWidget * widget, GdkEventKey * event, GString * gstr)
   return TRUE;
 }
 
-typedef enum FIELD_TYPE
-{ TYPE_POSTFIX = 0, TYPE_PREFIX = 1, TYPE_DISPLAY = 2, TYPE_GRAPHIC = 3, TYPE_TAG = 4, TYPE_GROB = 5, TYPE_DATA = 6, TYPE_MIDIBYTES = 7} FIELD_TYPE;
+#define TYPE_POSTFIX (0)
+#define TYPE_PREFIX (1)
+#define TYPE_DISPLAY (2)
+#define TYPE_GRAPHIC (3)
+#define TYPE_TAG (4)
+#define TYPE_GROB (5)
+#define TYPE_DATA (6)
+#define TYPE_MIDIBYTES (7)
 static GtkWidget *entry_widgets [8];
 static GString *directive_fields [8];
 
 static void edit_field (GtkWidget * widget, GdkEventKey * event, gint field) 
 {
 	gchar *text; 
-#ifdef G_OS_WIN32
-		 warningdialog (g_strdup_printf ("Windows doesn't support this field %d at %p\n", field, directive_fields [field]));
+	if ((field > 8) || (field < 0))
+		{
+		 warningdialog (g_strdup_printf ("Out of range parameter field %d\n", field));
 		 return;
-#endif	
+	 }
+
 	text = get_multiline_input (_("Edit Field"), _("Change the text (carefully!) and then click OK or Cancel to back out"), directive_fields [field]->str);
 	
 	if (text)
