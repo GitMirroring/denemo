@@ -48,12 +48,12 @@ scheme_call_callback (SCM optional, callback_function callback)
   gboolean query = FALSE;
   DenemoScriptParam param;
   GString *gstr = NULL;
-  int length;
+  size_t length;
   char *str = NULL;
 
   if (scm_is_string (optional))
     {
-      str = scm_to_locale_stringn (optional, (size_t *) & length);
+      str = scm_to_locale_stringn (optional, &length);
       gstr = g_string_new_len (str, length);
       if (!strncmp ("query", str, 5))
         query = TRUE;
