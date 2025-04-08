@@ -2759,6 +2759,10 @@ static GString *directive_fields [8];
 static void edit_field (GtkWidget * widget, GdkEventKey * event, gint field) 
 {
 	gchar *text; 
+#ifdef G_OS_WIN32
+	field = g_object_get_data (G_OBJECT (widget), "field"); 
+#endif
+
 	if ((field > 8) || (field < 0))
 		{
 		 warningdialog (g_strdup_printf ("Out of range parameter field %d\n", field));
@@ -2769,7 +2773,6 @@ static void edit_field (GtkWidget * widget, GdkEventKey * event, gint field)
 	
 	if (text)
 		{
-
 		 g_string_assign (directive_fields [field], text);
 		 gtk_entry_set_text (GTK_ENTRY (entry_widgets [field]), text);
 		}
@@ -2980,6 +2983,27 @@ text_edit_directive (DenemoDirective * directive, gchar * what)
   GtkWidget *entrywidget;
   GtkWidget *label, *labut;
   GtkWidget *button;
+  
+#ifdef G_OS_WIN32
+#define TEXTENTRY(field, thelabel, thefield) \
+  hbox = gtk_hbox_new (FALSE, 8);\
+  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, TRUE, 0);\
+  labut = gtk_button_new_with_label (_(thelabel));\
+  set_background_color (gtk_bin_get_child (GTK_BIN(labut)), "#bbffcc");\
+  gtk_misc_set_alignment (GTK_MISC (labut), 1, 0.5);\
+  gtk_box_pack_start (GTK_BOX (hbox), labut, FALSE, FALSE, 0);\
+  entrywidget = gtk_entry_new ();\
+  g_string_sprintf (entrycontent, "%s", directive->field?directive->field->str:"");\
+  gtk_entry_set_text (GTK_ENTRY (entrywidget), entrycontent->str);\
+  gtk_box_pack_start (GTK_BOX (hbox), entrywidget, TRUE, TRUE, 0);\
+  if(directive->field==NULL) directive->field=g_string_new("");\
+  g_signal_connect(G_OBJECT(entrywidget), "key-release-event", G_CALLBACK(set_gstring), directive->field);\
+  directive_fields [thefield] = directive->field;\
+  entry_widgets [thefield] = entrywidget;\
+  g_object_set_data (G_OBJECT (labut), "field", GINT_TO_POINTER (thefield));\
+  g_signal_connect(G_OBJECT(labut), "clicked", G_CALLBACK(edit_field), GINT_TO_POINTER (thefield));\
+  g_string_assign(entrycontent, "");  
+#else  
 #define TEXTENTRY(field, thelabel, thefield) \
   hbox = gtk_hbox_new (FALSE, 8);\
   gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, TRUE, 0);\
@@ -2997,6 +3021,8 @@ text_edit_directive (DenemoDirective * directive, gchar * what)
   entry_widgets [thefield] = entrywidget;\
   g_signal_connect(G_OBJECT(labut), "clicked", G_CALLBACK(edit_field), GINT_TO_POINTER (thefield));\
   g_string_assign(entrycontent, "");
+#endif
+
 
 #define NEWINTENTRY(thelabel, field)\
   hbox = gtk_hbox_new (FALSE, 8);\
