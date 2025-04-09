@@ -3638,7 +3638,7 @@ init_lilypond_buffer (void)
     gint num, i;
     for (num=0; old_dirs[num];num++)
       ;
-      const gchar *dirs[num+1];
+      const gchar *dirs[num+2];
       dirs[0] = get_system_data_dir ();
       for (i=1; i<num+2; i++)
         dirs[i] = old_dirs [i-1];
