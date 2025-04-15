@@ -5,7 +5,7 @@
             (d-SetSaved #f)
             (d-PushPosition)
             (while (d-MoveToStaffUp))
-            (d-AddBefore)
+            (d-NewStructuredStaff 'initial)
             (d-StaffProperties (string-append "denemo_name=" ""))
             (d-DirectivePut-clef-graphic tag "\nM\nDenemo\n48")
             (d-DirectivePut-clef-gy tag 36)
