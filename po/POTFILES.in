@@ -651,6 +651,8 @@ actions/menus/MainMenu/NavigationMenu/Cursor/WrapToNextStaff.scm
 actions/menus/MainMenu/NavigationMenu/Cursor/WrapToNextStaff.xml
 actions/menus/MainMenu/NavigationMenu/DenemoLink.scm
 actions/menus/MainMenu/NavigationMenu/DenemoLink.xml
+actions/menus/MainMenu/NavigationMenu/HighlightCursor.scm
+actions/menus/MainMenu/NavigationMenu/HighlightCursor.xml
 actions/menus/MainMenu/NavigationMenu/MIDI/CursorToMarkedMidiNotePosition.scm
 actions/menus/MainMenu/NavigationMenu/MIDI/CursorToMarkedMidiNotePosition.xml
 actions/menus/MainMenu/NavigationMenu/MIDI/FirstNoteOnset.scm

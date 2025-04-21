@@ -166,6 +166,7 @@ SCM scheme_swap_notes_at_cursor_height (SCM nochange);
 SCM scheme_cursor_to_nth_note_height (SCM number);
 SCM scheme_cursor_to_next_note_height (void);
 SCM scheme_cursor_to_note (SCM);
+SCM scheme_flash_cursor (void);
 SCM scheme_get_prevailing_keysig (SCM);
 SCM scheme_get_prevailing_keysig_name (void);
 SCM scheme_get_prevailing_timesig (SCM);

@@ -9099,6 +9099,13 @@ Marks can be deleted just like any other object or the Clear All Marks option ca
         <_label>Gliss to Nothing</_label>
         <_tooltip>Places a glissando on the current not that ends at the height of the cursor (with nothing there).</_tooltip>
       </row>
+      <row type="scheme">
+        <action>HighlightCursor</action>
+        <after>DenemoLink</after>
+        <menupath>/MainMenu/NavigationMenu</menupath>
+        <_label>Flash Cursor</_label>
+        <_tooltip>Flashes the cursor, moving it onto the display if needed.</_tooltip>
+      </row>
     </map>
   </merge>
 </Denemo>

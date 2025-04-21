@@ -4327,6 +4327,11 @@ scheme_cursor_to_note (SCM lilyname)
     }
 }
 
+SCM scheme_flash_cursor (void)
+{
+	set_cursor_transition ();
+	return SCM_BOOL (TRUE);
+}
 SCM
 scheme_change_chord_notes (SCM lilynotes)
 {
@@ -7166,6 +7171,7 @@ flash_cursor (void)
   return TRUE;
 }
 
+//turn flashing of cursor off/on
 SCM
 scheme_highlight_cursor (SCM optional)
 {
