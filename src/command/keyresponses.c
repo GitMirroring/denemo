@@ -257,7 +257,9 @@ process_key_event (GdkEventKey * event, gchar * perform_command ())
           return NULL;
         }
     }
-
+    if (event->keyval == GDK_Return)
+		call_out_to_guile ("(d-HighlightCursor)");
+		
   /*  we create a store for the prefix char and look to see if it is populated when a keystroke is received. If it is populated, we try for the two-key combination, {???else we try for the single key, and if that fails populate the store. OR if it fails clear store}. If the two-key combination works we clear the store. If the two-key combination fails we try for the single key, if that succeeds we clear the store if it fails we set the store to the unresolved keystroke.  */
 
   gchar *ret = NULL;
