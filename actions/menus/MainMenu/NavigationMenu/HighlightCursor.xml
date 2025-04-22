@@ -7,8 +7,8 @@
       <row type="scheme">
         <action>HighlightCursor</action>
         <after>DenemoLink</after>
-        <_label>Flash Cursor</_label>
-        <_tooltip>Flashes the cursor, moving it onto the display if needed.</_tooltip>
+        <_label>Highlight Cursor Position</_label>
+        <_tooltip>Highlights the cursor so you can spot where it is in a large score. It will move the cursor onto the display if needed and turn on cursor highlighting.</_tooltip>
       </row>
     </map>
   </merge>
