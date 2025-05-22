@@ -7,7 +7,7 @@
       <row type="scheme">
         <action>ScoreTagline</action>
         <_label>Tagline</_label>
-        <_tooltip> Centered at the bottom of the last page.</_tooltip>
+        <_tooltip> Centered at the bottom of the last page. Do not use with Simple Titles, which has its own tagline command.</_tooltip>
       </row>
     </map>
   </merge>
