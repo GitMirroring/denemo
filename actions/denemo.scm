@@ -1284,7 +1284,7 @@
             (if editing
                 (let ((response  (d-GetUserInputWithSnippets  (if score (_ "Score Titles")  (_ "Movement Titles")) (string-append (_ "Give ") field) initial)))
                     (if response
-                        (car response)
+                        (string-append "\\column{" (cdr response) "}")
                         #f))
                 (let ((response (d-GetUserInput (if score (_ "Score Titles")  (_ "Movement Titles")) (string-append (_ "Give ") field) initial)))
                     (if response (lilypond-markup-escape response) #f))))
