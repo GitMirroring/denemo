@@ -175,6 +175,8 @@ staff_copy (DenemoStaff * src, DenemoStaff * dest, gboolean copy_all)
   dest->range = src->range;/**<TRUE if range_hi,lo should be observed. */
   dest->range_hi = src->range_hi;/**< highest note playable by instrument, mid_c_offset */
   dest->range_lo = src->range_lo;/**< lowest note playable by instrument, mid_c_offset */
+  dest->color = src->color;/**< color of staff - affects notes that are in range */
+ 
   dest->volume = src->volume;
   dest->type = src->type;
   dest->clef.type = src->clef.type;
