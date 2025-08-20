@@ -34,6 +34,13 @@
                 (do-one 'piece)
                 (do-one 'opus))))
     (d-NewMovement)
+    (d-GoToBeginning)
+    (while (d-StaffUp))
+    (while
+		(begin
+			(if (d-Directive-voice? "DynamicsStaff")
+				(d-StartUpStems))
+	        (d-StaffDown)))
     (let ()
         (let ((time (d-GetPrevailingTimesig)))
             (set! time (d-GetUserInput (_ "Add Movement") (_ "Give time signature") time))
