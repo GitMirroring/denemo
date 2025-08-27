@@ -291,7 +291,7 @@ midi_keysig (gint key, gint isminor)
 /**
  * meta event: set system clock speed
  */
-gint TEMPOADJ = 0;
+gint TEMPOADJ = 0, TEMPOSYNC = 0;
 static smf_event_t *
 midi_tempo (long tempo)
 {
@@ -307,8 +307,8 @@ midi_tempo (long tempo)
   *buf++ = 0xff;
   *buf++ = 0x51;
   *buf++ = 3;
-  midi_tempo = 60000000/(tempo + 1e-2*TEMPOADJ);
-  g_print ("Playing at %f bpm\n", tempo + 1e-2*TEMPOADJ);
+  midi_tempo = 60000000/(tempo * (1 + 1e-2*TEMPOADJ) + 1e-2*TEMPOSYNC);
+  g_print ("Playing at %f bpm\n", (tempo * (1 + 1e-2*TEMPOADJ) + 1e-2*TEMPOSYNC));
   *buf++ = (midi_tempo >> 16) & 255;
   *buf++ = (midi_tempo >> 8) & 255/*, (midi_tempo >> 0) & 255*/;
   return event;

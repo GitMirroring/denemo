@@ -63,6 +63,7 @@ static GtkWidget *tempo_widget;
 #ifdef _HAVE_RUBBERBAND_
 static GtkAdjustment *speed_adj;
 #endif
+static GtkAdjustment *tempo_sync;
 static GtkAdjustment *tempo_adj;
 
 static void pb_audiorecord (GtkWidget * button);
@@ -1257,6 +1258,15 @@ set_tempo_adj (GtkAdjustment * adjustment)
   TEMPOADJ = (gint)t;
   Denemo.project->movement->smfsync = G_MAXINT;
   //g_print ("Tempo adj %d \n", TEMPOADJ);
+}
+extern gint TEMPOSYNC;
+static void
+set_tempo_sync (GtkAdjustment * adjustment)
+{
+  gdouble t = gtk_adjustment_get_value (adjustment);
+  TEMPOSYNC = (gint)t;
+  Denemo.project->movement->smfsync = G_MAXINT;
+  //g_print ("Tempo adj %d \n", TEMPOSYNC);
 }
 static void
 pb_volume (GtkAdjustment * adjustment)
@@ -3491,16 +3501,27 @@ create_window (void)
       g_signal_connect (G_OBJECT (speed_adj), "value_changed", G_CALLBACK (set_speed), NULL);
       gtk_box_pack_start (GTK_BOX (hbox), hscale, TRUE, TRUE, 0);
 #endif
-      /* tempo adjust */
-      label = gtk_label_new (_("Tempo Adjust (% beat):"));
+      /* tempo sync */
+      label = gtk_label_new (_("Tempo Sync (% beat):"));
       gtk_widget_set_can_focus (label, FALSE);
       gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, TRUE, 0);
-      tempo_adj = (GtkAdjustment *) gtk_adjustment_new (0.0, -50.0, 50.0, 1.0, 1.0, 1.0);
+      tempo_sync = (GtkAdjustment *) gtk_adjustment_new (0.0, -50.0, 50.0, 1.0, 1.0, 1.0);
+      hscale = gtk_hscale_new (GTK_ADJUSTMENT (tempo_sync));
+      gtk_widget_set_can_focus (hscale, FALSE);
+      gtk_widget_set_tooltip_text (label, _("Adjust the speed of playback +/- half a bpm (to synchronize with external audio)"));
+      g_signal_connect (G_OBJECT (tempo_sync), "value_changed", G_CALLBACK (set_tempo_sync), NULL);
+      gtk_box_pack_start (GTK_BOX (hbox), hscale, TRUE, TRUE, 0);
+
+      /* tempo adjust */
+      label = gtk_label_new (_("Scale Tempo (%):"));
+      gtk_widget_set_can_focus (label, FALSE);
+      gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, TRUE, 0);
+      tempo_adj = (GtkAdjustment *) gtk_adjustment_new (0.0, -90.0, 200.0, 1.0, 1.0, 1.0);
       //(GtkAdjustment *) gtk_adjustment_new (50.0, 0.0, 100.0, 1.0, 1.0, 10.0);
       hscale = gtk_hscale_new (GTK_ADJUSTMENT (tempo_adj));
       //gtk_scale_set_digits (GTK_SCALE (hscale), 0);
       gtk_widget_set_can_focus (hscale, FALSE);
-      gtk_widget_set_tooltip_text (label, _("Adjust the tempo of playback by uo to one bpm"));
+      gtk_widget_set_tooltip_text (label, _("Scale the tempo of playback throughout the movement"));
       g_signal_connect (G_OBJECT (tempo_adj), "value_changed", G_CALLBACK (set_tempo_adj), NULL);
       gtk_box_pack_start (GTK_BOX (hbox), hscale, TRUE, TRUE, 0);
 
