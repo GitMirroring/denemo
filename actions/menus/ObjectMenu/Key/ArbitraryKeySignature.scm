@@ -32,5 +32,5 @@
             (d-Directive-standalone tag)
             (d-DirectivePut-standalone-graphic tag "\nK\nDenemo\n40")
             (d-DirectivePut-standalone-minpixels tag 40)
-            (d-DirectivePut-standalone-postfix tag  (string-append "\\set Staff.keySignature = #`(" accs ")")))))
+            (d-DirectivePut-standalone-postfix tag  (string-append "\\set Staff.keyAlterations = #`(" accs ")")))))
         
