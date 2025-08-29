@@ -15,6 +15,6 @@
      		(if choice  
     		(StandAloneDirectiveProto (cons tag 
     		(string-append "\\once \\override Score.RehearsalMark.break-visibility =
-#" choice "-of-line-invisible \\mark \\markup\\scale #'(1 . 1) { \\musicglyph #\"scripts.segno\" } ")) #t LG-Segno "" )))))
+#" choice "-of-line-invisible \\textEndMark \\markup\\scale #'(1 . 1) { \\musicglyph #\"scripts.segno\" } ")) #t LG-Segno "" )))))
 
         
