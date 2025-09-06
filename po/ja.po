@@ -3,23 +3,23 @@
 # Copyright (C) 2007, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2019 Free Software Foundation, Inc.
 # This file is distributed under the same license as the denemo package.
 # <ffreshers@ya...>, 2007.
-# Takeshi Hamasaki <hmatrjp@users.sourceforge.jp>, 2009,2010,2011,2012,2015,2016,2017,2019,2021.
+# Takeshi Hamasaki <hmatrjp@users.sourceforge.jp>, 2009,2010,2011,2012,2015,2016,2017,2019,2021,2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: denemo 2.6-rc2\n"
 "Report-Msgid-Bugs-To: denemo-devel@gnu.org\n"
 "POT-Creation-Date: 2021-12-08 10:57+0000\n"
-"PO-Revision-Date: 2021-12-22 21:07+0900\n"
-"Last-Translator: Takeshi Hamasaki <hmatrjp@users.sourceforge.jp>\n"
+"PO-Revision-Date: 2025-09-06 19:34+0900\n"
+"Last-Translator: Takeshi Hamasaki <Takeshi.Ken.Hamasaki+hmatrjp@gmail.com>\n"
 "Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Bugs: Report translation errors to the Language-Team address.\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 2.4.2\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
+"X-Generator: Poedit 3.6\n"
 "X-Poedit-Basepath: denemo-2.5.7/po\n"
 "X-Poedit-SearchPath-0: .\n"
 
@@ -333,7 +333,7 @@ msgstr "(Fn12 で 繰り返し)"
 
 #: ../src/command/keyresponses.c:303
 msgid ", or "
-msgstr ""
+msgstr "、または"
 
 #: ../src/command/keyresponses.c:304
 #, c-format
@@ -2369,8 +2369,7 @@ msgstr "この楽章を楽譜のレイアウトから削除"
 msgid "Move this lyric part below the staff for this score layout"
 msgstr ""
 
-#: ../src/command/scorelayout.c:866
-#: ../actions/denemo-modules/directives.scm:35
+#: ../src/command/scorelayout.c:866 ../actions/denemo-modules/directives.scm:35
 #, fuzzy
 msgid "Edit LilyPond"
 msgstr "Lilypond 言語をカーソル位置の和音に追加/編集します。テキストを追加したりできます。Lilypond のドキュメントを参照してください。"
@@ -31919,7 +31918,7 @@ msgstr "もうひとつの素晴らしい機能は、楽譜から複写元の文
 #~ msgid "Adagio"
 #~ msgstr "アダージョ"
 
-#~ msgid "Insert Whole Measure Rest"
+#~ msgid "Insert Whole Measure Rest"
 #~ msgstr "全休符を挿入"
 
 #~ msgid "Go To Measure End"
