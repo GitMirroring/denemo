@@ -15,7 +15,7 @@
 #define AUDIOINTERFACE_H
 
 #include <denemo/denemo_types.h>
-
+#include "smf.h"
 
 /**
  * The common interface for all audio and MIDI backends.
@@ -271,7 +271,7 @@ void queue_redraw_all ();
 /**
  * Queues a redraw of the playhead.
  */
-void queue_redraw_playhead ();
+void queue_redraw_playhead (smf_event_t * event);
 
 extern GMutex smfmutex;
 
