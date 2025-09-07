@@ -25587,10 +25587,6 @@ msgstr "休符の後ろにあります。\n"
 msgid "Insert a rest with longa duration"
 msgstr "休符を挿入"
 
-#: ../actions/menus/ObjectMenu/NotesRests/RestEntry/InsertWholeMeasureRest.xml.h:1
-#, fuzzy
-msgid "Insert Whole Measure Rest"
-msgstr "現在のカーソル位置に全休符を挿入する"
 
 #: ../actions/menus/ObjectMenu/NotesRests/RestEntry/InsertWholeMeasureRest.xml.h:2
 msgid "Inserts/Appends a rest measure; if the current measure is empty, it simply places the whole measure rest in it."
