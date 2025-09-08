@@ -206,7 +206,7 @@ perform_command (const gchar * command_name, GdkEventKey * event)
 
 //return the value of perform_command if executed or "" if keypress is part of a two-key shortcut, or NULL toherwise
 gchar *
-process_key_event (GdkEventKey * event, gchar * perform_command ())
+process_key_event (GdkEventKey * event, gchar * perform_command (const gchar * command_name, GdkEventKey * event))
 {
   keymap *the_keymap = Denemo.map;
   //g_debug("\n********\nCaps Lock %x?\n\n********\nShifted %x?\n", event->state&GDK_LOCK_MASK,          event->state&GDK_SHIFT_MASK     );
