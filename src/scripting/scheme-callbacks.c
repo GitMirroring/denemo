@@ -38,6 +38,7 @@
 #include "printview/printview.h"
 #include "printview/markupview.h"
 #include "display/calculatepositions.h"
+#include "display/displayanimation.h"
 #include "source/source.h"
 #include "source/sourceaudio.h"
 
