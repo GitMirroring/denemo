@@ -26,7 +26,7 @@ delete_if_exists(gchar* path){
       GDir* dir = g_dir_open(path, 0, &error);
       gchar* filename = NULL;
       gchar* child = NULL;
-      while (filename = g_dir_read_name(dir)){
+      while (filename = (gchar *)g_dir_read_name(dir)){
         child = g_build_filename(path, filename, NULL);
         delete_if_exists(child);
         g_free(child);

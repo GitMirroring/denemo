@@ -26,7 +26,7 @@ find_files_with_ext(gchar* dirname, gchar* ext){
 
   while (filename = g_dir_read_name(dir))
     if(g_str_has_suffix (filename, ext))
-      list = g_list_append(list, filename);
+      list = g_list_append(list, (gchar *)filename);
   return list;
 }
 
@@ -84,7 +84,7 @@ setup(gpointer fixture, gconstpointer data)
   if(!mkdir_if_not_exists(temp_dir)){
     GDir* dir = g_dir_open(temp_dir, 0, NULL);
     gchar* filename = NULL;
-    while (filename = g_dir_read_name(dir))
+    while (filename = (gchar *)g_dir_read_name(dir))
       g_remove (g_build_filename(temp_dir, filename, NULL));
   }
 
@@ -159,7 +159,7 @@ test_open_save_blank_file(gpointer fixture, gconstpointer data)
   g_test_trap_subprocess (NULL, 0, 0);
   g_test_trap_assert_passed ();
 
-  g_assert(compare_denemo_files(input, output));
+  g_assert(compare_denemo_files((gchar *)input, (gchar *)output));
   g_remove(output);
 }
 
@@ -207,17 +207,17 @@ test_open_save_complex_file(gpointer fixture, gconstpointer data)
   // Comparision
   if(g_file_test(reference, G_FILE_TEST_EXISTS)){
     g_test_print("Comparing %s with the reference %s\n", output, reference);
-    g_assert(compare_denemo_files(output, reference));
+    g_assert(compare_denemo_files((gchar *)output, (gchar *)reference));
   }
   else if(g_str_has_suffix (filename, ".denemo")){
     g_test_print("Comparing %s with %s\n", input, output);
-    g_assert(compare_denemo_files(input, output));
+    g_assert(compare_denemo_files((gchar *)input, (gchar *)output));
   }
   else{
     gchar* compare_file = g_strconcat(base_name, ".denemo", NULL);
     if(g_file_test(compare_file, G_FILE_TEST_EXISTS)){
       g_test_print("Comparing %s with %s\n", compare_file, output);
-      g_assert(compare_denemo_files(compare_file, output));
+      g_assert(compare_denemo_files(compare_file, (gchar *)output));
     }
   }
   g_remove(output);
@@ -234,13 +234,13 @@ parse_dir_and_run_complex_test(gchar* path, const gchar* extension)
   GError* error = NULL;
   GDir* dir = g_dir_open(path, 0, &error);
   gchar* filename = NULL;
-  while (filename = g_dir_read_name(dir)){
+  while (filename = (gchar *)g_dir_read_name(dir)){
     filename = g_build_filename(path, filename, NULL);
     if(g_file_test(filename, G_FILE_TEST_IS_DIR))
       parse_dir_and_run_complex_test(filename, extension);
   }
 
-  GList* files = find_files_with_ext(path, extension);
+  GList* files = find_files_with_ext(path, (gchar *)extension);
   // Ensure a unique test case path if called multiple times.
   // Use the given path and extension and append a counter to the end.
   gchar* test_case_path_fragment = g_strconcat("/integration/open-and-save-complex-file-", path, "-", extension, NULL);
@@ -248,7 +248,7 @@ parse_dir_and_run_complex_test(gchar* path, const gchar* extension)
   while(files){
     filename = g_build_filename(path, files->data, NULL);
     gchar* test_case_path = g_strdup_printf("%s-%d", test_case_path_fragment, test_case_path_counter);
-    g_test_add (test_case_path, gchar*, filename, setup, test_open_save_complex_file, teardown);
+    g_test_add (test_case_path, void, filename, setup, test_open_save_complex_file, teardown);
     g_free(test_case_path);
     test_case_path_counter ++;
     files = g_list_next(files);
