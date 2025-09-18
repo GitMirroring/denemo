@@ -2237,6 +2237,8 @@ gtk_style_context_add_provider(gsc, GTK_STYLE_PROVIDER(gcp),
     case LILYDIRECTIVE:
       {
         DenemoDirective *directive = (DenemoDirective *) curObj->object;
+        if (directive->tag == NULL)
+			directive->tag = g_string_new ("<Unknown Tag>");        //shouldn't happen
         const gchar *label = get_label_for_tag (directive->tag->str);
         DenemoAction *action = lookup_action_from_name (directive->tag->str);
         gchar *name = label ? (gchar *) label : directive->tag->str;
