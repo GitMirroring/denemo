@@ -275,7 +275,7 @@ if test "x$usegtk2" = "xyes"; then
     fi
 
     if test "x$have_evince2_32" = "xno"; then
-      PKG_CHECK_MODULES(ATRIL, atril-view-1.5.0 >= 1.5 have_atril=yes, have_atril=no)
+      PKG_CHECK_MODULES(ATRIL, atril-view-1.5.0 >= 1.5, have_atril=yes, have_atril=no)
       CFLAGS="$CFLAGS $ATRIL_CFLAGS"
       LIBS="$LIBS $ATRIL_LIBS"
     fi
