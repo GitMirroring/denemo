@@ -24,6 +24,11 @@
 #ifdef USE_ATRIL
 #include <atril-view.h>
 #include <atril-document.h>
+#ifndef  EV_DOCUMENT_ANNOTATIONS
+#define ATRIL_COMPILATION
+#include <libdocument/ev-document-annotations.h>
+#undef ATRIL_COMPILATION
+#endif
 #else
 #include <evince-view.h>
 #include <evince-document.h>
@@ -280,7 +285,7 @@ press (EvView * view,  GdkEventButton  *event, EvDocumentModel *model)
         infodialog (help_text);
     nearest_annotation_text = NULL;
     extern EvMappingList * ev_document_annotations_get_annotations();
-    EvMappingList *mapping_list = ev_document_annotations_get_annotations (doc, ev_document_get_page(doc, i));
+    EvMappingList *mapping_list = ev_document_annotations_get_annotations (EV_DOCUMENT_ANNOTATIONS(doc), ev_document_get_page(doc, i));
     if(mapping_list)
     {
     gdouble nearest = G_MAXDOUBLE;
@@ -313,7 +318,7 @@ find_annotated_pages (EvDocumentModel *model)
     for (i=0; i< ev_document_get_n_pages(doc);i++)
         {
             extern EvMappingList * ev_document_annotations_get_annotations();
-            EvMappingList *mapping_list = ev_document_annotations_get_annotations (doc, ev_document_get_page(doc, i));
+            EvMappingList *mapping_list = ev_document_annotations_get_annotations (EV_DOCUMENT_ANNOTATIONS(doc), ev_document_get_page(doc, i));
             if(mapping_list)
             {
              annotated_pages = g_list_append (annotated_pages, GINT_TO_POINTER(i));
