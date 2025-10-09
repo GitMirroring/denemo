@@ -1,613 +1,1064 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+
 <!--
-
- Lilypond basic language definition file
- Release date: 2017.08.08
- jphcombe.jpc@gmail.com
-
+	2025-10-02 ver
+	made by Kit
+	shout-outs to my brother :)
+	-
+	A syntax file for Lilypond 2.24.4. Mostly follows the colours
+	in the documentation. Should work with any text editor that
+	uses gtksourceview.
+	A little clumsy. Still incomplete in a few areas.
+	Thank you for using this file!
 -->
-<language id="lilypond" _name="Lilypond" version="2.0" _section="Markup">
-  <metadata>
-    <property name="mimetypes">text/x-lilypond</property>
-    <property name="globs">*.ly;.ily</property>
-    <property name="line-comment-start">%</property>
-  </metadata>
 
-  <styles>
-    <style id="comment"           _name="Comment"           map-to="def:comment"/>
-    <style id="include"           _name="Include"           map-to="def:keyword"/>
-    <style id="header"            _name="Header"            map-to="def:type"/>
-    <style id="string"            _name="String"            map-to="def:string"/>
-    <style id="keyword"           _name="Keyword"           map-to="def:keyword"/>
-    <style id="escaped-character" _name="Escaped Character" map-to="def:special-char"/>
-  </styles>
+<language id="lilypond" name="Lilypond" version="2.0" _section="Markup">
 
-  <default-regex-options case-sensitive="true"/>
+<metadata>
+	<property name="globs">*.ly</property>
+	<property name="line-comment-start">%</property>
+	<property name="block-comment-start">%{</property>
+	<property name="block-comment-end">%}</property>
+</metadata>
 
-  <definitions>
+<styles>
+	<style id="comment"           name="Comment"           map-to="def:comment"/>
+	<style id="string"            name="String"            map-to="def:string"/>
+	<style id="articulation"      name="Articulation"      map-to="def:string"/>
+	<style id="duration"          name="Note Duration"     map-to="def:preprocessor"/>
+	<style id="special-text"      name="Special Text"      map-to="def:preprocessor"/>
+	<style id="function"          name="function"          map-to="def:identifier"/>
+	<style id="context"           name="Context"           map-to="def:type"/>
+	<style id="engraver"          name="Engraver"          map-to="def:type"/>
+	<style id="layout-var"        name="Layout Variable"   map-to="def:type"/>
+	<style id="layout-object"     name="Layout Object"     map-to="def:special-char"/>
+	<style id="property"          name="Property"          map-to="def:special-char"/>
+	<style id="keyword"           name="Keywords"          map-to="def:keyword"/>
+</styles>
 
-    <!-- Comment -->
-    <context id="comment" style-ref="comment">
-      <start>%</start>
-      <end>$</end>
-      <include>
-        <context ref="def:in-comment"/>
-      </include>
-    </context>
+<!--things I might plinK up:
+	I've still not found all procedures/functions so uh. yeah
+	maybe keyword highlight this type of shit:
+		Bar_engraver.segnoStyle: bar-line mark
+		Timing_translator.alternativeNumberingStyle: numbers numbers-with-letters
+		Dynamic_engraver.crescendoSpanner & decrescendoSpanner: hairpin text
+		Clef_engraver.(cue)clefTranspositionStyle: bracketed default parenthesized
+		Breathing_sign_engraver.breathMarkType: see the NotRef annex
+		Piano_pedal_engraver.pedal*Style: bracket mixed text
+		Accidental_engraver.accidentalGrouping: 'voice
+		Staff_performer.midiChannelMapping: instrument staff voice
+		handleNegativeFrets (IR 2.3): 'ignore 'include 'recalculate
+		partCombineForced (   | |  ): apart chords solo1 solo2 unisono
+		Accidental.avoid-slur: around ignore inside outside
+		BarNumber.font-family: roman sans
+		BendSpanner.font-encoding: fetaBraces fetaMusic fetaText
+		    | |    .font-shape: caps italic upright
+			*for style ctrl+f style in NotRef big html
+		CombineTextScript.font-series: bold bold-narrow medium (see atkinson for more?)
+		MetronomeMark.flag-style: 'default flat-flag mensural 'modern-straight-flag 'old-straight-flag
+		NonMusicalPaperColumn.line/page-break-permission: allow force
+		StringNumber.number-type: arabic roman-ij-lower roman-ij-upper roman-lower roman-upper
+		System.outside-staff-placement-directive: left-to-right-greedy/polite right-to-left-greedy/polite
+		break-align-symbol (break-alignment-interface): ambitus breathing-sign clef cue-clef cue-end-clef custos key-cancellation
+			key-signature left-edge signum-repetitionis staff-bar staff-ellipsis time-signature
+		grob-interface.whiteout-style: 'box 'outline 'rounded-box 'special (for LyricHyphen)
+	might wanna duration and articulation and keyword highlight ancient shit (notref 2.9)
+	StaffHighlight not highlighted in LilyDoc
+	Timing not highlighted in lilydoc
+-->
+<!--TODO:
+	-reindent with spaces ig
+-->
 
-    <!-- Keywords -->
-    <context id="keyword" style-ref="keyword" class="no-spell-check">
- 
-      <prefix>\\</prefix>
- 
-      <keyword>abs-fontsize</keyword>
-      <keyword>absolute</keyword>
-      <keyword>accent</keyword>
-      <keyword>accepts</keyword>
-      <keyword>acciaccatura</keyword>
-      <keyword>accidentalStyle</keyword>
-      <keyword>addChordShape</keyword>
-      <keyword>addInstrumentDefinition</keyword>
-      <keyword>addlyrics</keyword>
-      <keyword>addQuote</keyword>
-      <keyword>aeolian</keyword>
-      <keyword>afterGrace</keyword>
-      <keyword>aikenHeads</keyword>
-      <keyword>aikenHeadsMinor</keyword>
-      <keyword>alias</keyword>
-      <keyword>allowPageTurn</keyword>
-      <keyword>alterBroken</keyword>
-      <keyword>alternative</keyword>
-      <keyword>appendToTag</keyword>
-      <keyword>appoggiatura</keyword>
-      <keyword>arpeggio</keyword>
-      <keyword>arpeggioArrowDown</keyword>
-      <keyword>arpeggioArrowUp</keyword>
-      <keyword>arpeggioBracket</keyword>
-      <keyword>arpeggioNormal</keyword>
-      <keyword>arpeggioParenthesis</keyword>
-      <keyword>arpeggioParenthesisDashed</keyword>
-      <keyword>arrow-head</keyword>
-      <keyword>ascendens</keyword>
-      <keyword>auctum</keyword>
-      <keyword>augmentum</keyword>
-      <keyword>auto-footnote</keyword>
-      <keyword>autoBeamOff</keyword>
-      <keyword>autoBeamOn</keyword>
-      <keyword>autochange</keyword>
-      <keyword>backslashed-digit</keyword>
-      <keyword>balloonGrobText</keyword>
-      <keyword>balloonLengthOff</keyword>
-      <keyword>balloonLengthOn</keyword>
-      <keyword>balloonText</keyword>
-      <keyword>bar</keyword>
-      <keyword>barNumberCheck</keyword>
-      <keyword>beam</keyword>
-      <keyword>bendAfter</keyword>
-      <keyword>bold</keyword>
-      <keyword>book</keyword>
-      <keyword>bookOutputName</keyword>
-      <keyword>bookOutputSuffix</keyword>
-      <keyword>bookpart</keyword>
-      <keyword>box</keyword>
-      <keyword>bracket</keyword>
-      <keyword>break</keyword>
-      <keyword>breathe</keyword>
-      <keyword>breve</keyword>
-      <keyword>cadenzaOff</keyword>
-      <keyword>cadenzaOn</keyword>
-      <keyword>caesura</keyword>
-      <keyword>caps</keyword>
-      <keyword>cavum</keyword>
-      <keyword>center-align</keyword>
-      <keyword>center-column</keyword>
-      <keyword>change</keyword>
-      <keyword>char</keyword>
-      <keyword>chordmode</keyword>
-      <keyword>chordRepeats</keyword>
-      <keyword>chords</keyword>
-      <keyword>circle</keyword>
-      <keyword>clef</keyword>
-      <keyword>cm</keyword>
-      <keyword>coda</keyword>
-      <keyword>column</keyword>
-      <keyword>column-lines</keyword>
-      <keyword>combine</keyword>
-      <keyword>compoundMeter</keyword>
-      <keyword>compressFullBarRests</keyword>
-      <keyword>concat</keyword>
-      <keyword>consists</keyword>
-      <keyword>context</keyword>
-      <keyword>cr</keyword>
-      <keyword>cresc</keyword>
-      <keyword>crescHairpin</keyword>
-      <keyword>crescTextCresc</keyword>
-      <keyword>crossStaff</keyword>
-      <keyword>cueClef</keyword>
-      <keyword>cueDuring</keyword>
-      <keyword>cueDuringWithClef</keyword>
-      <keyword>customTabClef</keyword>
-      <keyword>decr</keyword>
-      <keyword>decresc</keyword>
-      <keyword>defaultchild</keyword>
-      <keyword>defaultTimeSignature</keyword>
-      <keyword>defineBarLine</keyword>
-      <keyword>deminutum</keyword>
-      <keyword>denies</keyword>
-      <keyword>descendens</keyword>
-      <keyword>dim</keyword>
-      <keyword>dimHairpin</keyword>
-      <keyword>dimTextDecr</keyword>
-      <keyword>dimTextDecresc</keyword>
-      <keyword>dimTextDim</keyword>
-      <keyword>dir-column</keyword>
-      <keyword>discant</keyword>
-      <keyword>displayLilyMusic</keyword>
-      <keyword>divisioMaior</keyword>
-      <keyword>divisioMaxima</keyword>
-      <keyword>divisioMinima</keyword>
-      <keyword>dorian</keyword>
-      <keyword>dotsDown</keyword>
-      <keyword>dotsNeutral</keyword>
-      <keyword>dotsUp</keyword>
-      <keyword>doubleflat</keyword>
-      <keyword>doublesharp</keyword>
-      <keyword>downbow</keyword>
-      <keyword>downmordent</keyword>
-      <keyword>downprall</keyword>
-      <keyword>draw-circle</keyword>
-      <keyword>draw-dashed-line</keyword>
-      <keyword>draw-dotted-line</keyword>
-      <keyword>draw-hline</keyword>
-      <keyword>draw-line</keyword>
-      <keyword>drummode</keyword>
-      <keyword>dynamic</keyword>
-      <keyword>dynamicDown</keyword>
-      <keyword>dynamicNeutral</keyword>
-      <keyword>dynamicUp</keyword>
-      <keyword>easyHeadsOff</keyword>
-      <keyword>easyHeadsOn</keyword>
-      <keyword>ellipse</keyword>
-      <keyword>epsfile</keyword>
-      <keyword>espressivo</keyword>
-      <keyword>expandFullBarRests</keyword>
-      <keyword>eyeglasses</keyword>
-      <keyword>f</keyword>
-      <keyword>featherDurations</keyword>
-      <keyword>fermata</keyword>
-      <keyword>fermataMarkup</keyword>
-      <keyword>ff</keyword>
-      <keyword>fff</keyword>
-      <keyword>ffff</keyword>
-      <keyword>fffff</keyword>
-      <keyword>fill-line</keyword>
-      <keyword>fill-with-pattern</keyword>
-      <keyword>filled-box</keyword>
-      <keyword>finalis</keyword>
-      <keyword>finger</keyword>
-      <keyword>flageolet</keyword>
-      <keyword>flat</keyword>
-      <keyword>flexa</keyword>
-      <keyword>fontCaps</keyword>
-      <keyword>fontsize</keyword>
-      <keyword>footnote</keyword>
-      <keyword>fp</keyword>
-      <keyword>fraction</keyword>
-      <keyword>freeBass</keyword>
-      <keyword>frenchChords</keyword>
-      <keyword>fret-diagram</keyword>
-      <keyword>fret-diagram-terse</keyword>
-      <keyword>fret-diagram-verbose</keyword>
-      <keyword>fromproperty</keyword>
-      <keyword>funkHeads</keyword>
-      <keyword>funkHeadsMinor</keyword>
-      <keyword>general-align</keyword>
-      <keyword>germanChords</keyword>
-      <keyword>glissando</keyword>
-      <keyword>grace</keyword>
-      <keyword>halfopen</keyword>
-      <keyword>halign</keyword>
-      <keyword>harmonic</keyword>
-      <keyword>harmonicByFret</keyword>
-      <keyword>harmonicByRatio</keyword>
-      <keyword>harmonicsOff</keyword>
-      <keyword>harmonicsOn</keyword>
-      <keyword>harp-pedal</keyword>
-      <keyword>hbracket</keyword>
-      <keyword>hcenter-in</keyword>
-      <keyword>header</keyword>
-      <keyword>hide</keyword>
-      <keyword>hideKeySignature</keyword>
-      <keyword>hideNotes</keyword>
-      <keyword>hideSplitTiedTabNotes</keyword>
-      <keyword>hideStaffSwitch</keyword>
-      <keyword>hspace</keyword>
-      <keyword>huge</keyword>
-      <keyword>improvisationOff</keyword>
-      <keyword>improvisationOn</keyword>
-      <keyword>in</keyword>
-      <keyword>inclinatum</keyword>
-      <keyword>inStaffSegno</keyword>
-      <keyword>instrumentSwitch</keyword>
-      <keyword>inversion</keyword>
-      <keyword>ionian</keyword>
-      <keyword>italianChords</keyword>
-      <keyword>italic</keyword>
-      <keyword>justified-lines</keyword>
-      <keyword>justify</keyword>
-      <keyword>justify-field</keyword>
-      <keyword>justify-string</keyword>
-      <keyword>keepWithTag</keyword>
-      <keyword>key</keyword>
-      <keyword>killCues</keyword>
-      <keyword>label</keyword>
-      <keyword>laissezVibrer</keyword>
-      <keyword>large</keyword>
-      <keyword>larger</keyword>
-      <keyword>layout</keyword>
-      <keyword>left-align</keyword>
-      <keyword>left-brace</keyword>
-      <keyword>left-column</keyword>
-      <keyword>lheel</keyword>
-      <keyword>line</keyword>
-      <keyword>linea</keyword>
-      <keyword>lineprall</keyword>
-      <keyword>locrian</keyword>
-      <keyword>longa</keyword>
-      <keyword>longfermata</keyword>
-      <keyword>lookup</keyword>
-      <keyword>lower</keyword>
-      <keyword>ltoe</keyword>
-      <keyword>lydian</keyword>
-      <keyword>lyricmode</keyword>
-      <keyword>lyricsto</keyword>
-      <keyword>magnify</keyword>
-      <keyword>major</keyword>
-      <keyword>makeClusters</keyword>
-      <keyword>map-markup-commands</keyword>
-      <keyword>marcato</keyword>
-      <keyword>mark</keyword>
-      <keyword>markalphabet</keyword>
-      <keyword>markLengthOff</keyword>
-      <keyword>markLengthOn</keyword>
-      <keyword>markletter</keyword>
-      <keyword>markup</keyword>
-      <keyword>markuplist</keyword>
-      <keyword>maxima</keyword>
-      <keyword>medium</keyword>
-      <keyword>melisma</keyword>
-      <keyword>melismaEnd</keyword>
-      <keyword>mergeDifferentlyDottedOff</keyword>
-      <keyword>mergeDifferentlyDottedOn</keyword>
-      <keyword>mergeDifferentlyHeadedOff</keyword>
-      <keyword>mergeDifferentlyHeadedOn</keyword>
-      <keyword>mf</keyword>
-      <keyword>midi</keyword>
-      <keyword>minor</keyword>
-      <keyword>mixolydian</keyword>
-      <keyword>mm</keyword>
-      <keyword>modalInversion</keyword>
-      <keyword>modalTranspose</keyword>
-      <keyword>mordent</keyword>
-      <keyword>mp</keyword>
-      <keyword>musicglyph</keyword>
-      <keyword>name</keyword>
-      <keyword>natural</keyword>
-      <keyword>new</keyword>
-      <keyword>newSpacingSection</keyword>
-      <keyword>noBeam</keyword>
-      <keyword>noBreak</keyword>
-      <keyword>noPageBreak</keyword>
-      <keyword>noPageTurn</keyword>
-      <keyword>normal-size-sub</keyword>
-      <keyword>normal-size-super</keyword>
-      <keyword>normal-text</keyword>
-      <keyword>normalsize</keyword>
-      <keyword>note</keyword>
-      <keyword>note-by-number</keyword>
-      <keyword>null</keyword>
-      <keyword>number</keyword>
-      <keyword>numericTimeSignature</keyword>
-      <keyword>octaveCheck</keyword>
-      <keyword>omit</keyword>
-      <keyword>on-the-fly</keyword>
-      <keyword>once</keyword>
-      <keyword>oneVoice</keyword>
-      <keyword>open</keyword>
-      <keyword>oriscus</keyword>
-      <keyword>ottava</keyword>
-      <keyword>oval</keyword>
-      <keyword>override</keyword>
-      <keyword>override-lines</keyword>
-      <keyword>overrideProperty</keyword>
-      <keyword>overrideTimeSignatureSettings</keyword>
-      <keyword>p</keyword>
-      <keyword>pad-around</keyword>
-      <keyword>pad-markup</keyword>
-      <keyword>pad-to-box</keyword>
-      <keyword>pad-x</keyword>
-      <keyword>page-link</keyword>
-      <keyword>page-ref</keyword>
-      <keyword>pageBreak</keyword>
-      <keyword>pageTurn</keyword>
-      <keyword>paper</keyword>
-      <keyword>parallelMusic</keyword>
-      <keyword>parenthesize</keyword>
-      <keyword>partcombine</keyword>
-      <keyword>partcombine et paroles</keyword>
-      <keyword>partcombineApart</keyword>
-      <keyword>partcombineAutomatic</keyword>
-      <keyword>partcombineChords</keyword>
-      <keyword>partcombineSoloI</keyword>
-      <keyword>partcombineSoloII</keyword>
-      <keyword>partcombineUnisono</keyword>
-      <keyword>partial</keyword>
-      <keyword>path</keyword>
-      <keyword>pattern</keyword>
-      <keyword>pes</keyword>
-      <keyword>phrasingSlurDashed</keyword>
-      <keyword>phrasingSlurDashPattern</keyword>
-      <keyword>phrasingSlurDotted</keyword>
-      <keyword>phrasingSlurDown</keyword>
-      <keyword>phrasingSlurHalfDashed</keyword>
-      <keyword>phrasingSlurHalfSolid</keyword>
-      <keyword>phrasingSlurNeutral</keyword>
-      <keyword>phrasingSlurSolid</keyword>
-      <keyword>phrasingSlurUp</keyword>
-      <keyword>phrygian</keyword>
-      <keyword>pitchedTrill</keyword>
-      <keyword>portato</keyword>
-      <keyword>postscript</keyword>
-      <keyword>powerChords</keyword>
-      <keyword>pp</keyword>
-      <keyword>ppp</keyword>
-      <keyword>pppp</keyword>
-      <keyword>ppppp</keyword>
-      <keyword>prall</keyword>
-      <keyword>pralldown</keyword>
-      <keyword>prallmordent</keyword>
-      <keyword>prallprall</keyword>
-      <keyword>prallup</keyword>
-      <keyword>predefinedFretboardsOff</keyword>
-      <keyword>predefinedFretboardsOn</keyword>
-      <keyword>property-recursive</keyword>
-      <keyword>pt</keyword>
-      <keyword>pushToTag</keyword>
-      <keyword>put-adjacent</keyword>
-      <keyword>quilisma</keyword>
-      <keyword>quoteDuring</keyword>
-      <keyword>raise</keyword>
-      <keyword>relative</keyword>
-      <keyword>RemoveEmptyStaves</keyword>
-      <keyword>removeWithTag</keyword>
-      <keyword>repeat</keyword>
-      <keyword>repeat percent</keyword>
-      <keyword>repeat tremolo</keyword>
-      <keyword>repeat unfold</keyword>
-      <keyword>repeatTie</keyword>
-      <keyword>replace</keyword>
-      <keyword>rest</keyword>
-      <keyword>rest-by-number</keyword>
-      <keyword>retrograde</keyword>
-      <keyword>reverseturn</keyword>
-      <keyword>revert</keyword>
-      <keyword>revertTimeSignatureSettings</keyword>
-      <keyword>rfz</keyword>
-      <keyword>rheel</keyword>
-      <keyword>right-align</keyword>
-      <keyword>right-brace</keyword>
-      <keyword>right-column</keyword>
-      <keyword>rightHandFinger</keyword>
-      <keyword>roman</keyword>
-      <keyword>rotate</keyword>
-      <keyword>rounded-box</keyword>
-      <keyword>rtoe</keyword>
-      <keyword>sacredHarpHeads</keyword>
-      <keyword>sacredHarpHeadsMinor</keyword>
-      <keyword>sans</keyword>
-      <keyword>scale</keyword>
-      <keyword>scaleDurations</keyword>
-      <keyword>score</keyword>
-      <keyword>segno</keyword>
-      <keyword>semiflat</keyword>
-      <keyword>semiGermanChords</keyword>
-      <keyword>semisharp</keyword>
-      <keyword>sesquiflat</keyword>
-      <keyword>sesquisharp</keyword>
-      <keyword>set</keyword>
-      <keyword>sf</keyword>
-      <keyword>sff</keyword>
-      <keyword>sfz</keyword>
-      <keyword>shape</keyword>
-      <keyword>sharp</keyword>
-      <keyword>shiftOff</keyword>
-      <keyword>shiftOn</keyword>
-      <keyword>shiftOnn</keyword>
-      <keyword>shiftOnnn</keyword>
-      <keyword>shortfermata</keyword>
-      <keyword>showKeySignature</keyword>
-      <keyword>showStaffSwitch</keyword>
-      <keyword>signumcongruentiae</keyword>
-      <keyword>simple</keyword>
-      <keyword>skip</keyword>
-      <keyword>slashed-digit</keyword>
-      <keyword>slashedGrace</keyword>
-      <keyword>slurDashed</keyword>
-      <keyword>slurDashPattern</keyword>
-      <keyword>slurDotted</keyword>
-      <keyword>slurDown</keyword>
-      <keyword>slurHalfDashed</keyword>
-      <keyword>slurHalfSolid</keyword>
-      <keyword>slurNeutral</keyword>
-      <keyword>slurSolid</keyword>
-      <keyword>slurUp</keyword>
-      <keyword>small</keyword>
-      <keyword>smallCaps</keyword>
-      <keyword>smaller</keyword>
-      <keyword>snappizzicato</keyword>
-      <keyword>sostenutoOff</keyword>
-      <keyword>sostenutoOn</keyword>
-      <keyword>southernHarmonyHeads</keyword>
-      <keyword>southernHarmonyHeadsMinor</keyword>
-      <keyword>sp</keyword>
-      <keyword>spp</keyword>
-      <keyword>staccatissimo</keyword>
-      <keyword>staccato</keyword>
-      <keyword>startGroup</keyword>
-      <keyword>startStaff</keyword>
-      <keyword>startTrillSpan</keyword>
-      <keyword>stdBass</keyword>
-      <keyword>stdBassIV</keyword>
-      <keyword>stdBassV</keyword>
-      <keyword>stdBassVI</keyword>
-      <keyword>stemDown</keyword>
-      <keyword>stemNeutral</keyword>
-      <keyword>stemUp</keyword>
-      <keyword>stencil</keyword>
-      <keyword>stopGroup</keyword>
-      <keyword>stopped</keyword>
-      <keyword>stopStaff</keyword>
-      <keyword>stopTrillSpan</keyword>
-      <keyword>storePredefinedDiagram</keyword>
-      <keyword>stringTuning</keyword>
-      <keyword>stropha</keyword>
-      <keyword>strut</keyword>
-      <keyword>sub</keyword>
-      <keyword>super</keyword>
-      <keyword>sustainOff</keyword>
-      <keyword>sustainOn</keyword>
-      <keyword>tabChordRepeats</keyword>
-      <keyword>tabFullNotation</keyword>
-      <keyword>table-of-contents</keyword>
-      <keyword>tag</keyword>
-      <keyword>taor</keyword>
-      <keyword>teeny</keyword>
-      <keyword>tempo</keyword>
-      <keyword>tenuto</keyword>
-      <keyword>text</keyword>
-      <keyword>textLengthOff</keyword>
-      <keyword>textLengthOn</keyword>
-      <keyword>textSpannerDown</keyword>
-      <keyword>textSpannerNeutral</keyword>
-      <keyword>textSpannerUp</keyword>
-      <keyword>thumb</keyword>
-      <keyword>tied-lyric</keyword>
-      <keyword>tieDashed</keyword>
-      <keyword>tieDotted</keyword>
-      <keyword>tieDown</keyword>
-      <keyword>tieNeutral</keyword>
-      <keyword>tieSolid</keyword>
-      <keyword>tieUp</keyword>
-      <keyword>time</keyword>
-      <keyword>times</keyword>
-      <keyword>tiny</keyword>
-      <keyword>tocItem</keyword>
-      <keyword>translate</keyword>
-      <keyword>translate-scaled</keyword>
-      <keyword>transparent</keyword>
-      <keyword>transpose</keyword>
-      <keyword>transposedCueDuring</keyword>
-      <keyword>transposition</keyword>
-      <keyword>treCorde</keyword>
-      <keyword>triangle</keyword>
-      <keyword>trill</keyword>
-      <keyword>tuplet</keyword>
-      <keyword>tupletDown</keyword>
-      <keyword>tupletNeutral</keyword>
-      <keyword>tupletUp</keyword>
-      <keyword>turn</keyword>
-      <keyword>tweak</keyword>
-      <keyword>type</keyword>
-      <keyword>typewriter</keyword>
-      <keyword>unaCorda</keyword>
-      <keyword>underline</keyword>
-      <keyword>unfoldRepeats</keyword>
-      <keyword>unHideNotes</keyword>
-      <keyword>unset</keyword>
-      <keyword>upbow</keyword>
-      <keyword>upmordent</keyword>
-      <keyword>upprall</keyword>
-      <keyword>upright</keyword>
-      <keyword>varcoda</keyword>
-      <keyword>vcenter</keyword>
-      <keyword>verbatim-file</keyword>
-      <keyword>verylongfermata</keyword>
-      <keyword>virga</keyword>
-      <keyword>virgula</keyword>
-      <keyword>voiceFourStyle</keyword>
-      <keyword>voiceNeutralStyle</keyword>
-      <keyword>voiceOne</keyword>
-      <keyword>voiceTwo</keyword>
-      <keyword>voiceThree</keyword>
-      <keyword>voiceFour</keyword>
-      <keyword>voiceOneStyle</keyword>
-      <keyword>voiceThreeStyle</keyword>
-      <keyword>voiceTwoStyle</keyword>
-      <keyword>void</keyword>
-      <keyword>vspace</keyword>
-      <keyword>walkerHeads</keyword>
-      <keyword>walkerHeadsMinor</keyword>
-      <keyword>whiteout</keyword>
-      <keyword>with</keyword>
-      <keyword>with-color</keyword>
-      <keyword>with-dimensions</keyword>
-      <keyword>with-link</keyword>
-      <keyword>with-url</keyword>
-      <keyword>woodwind-diagram</keyword>
-      <keyword>wordwrap</keyword>
-      <keyword>wordwrap-field</keyword>
-      <keyword>wordwrap-internal</keyword>
-      <keyword>wordwrap-lines</keyword>
-      <keyword>wordwrap-string</keyword>
-      <keyword>wordwrap-string-internal</keyword>
+<definitions>
+	<context id="lilypond">
+		<include>
 
-    </context>
+		<context id="block-comment" style-ref="comment" class="comment">
+			<start>%{</start>
+			<end>%}</end>
+			<include>
+				<context ref="def:in-comment"/>
+			</include>
+		</context>
 
-    <!-- Header -->
-    <context id="header" style-ref="header">
-      <keyword>arranger</keyword>
-      <keyword>composer</keyword>
-      <keyword>copyright</keyword>
-      <keyword>dedication</keyword>
-      <keyword>instrument</keyword>
-      <keyword>meter</keyword>
-      <keyword>opus</keyword>
-      <keyword>piece</keyword>
-      <keyword>poet</keyword>
-      <keyword>subtitle</keyword>
-      <keyword>subsubtitle</keyword>
-      <keyword>tagline</keyword>
-      <keyword>title</keyword>
-    </context>
+		<context id="comment" style-ref="comment" end-at-line-end="true" class="comment">
+			<start>%</start>
+			<include>
+				<context ref="def:in-comment"/>
+			</include>
+		</context>
 
-    <!-- String -->
-    <context id="string" end-at-line-end="true" style-ref="string">
-      <start>"</start>
-      <end>"</end>
-      <include>
-        <context id="escape" style-ref="escaped-character">
-          <match>\\.</match>
-        </context>
-      </include>
-    </context>
+		<context id="string" style-ref="string" end-parent="true">
+				<!--lookbehinds are so "\" causes an infinite string but not "\\"-->
+			<start>"</start>
+			<end>(?&lt;!(?&lt;!\\)\\)"</end>
+		</context>
 
-    <!-- Include -->
-    <context id="include" class="no-spell-check">
-      <match>(\\(include))\b(\[.*\])?(\{.*\})?</match>
-      <include>
-        <context sub-pattern="1" style-ref="include"/>
-      </include>
-    </context>
+		<context id="boolean" style-ref="keyword">
+			<match>(?&lt;=#)(t|f)\b</match>
+		</context>
+		
+	<!--DURATIONS, NUMBERS, OTHER SPECIAL TEXT CHARACTERS-->
 
-    <context id="lilypond">
-      <include>
-        <context ref="comment"/>
-        <context ref="include"/>
-        <context ref="header"/>
-        <context ref="string"/>
-        <context ref="keyword"/>
-      </include>
-    </context>
+		<context id="number" style-ref="duration">
+				<!--fractions, floats, regular numbers, durations-->
+			<match extended="true">
+				((\+|-)?[0-9]+)?(\.[0-9]+)+ | #floats
+				(\+|-)?[0-9]+\.* |            #durations
+				(\^|_)[0-9]+ |                #fingerings
+				\*(?=(\+|-)?[0-9]) |          #asterisks
+				\/(?=(\+|-)?[0-9])            #slashes
+			</match>
+		</context>
 
-  </definitions>
+		<context id="more-durations" class="no-spell-check" style-ref="duration">
+				<!--durations that are words-->
+			<prefix>\\</prefix>
+			<keyword>augmentum</keyword>
+			<keyword>breve</keyword>
+			<keyword>longa</keyword>
+			<keyword>maxima</keyword>
+		</context>
+
+		<context id="measurement" style-ref="special-text">
+				<!--the measurements lilypond accepts. specifically:
+				centimetres, milimitres, inches, points, and big points-->
+			<match>(?&lt;=[0-9])\\(cm|mm|in|pt|bp)</match>
+		</context>
+
+		<context id="chord-mode" class="no-spell-check" style-ref="special-text">
+			<match>(?&lt;=\:)(aug|dim|maj|m|sus)</match>
+		</context>
+		
+		<context id="encode" style-ref="special-text">
+				<!--#x**** form unicode-->
+			<match>(?&lt;=#)x\w{4}</match>
+		</context>
+		
+		<context id="encode-more" style-ref="special-text">
+				<!--&****; form unicode-->
+			<match>&amp;[A-Za-z0-9]+;</match>
+		</context>
+		
+		<context id="all-caps-stuff" style-ref="special-text">
+			<match extended="true">
+				(?&lt;=\#|,)(
+				CENTER|DOWN|LEFT|RIGHT|UP|START|STOP|
+				NATURAL|((DOUBLE|(FIVE|SEVEN)-HALF|SEMI|THREE-Q)-)?(FLAT|SHARP)|SEMI-TONE|
+				X|Y
+				)
+			</match>
+		</context>
+		
+	<!--COMMONLY SEEN KEYWORDS, PREDICATES-->
+
+		<context id="repeat-types" class="no-spell-check" style-ref="keyword">
+				<!--valid values for \repeat
+				idk how to make it work with new lines-->
+			<match>(?&lt;=\\repeat\s)\s*(percent|segno|tremolo|unfold|volta)\b</match>
+		</context>
+
+		<context id="clef-types" class="no-spell-check" style-ref="keyword">
+				<!--valid values for \clef that aren't just strings
+				idk how to make it work with new lines-->
+			<match extended="true">
+				(?&lt;=\\clef\s)\s*(
+				alto(varC)? | baritone(var(C|F))? | C | french | F |
+				G(G)? | (mezzo)?soprano | (modern)?tab | (sub)?bass |
+				tenor(G|varC)? | treble | var(baritone|C) |
+				(var)?percussion | violin
+				)\b
+			</match>
+		</context>
+
+		<context id="predicates" class="no-spell-check" style-ref="keyword">
+			<suffix>\?</suffix>
+				<!--R5RS primary-->
+			<keyword>boolean</keyword>
+			<keyword>char</keyword>
+			<keyword>complex</keyword>
+			<keyword>eof-object</keyword>
+			<keyword>((in|out)put-)?port</keyword> <!--port-->
+			<keyword>integer</keyword>
+			<keyword>list</keyword>
+			<keyword>null</keyword>
+			<keyword>pair</keyword>
+			<keyword>procedure</keyword>
+			<keyword>rational</keyword>
+			<keyword>real</keyword>
+			<keyword>string</keyword>
+			<keyword>symbol</keyword>
+			<keyword>vector</keyword>
+				<!--R5RS secondary-->
+			<keyword>char-(alphabetic|(lower|upper)-case|numeric|whitespace)</keyword>
+			<keyword>even</keyword>
+			<keyword>(in)?exact</keyword> <!--exact, inexact-->
+			<keyword>(nega|posi)tive</keyword> <!--negative, positive-->
+			<keyword>odd</keyword>
+			<keyword>zero</keyword>
+				<!--guile-->
+			<keyword>hash-table</keyword>
+				<!--ly scheme-->
+			<keyword>boolean-or-symbol</keyword>
+			<keyword>(cheap|grob)-list</keyword> <!-- -list-->
+			<keyword>color</keyword>
+			<keyword>exact-rational</keyword>
+			<keyword>fraction</keyword>
+			<keyword>index(-or-markup)?</keyword>
+			<keyword>key(-list(-or-(music|symbol))?)?</keyword>
+			<keyword>markup((-command)?-list)?</keyword>
+			<keyword>moment-pair</keyword>
+			<keyword>number-(list|or-(grob|pair|string)|pair(-list)?)</keyword>
+			<keyword>rational-or-procedure</keyword>
+			<keyword>rhythmic-location</keyword>
+			<keyword>scale</keyword>
+			<keyword>scheme</keyword>
+			<keyword>string-or-(music|pair|symbol)</keyword>
+			<keyword>(symbol-key-)?alist</keyword> <!--alist-->
+			<keyword>symbol-list(-or-(music|symbol))?</keyword>
+			<keyword>void</keyword>
+		</context>
+		
+		<context id="lily-preds" class="no-spell-check" style-ref="keyword">
+			<prefix>ly:</prefix>
+			<suffix>\?</suffix>
+				<!--ly exported predicates-->
+			<keyword>book</keyword>
+			<keyword>context(-(def|mod))?</keyword>
+			<keyword>dimension</keyword>
+			<keyword>dir</keyword>
+			<keyword>dispatcher</keyword>
+			<keyword>duration</keyword>
+			<keyword>event</keyword>
+			<keyword>font-metric</keyword>
+			<keyword>grob(-(array|properties))?</keyword>
+			<keyword>input-location</keyword>
+			<keyword>item</keyword>
+			<keyword>iterator</keyword>
+			<keyword>lily-(lexer|parser)</keyword>
+			<keyword>listener</keyword>
+			<keyword>moment</keyword>
+			<keyword>music(-(function|list|output))?</keyword>
+			<keyword>(otf|pango)-font</keyword> <!-- -font-->
+			<keyword>output-def</keyword>
+			<keyword>page-marker</keyword>
+			<keyword>paper-(book|system)</keyword>
+			<keyword>pitch</keyword>
+			<keyword>prob</keyword>
+			<keyword>score</keyword>
+			<keyword>skyline(-pair)?</keyword>
+			<keyword>source-file</keyword>
+			<keyword>spanner</keyword>
+			<keyword>spring</keyword>
+			<keyword>stencil</keyword>
+			<keyword>stream-event</keyword>
+			<keyword>transform</keyword>
+			<keyword>translator(-group)?</keyword>
+			<keyword>unpure-pure-container</keyword>
+		</context>
+		
+	<!--FUNCTIONS AND PREDICATES USED IN SCHEME STUFF-->
+
+		<context id="sch-func" class="no-spell-check" style-ref="function">
+				<!--should capture ~510 of ~750 functions
+				I might have to manually list the remaining ~240 but like. please no-->
+			<match extended="true">
+				(^|(?&lt;=_|\W))(
+				ly:\w+(-\w+)*((::|-&gt;)\w+(-\w+)*)?(&lt;?\?|!)?| #ly:***
+				\w+(-\w+)*(::|-&gt;)\w+(-\w+)*|                   #***::***, ***->***
+				\w+(-\w+)+(&lt;?\?|!)                             #***? ***&lt;? ***!
+				)
+			</match>
+		</context>
+		
+		<context id="sch-func-elec-boog" class="no-spell-check" style-ref="function">
+			<prefix>(?&lt;![\w\d_-])</prefix>
+			<suffix>(?![\w\d_-])</suffix>
+				<!--[narrator] they did in fact have to list the remaining 240
+				taken from IntRef A.2 which also just has the Span_stem_engraver engraver in there??
+				just chilling?? idk why it's there but it's already in the engravers list so i've
+				left it out of this list
+				some of them are split into two or more lines due to being too chonky to fit in one-->
+			<keyword>add-(bar-glyph-print-procedure|grace-property|music-fonts)</keyword> <!--add- pt 1-->
+			<keyword>add-(new-clef|simple-time-signature-style|stroke-(glyph|straight))</keyword> <!--add- pt 2-->
+			<keyword>allow-volta-hook</keyword>
+			<keyword>alterations-in-key</keyword>
+			<keyword>angle-0-(2pi|360)</keyword>
+			<keyword>arrow-stencil(-maker)?</keyword>
+			<keyword>at-bar-line-substitute-caesura-type</keyword>
+			<keyword>(base|mmrest-of)-length</keyword> <!-- -length-->
+			<keyword>(beam|sequential-music-to-chord)-exceptions</keyword> <!-- -exceptions-->
+			<keyword>beat-structure</keyword>
+			<keyword>book-first-page</keyword>
+			<keyword>(box(-grob)?|bracketify|centered|circle|ellipse|flip)-stencil</keyword> <!-- -stencil pt 1-->
+			<keyword>(generate-(crop|preview)|hook|oval|parenthesize|rounded-box)-stencil</keyword> <!-- -stencil pt 2-->
+			<keyword>break-alignment-list</keyword>
+			<keyword>caesura-to-(bar-line-or-)?divisio</keyword>
+			<keyword>calc-harmonic-pitch</keyword>
+			<keyword>(chain-)?assoc-get</keyword> <!--assoc-get-->
+			<keyword>change-pitches</keyword>
+			<keyword>check-(context|grob|music)-path</keyword>
+			<keyword>(clef-transposition|interpret)-markup</keyword> <!-- -markup-->
+			<keyword>collect-(bookpart|(book-)?music)-for-book</keyword>
+			<keyword>collect-music-aux</keyword>
+			<keyword>comparator-from-key</keyword>
+			<keyword>construct-chord-elements</keyword>
+			<keyword>context-spec-music</keyword>
+			<keyword>copy-repeat-chord</keyword>
+			<keyword>(count|flatten|uniq)-list</keyword> <!-- -list-->
+			<keyword>cross-staff-connect</keyword>
+			<keyword>cue-substitute</keyword>
+			<keyword>cyclic-base-value</keyword>
+			<keyword>(default|flat|mensural|((modern|old)-)?straight|no(rmal)?|((create|retrieve)-)?glyph)-flag</keyword> <!-- -flag-->
+			<keyword>define-(bar-line|event-(class|function)|fonts)</keyword> <!--define- pt 1-->
+			<keyword>define-(markup(-list)?-command|(music|scheme|syntax|void)-function|tag-group)</keyword> <!--define- pt 2-->
+			<keyword>descend-to-context</keyword>
+			<keyword>determine-(split-list|string-fret-finger)</keyword>
+			<keyword>dir-basename</keyword>
+			<keyword>display-((lily|scheme)-)?music</keyword>
+			<keyword>(dodecaphonic-no-repeat|(neo-modern|teaching)-accidental)-rule</keyword> <!-- -rule-->
+			<keyword>duration-((dot|log)-factor|visual|(visual-)?length)</keyword>
+			<keyword>elbowed-hairpin</keyword>
+			<keyword>eval-carefully</keyword>
+			<keyword>event-chord-(notes|pitches|reduce)</keyword>
+			<keyword>extract-(beam-exceptions|((named|typed)-)?music)</keyword>
+			<keyword>find-(named-props|pitch-entry)</keyword>
+			<keyword>first-(assoc|member)</keyword>
+			<keyword>fret-parse-terse-definition-string</keyword>
+			<keyword>((fold|for)-some|retrograde|scorify|voicify|volta-spec)-music</keyword> <!-- -music-->
+			<keyword>font-name-split</keyword>
+			<keyword>format-segno-mark-considering-bar-lines</keyword>
+			<keyword>(function|(headers-property|prepend)-alist)-chain</keyword> <!-- -chain-->
+			<keyword>get-(bound-note-heads|chord-shape|postscript-bbox|tweakable-music)</keyword>
+			<keyword>grob-transformer</keyword>
+			<keyword>interval-(center|index|length)</keyword>
+			<keyword>invalidate-alterations</keyword>
+			<keyword>layout-(line-thickness|set-(absolute-)?staff-size)</keyword>
+			<keyword>lilypond-main</keyword>
+			<keyword>list-(insert-separator|join)</keyword>
+			<keyword>lookup-markup-command</keyword>
+			<keyword>make-(accidental-(dodecaphonic-)?rule)</keyword> <!--make- pt 1-->
+			<keyword>make-(bow|circle|(filled|transparent)-box|line|oval|(partial-)?ellipse|path)-stencil</keyword> <!--make- pt 2-->
+			<keyword>make-((c|glyph)-time-signature-markup|clef-set|connected-(line|path-stencil))</keyword> <!--make- pt 3-->
+			<keyword>make-(cue-clef-(un)?set|duration-of-length|engraver|grob-property-(override|revert|set))</keyword> <!--make- pt 4-->
+			<keyword>make-(harmonic|modal-(inverter|transposer)|music|part-combine-(context-changes|marks))</keyword> <!--make- pt 5-->
+			<keyword>make-(performer|relative|repeat|stencil-(boxer|circler)|tmpfile|translator)</keyword> <!--make- pt 6-->
+			<keyword>map-(selected-alist-keys|some-music)</keyword>
+			<keyword>marked-up-(headfoot|title)</keyword>
+			<keyword>markup(-(default-to-string-method|(list-)?lambda))?</keyword>
+			<keyword>midi-program</keyword>
+			<keyword>music-(clone|pitches|(selective-)?(filter|map)|type-predicate)</keyword>
+			<keyword>note-to-cluster</keyword>
+			<keyword>number-format</keyword>
+			<keyword>offset-fret</keyword>
+			<keyword>offsetter</keyword>
+			<keyword>override-(head-style|time-signature-setting)</keyword>
+			<keyword>pango-pf-((file|font)-name|fontindex)</keyword>
+			<keyword>parse-terse-string</keyword>
+			<keyword>percussion\?</keyword>
+			<keyword>pure-chain-offset-callback</keyword>
+			<keyword>read-lily-expression</keyword>
+			<keyword>recording-group-emulate</keyword>
+			<keyword>remove-(grace-property|whitespace)</keyword>
+			<keyword>revert-(fontSize|head-style|props)</keyword>
+			<keyword>scale-(beam-thickness|fontSize|layout|props)</keyword>
+			<keyword>select-head-glyph</keyword>
+			<keyword>set-(accidental-style|global-staff-size|output-property)</keyword>
+			<keyword>shift-(one-duration-log|right-at-line-begin)</keyword>
+			<keyword>skip-of-(length|moment-span)</keyword>
+			<keyword>split-list-by-separator</keyword>
+			<keyword>stack-(lines|stencil-line|stencils(-padding-list)?)</keyword>
+			<keyword>stencil-(true-extent|whiteout(-(box|outline))?)</keyword>
+			<keyword>style-note-heads</keyword>
+			<keyword>suggest-convert-ly-message</keyword>
+			<keyword>symbol-concatenate</keyword>
+			<keyword>tag-group-get</keyword>
+			<keyword>tags-(keep|remove)-predicate</keyword>
+			<keyword>unfold-repeats(-fully)?</keyword>
+			<keyword>unity-if-multimeasure</keyword>
+			<keyword>value-for-spanner-piece</keyword>
+			<keyword>write-me</keyword>
+		</context>
+		
+		<context id="sch-func-the-functioning" class="no-spell-check" style-ref="function">
+				<!--scheme functions that go #:aoeui and #:aoeui-aoeui-->
+			<match>(?&lt;=_|\W)#:[A-Za-z]+(-[A-Za-z]+)*</match>
+		</context>
+		
+		<context id="misc-func" class="no-spell-check" style-ref="function">
+				<!--miscellaneous functions and predefined procedures
+				yes this is a mess. no idk how to organise it. i dug through the source code
+				but i barely know any scheme give a bitch a break-->
+			<match extended="true">
+				(?&lt;!\.)(
+				(css|universal|x11)-color | ##colour functions
+				(concat|draw-circle|fontsize|hspace|line|musicglyph|null|simple|super|triangle|with-true-dimension)-markup | ##ChordGridScore
+				all-bar-numbers-visible | (every-nth|modulo)-bar-number-visible |
+				first-bar-number-invisible(-(and-no-parenthesized-bar-numbers|save-broken-bars))? | #Score.barNumberVisibility procs
+				parenthesize-stencil | ##from 3.1.141 TabNoteHead.details
+					#music-functions.scm
+				(duration|pitch)-of-note | empty-music | get-next-unique-voice-name |
+				make-(accidental-(dodecaphonic-)?rule|apply-context|event-chord|(grace|non-relative|sequential|simultaneous|skip)-music|
+					(lyric|span)-event|multi-measure-rest|property-(un)?set|type-checker|voice-props-(override|revert|set)) |
+				notes-to-clusters | outputproperty-compatibility | (override|revert)-head-style | quote-substitute | score-grace-settings |
+				set-output-property | shift-duration-log |
+					#translation-functions.scm
+				(all-repeat-counts|every-nth-repeat-count)-visible | determine-(frets|string-fret-finger) |
+				format-(bass-figure|dal-segno-text(-brief)?|mark-(((box|circle)-)?(alphabet|letters|(bar)?numbers)|generic)|metronome-markup|
+					(segno|(var)?coda)-mark) |
+				fret-letter-tablature-format | fret-number-tablature-format(-banjo)? | make-lyric-repeat-count-formatter | note-name-markup |
+				ottavation-(numbers|(simple-)?ordinals) | robust-bar-number-function | tablature-position-on-lines |
+					#output-lib.scm
+				(all|(begin|end)-of-line|center)-(in)?visible |
+				(alteration-(default|hufnagel|kievan|medicaea|mensural|vaticana)|(makam|standard)-alteration)-glyph-name-alist | arrow-stencil |
+				(constante|flared)-hairpin | (default|median)-measure-division-(chord-placement|lines)-alist | event-cause |
+				grob-interpret-markup | make-(connected-line-points|(graceless-)?rhythmic-location) | (numbered|symbol)-footnotes |
+				only-if-beamed | parenthesize-elements | (print-circled-text|pure-chain-offset)-callback |
+				rhythmic-location(-(bar-number|measure-position)|(&lt;|&gt;)?=?\?) | scale-by-font-size | script-or-side-position-cross-staff |
+					#lily-library.scm
+				(INF|ZERO)-MOMENT | PI-OVER-180 | (THREE-)?PI-OVER-TWO | (TWO-)?PI | ZERO-DURATION | add-(music|point|score|text) | alist&lt;\? |
+				binary-search | collect-scores-for-book | context-(defs|mod)-from-music | coord-(rotate(d)?|scale|translate) |
+				current-outfile-name | debugf | ellipse-radius | (empty|reverse|symmetric)-interval | (flatten|uniqued)-alist |
+				interval-(bound|end|intersection|scale|start|union|widen) | font-name-style | modified-font-metric-font-scaling | moment-min |
+				offset-(add|flip|scale) | ordered-cons | other-axis | paper-variable | print-book-with-defaults(-as-systems)? | stderr |
+				string-(encode-integer|(end|start)swith|regexp-substitute) | symbol&lt;\? | vector-for-each | version-not-seen-message
+				)
+			</match>
+		</context>
+		
+	<!--ARTICULATION AND ADJACENT-->
+
+		<context id="articulation" class="no-spell-check" style-ref="articulation">
+			<prefix>\\</prefix>
+				<!--articulation shit that doesn't take directions-->
+				<!--piano pedals-->
+			<keyword>sustain(On|Off)</keyword>
+			<keyword>sostenuto(On|Off)</keyword>
+			<keyword>unaCorda</keyword>
+			<keyword>treCorde</keyword>
+				<!--ancient-->
+			<keyword>episem(Finis|Initium)</keyword>
+				<!--¯\_(ツ)_/¯-->
+			<keyword>noBeam</keyword>
+			<keyword>repeatTie</keyword>
+			<keyword>vowelTransition</keyword>
+		</context>
+
+		<context id="long-articulation" class="no-spell-check" style-ref="articulation">
+				<!--articulation shit that DOES take direction-->
+			<match extended="true">
+				(\^|-|_)?\\(
+				accentus | ictus | (semi)?circulus | signumcongruentiae |      #-ancient
+				\( | \) | \[ | \] | accent | arpeggio | espressivo |           #-articulations
+				marcato | portato | staccatissimo | staccato | tenuto |        ##
+				(down|up)(mordent|prall) | (haydn|reverse|slash)?turn  |       #-ornaments
+				lineprall | mordent | prall(down|mordent|prall|up)? | trill |  ##
+				(down|up)bow | flageolet | glide | glissando | (half)?open |   #instrument-specific and technique
+				harmonic | (l|r)(heel|toe) | snappizzicato | stopped | thumb | ##
+				segno | (henze|very)?(long|short)?fermata | (var)?coda |       #-repeats and codas
+				(de)?cresc | dim | (end)?(de)?cr |                             #-dynamics
+				(start|stop)(Group|(Text|Trill)Span)                           #-spans
+				)
+			</match>
+		</context>
+
+		<context id="short-articulation" style-ref="articulation">
+				<!--articulation shorthands like . for staccato and > for accent-->
+			<match>(\^|-|_)(&gt;|\^|_|\.|-|\+|!)</match>
+		</context>
+
+		<context id="misc-articulation" style-ref="articulation">
+				<!--slurs beams ties tremolos-->
+			<match>:|~|\[|\]|\(|\)|(\^|-|_)?\\(\(|\)|\[|\]|\^)</match>
+		</context>
+
+		<context id="dynamic" style-ref="articulation">
+				<!--mostly dynamics that can be standardised so they go on forever >:)-->
+			<match>((\^|-|_)?\\(n|m(f|p)|f+|(f?)p+|(r|s)fz|s(f+|p+)|&lt;|&gt;|!))(?!\w)</match>
+		</context>
+
+		<context id="chord-modifier" style-ref="articulation">
+				<!--chord modifiers, too, count as articulation. this also covers string numbers-->
+			<match>(\^|(\^|-|_)?\\)[0-9]+</match>
+		</context>
+		
+	<!--LAYOUT VARIABLES, CONTEXTS, ENGRAVERS-->
+
+		<context id="header-var" class="no-spell-check" style-ref="layout-var">
+				<!--\header block variables-->
+			<keyword>arranger</keyword>
+			<keyword>composer</keyword>
+			<keyword>copyright</keyword>
+			<keyword>dedication</keyword>
+			<keyword>instrument</keyword>
+			<keyword>meter</keyword>
+			<keyword>pdftitle</keyword>
+			<keyword>piece</keyword>
+			<keyword>poet</keyword>
+			<keyword>opus</keyword>
+			<keyword>(sub)?(sub)?title</keyword>
+			<keyword>tagline</keyword>
+				<!--\paper block variables
+				FIXME set-paper-size and set-default-paper-size might be highlighted as sch func
+				FIXME do \paper block context thing so horizontal-shift as paper var doesn't override horizontal-shift as grob prop
+				(once done that, remove lookbehind from paper var horizontal-shift)-->
+			<keyword>annotate-spacing</keyword>
+			<keyword>(auto-)?first-page-number</keyword> <!--first-page-number-->
+			<keyword>binding-offset</keyword>
+			<keyword>blank-((after-score|last)-)?page-penalty</keyword>
+			<keyword>bookpart-level-page-numbering</keyword>
+			<keyword>(bottom|top|inner|outer|left|right)-margin</keyword> <!-- -margin-->
+			<keyword>check-consistency</keyword>
+			<keyword>debug-(beam|slur|tie)-scoring</keyword>
+			<keyword>(footnote|system)-separator-markup</keyword> <!-- -separator-markup-->
+			<keyword>(?&lt;!\.)horizontal-shift</keyword>
+			<keyword>last-bottom-spacing</keyword>
+			<keyword>(line|paper)-width</keyword> <!-- -width-->
+			<keyword>(markup|score|top)-(markup|system)-spacing</keyword> <!--*-*-spacing except system-system and last-bottom-->
+			<keyword>((max|min)-)?systems-per-page</keyword> <!-- systems-per-page-->
+			<keyword>page-(breaking(-system-system-spacing)?|count|spacing-weight)</keyword>
+			<keyword>page-number-type</keyword>
+			<keyword>paper-height</keyword>
+			<keyword>print-all-headers</keyword>
+			<keyword>print-(first-)?page-number</keyword>
+			<keyword>ragged-(bottom|last(-bottom)?|right)</keyword>
+			<keyword>reset-footnotes-on-new-page</keyword>
+			<keyword>set-(default-)?paper-size</keyword>
+			<keyword>(short-)?indent</keyword> <!-- indent-->
+			<keyword>system-count</keyword>
+			<keyword>system-system-spacing</keyword>
+			<keyword>two-sided</keyword>
+		</context>
+
+		<context id="context" class="no-spell-check" style-ref="context">
+				<!--contexts-->
+			<match extended="true">
+				(?&lt;![\w\d_-])(\\?(
+				(Choir|Drum|Grand|InternalGregorian|             #-Staff
+				One|Piano|Rhythmic|Tab)?Staff |                  ##
+				(Cue|Drum|Null|Tab)?Voice |                      #-Voice
+				Chord(Grid(Score)?|Names) |                      #-Chord
+				(GregorianTranscription|Vaticana)                #-ancient
+				(Lyrics|Staff|Voice) |                           ##
+				(Kievan|Mensural|Petrucci)(Staff|Voice) |        ##
+				StandaloneRhythm(Score|Staff|Voice) |            #-StandaloneRhythm
+				Bottom | Devnull | Dynamics | FiguredBass |      #-etc
+				FretBoards | Global | Lyrics | NoteNames |       ##
+				Score | StaffGroup | Timing                      ##
+				))(?![\w\d_-])
+			</match>
+		</context>
+
+		<context id="con-property" class="no-spell-check" style-ref="context">
+			<prefix>(?&lt;![\w\d_-])</prefix>
+			<suffix>(?![\w\d_-])</suffix>
+				<!--context properties, both tunable and internal-->
+			<keyword>accidentalGrouping</keyword>
+			<keyword>additional(BassStrings|PitchPrefix)</keyword>
+			<keyword>(aDue|fine|solo(II)?)Text</keyword> <!--Text-->
+			<keyword>align(Above|Below)Context</keyword>
+			<keyword>alterationGlyphs</keyword>
+			<keyword>alternative(Number(ingStyle)?|Restores)</keyword>
+			<keyword>associatedVoice(Context|Type)?</keyword>
+			<keyword>auto(Accidentals|BeamCheck|Beaming|Cautionaries)</keyword>
+			<keyword>bar(Check(LastFail|Synchronize)|ExtraVelocity|Number(Formatter|Visibility))</keyword>
+			<keyword>baseMoment</keyword>
+			<keyword>beam(Exceptions|HalfMeasure|MelismaBusy)</keyword>
+			<keyword>beat(ExtraVelocity|Structure)</keyword>
+			<keyword>breathMark(Definitions|Type)</keyword>
+			<keyword>busyGrobs</keyword>
+			<keyword>caesuraType(Transform)?</keyword>
+			<keyword>centerBarNumbers</keyword>
+			<keyword>chord(Changes|Name(Exceptions|Function|LowercaseMinor|Separator)|(Note|Root)Namer|PrefixSpacer)</keyword>
+			<keyword>c(ueC)?lef(Glyph|Position|Transposition(Formatter|Style)?)</keyword> <!--clef and cueClef-->
+			<keyword>codaMark(Count|Formatter)</keyword>
+			<keyword>(metronomeMark|dalSegnoText|lyricRepeatCount)Formatter</keyword> <!--Formatter-->
+			<keyword>completion(Busy|Factor|Unit)</keyword>
+			<keyword>connectArpeggios</keyword>
+			<keyword>countPercentRepeats</keyword>
+			<keyword>create(KeyOnClefChange|Spacing)</keyword>
+			<keyword>current(Bar(Line|Number)|Chord(Cause|Text)|(Command|Musical)Column|(Performance|Rehearsal)MarkEvent)</keyword>
+			<keyword>(de)?crescendo(Spanner|Text)</keyword> <!--crescendo and decrescendo-->
+			<keyword>defaultStrings</keyword>
+			<keyword>((double|end|start)Repeat(Segno)?|section|underlyingRepeat)BarType</keyword> <!--BarType-->
+			<keyword>doubleSlurs</keyword>
+			<keyword>drum(Pitch|Style)Table</keyword>
+			<keyword>dynamicAbsoluteVolumeFunction</keyword>
+			<keyword>endAtSkip</keyword>
+			<keyword>(explicit((Cue)?Clef|KeySignature)|finalFineText|initialTimeSignature|repeatCount)Visibility</keyword> <!--Visibility-->
+			<keyword>extendersOverRests</keyword>
+			<keyword>extraNatural</keyword>
+			<keyword>figuredBass(AlterationDirection|CenterContinuations|Formatter|LargeNumberAlignment|Plus(Direction|StrokedAlist))</keyword>
+			<keyword>fine((StartRepeat)?Segno)?BarType</keyword>
+			<keyword>finalizations</keyword>
+			<keyword>(fingering|strokeFinger)Orientations</keyword> <!--Orientations-->
+			<keyword>(first|force)Clef</keyword> <!--firstClef, forceClef-->
+			<keyword>(follow|searchFor)Voice</keyword> <!--followVoice, searchForVoice-->
+			<keyword>fontSize</keyword>
+			<keyword>forbidBreak(BetweenBarLines)?</keyword>
+			<keyword>forceBreak</keyword>
+			<keyword>fretLabels</keyword>
+			<keyword>glissandoMap</keyword>
+			<keyword>graceSettings</keyword>
+			<keyword>gridInterval</keyword>
+			<keyword>handleNegativeFrets</keyword>
+			<keyword>harmonic(Accidentals|Dots)</keyword>
+			<keyword>has(AxisGroup|StaffSpacing)</keyword>
+			<keyword>highStringOne</keyword>
+			<keyword>ignore(Bar(Number)?Checks|FiguredBassRest|Melismata)</keyword>
+			<keyword>implicitBassFigures</keyword>
+			<keyword>includeGraceNotes</keyword>
+			<keyword>instrument((Cue)?Name|Equalizer|Transposition)</keyword>
+			<keyword>internalBarNumber</keyword>
+			<keyword>keepAliveInterfaces</keyword>
+			<keyword>(key|local)Alterations</keyword> <!--keyAlterations, localAlterations-->
+			<keyword>keyAlterationOrder</keyword>
+			<keyword>last(Chord|KeyAlterations)</keyword>
+			<keyword>(lyricMelisma|topLevel)Alignment</keyword> <!--Alignment-->
+			<keyword>magnifyStaffValue</keyword>
+			<keyword>majorSevenSymbol</keyword>
+			<keyword>maximumFretStretch</keyword>
+			<keyword>measure(BarType|Length|Position|StartNow)</keyword>
+			<keyword>melismaBusy(Properties)?</keyword>
+			<keyword>middleC((Clef|Cue)?Position|Offset)</keyword>
+			<keyword>midi(Balance|ChannelMapping|(Chorus|Reverb)Level|Expression)</keyword> <!--midi too chonky, split in two lines-->
+			<keyword>midi(Instrument|(Maxi|Mini)mumVolume|MergeUnisons|PanPosition|SkipOffset)</keyword> <!--midi pt 2-->
+			<keyword>minimum(Fret|PageTurnLength|RepeatLengthForPageTurn)</keyword>
+			<keyword>minorChordModifier</keyword>
+			<keyword>noChordSymbol</keyword>
+			<keyword>note((Name|ToFret)Function|NameSeparator)</keyword>
+			<keyword>(null|suggest)Accidentals</keyword> <!--nullAccidentals, suggestAccidentals-->
+			<keyword>ottava(StartNow|tion(Markups)?)</keyword>
+			<keyword>output(?!-)</keyword>
+			<keyword>partCombine(Forced|TextsOnNote)</keyword>
+			<keyword>(partial|(slur|tie)Melisma)Busy</keyword> <!--Busy-->
+			<keyword>pedal(Sostenuto|Sustain|UnaCorda)(Strings|Style)</keyword>
+			<keyword>predefinedDiagramTable</keyword>
+			<keyword>print((Accidental|Octave)Names|KeyCancellation|NotesLanguage|PartCombineTexts)</keyword>
+			<keyword>proportionalNotationDuration</keyword>
+			<keyword>quoted(Cue)?EventTypes</keyword>
+			<keyword>rehearsalMark(Formatter)?</keyword>
+			<keyword>repeatCommands</keyword>
+			<keyword>rest(CompletionBusy|NumberThreshold)</keyword>
+			<keyword>restrainOpenStrings</keyword>
+			<keyword>rootSystem</keyword>
+			<keyword>scriptDefinitions</keyword>
+			<keyword>segno(BarType|Mark(Count|Formatter)|Style)</keyword>
+			<keyword>shapeNoteStyles</keyword>
+			<keyword>short(Instrument|Vocal)Name</keyword>
+			<keyword>skip(Bars|Typesetting)</keyword>
+			<keyword>slashChordSeparator</keyword>
+			<keyword>squashedPosition</keyword>
+			<keyword>(s|tabS)taffLineLayoutFunction</keyword> <!--staffLineLayoutFunction, tabStaffLineLayoutFunction-->
+			<keyword>stanza</keyword>
+			<keyword>startAt(NoteColumn|Skip)</keyword>
+			<keyword>stavesFound</keyword>
+			<keyword>stem(Left|Right)BeamCount</keyword>
+			<keyword>strictBeatBeaming</keyword>
+			<keyword>string(FretFingerList|NumberOrientations|OneTopmost|Tunings)</keyword>
+			<keyword>subdivideBeams</keyword>
+			<keyword>supportNonIntegerFret</keyword>
+			<keyword>suspend(MelodyDecisions|RestMerging)</keyword>
+			<keyword>systemStartDelimiter(Hierarchy)?</keyword>
+			<keyword>tablatureFormat</keyword>
+			<keyword>tempo(HideNote|WholesPerMinute)</keyword>
+			<keyword>tieWaitForNote</keyword>
+			<keyword>timeSignature(Fraction|Settings)</keyword>
+			<keyword>timing</keyword>
+			<keyword>tonic</keyword>
+			<keyword>tupletFullLength(Note)?</keyword>
+			<keyword>(tuplet|volta)SpannerDuration</keyword> <!--SpannerDuration-->
+			<keyword>useBassFigureExtenders</keyword>
+			<keyword>vocalName</keyword>
+			<keyword>whichBar</keyword>
+		</context>
+
+		<context id="engraver" class="no-spell-check" style-ref="engraver">
+			<match>\w+_engraver</match>
+		</context>
+
+		<context id="perf-trans" class="no-spell-check" style-ref="engraver">
+				<!--performers-->
+			<keyword>Beam_performer</keyword>
+			<keyword>Beat_performer</keyword>
+			<keyword>Control_track_performer</keyword>
+			<keyword>Drum_note_performer</keyword>
+			<keyword>Dynamic_performer</keyword>
+			<keyword>Key_performer</keyword>
+			<keyword>Lyric_performer</keyword>
+			<keyword>Mark_performer</keyword>
+			<keyword>Midi_control_change_performer</keyword>
+			<keyword>Note_performer</keyword>
+			<keyword>Piano_pedal_performer</keyword>
+			<keyword>Slur_performer</keyword>
+			<keyword>Staff_performer</keyword>
+			<keyword>Tempo_performer</keyword>
+			<keyword>Tie_performer</keyword>
+			<keyword>Time_signature_performer</keyword>
+				<!--translators-->
+			<keyword>Mark_tracking_translator</keyword>
+			<keyword>Timing_translator</keyword>
+		</context>
+		
+	<!--GROBS AND THEIR PROPERTIES-->
+
+		<context id="grob" class="no-spell-check" style-ref="layout-object">
+      <prefix>(?&lt;![\w\d_-])</prefix>
+      <suffix>(?![\w\d_-])</suffix>
+				<!--TextMark doesn't get coloured in documentation for whatever reason-->
+			<keyword>Accidental(Cautionary|Placement|Suggestion)?</keyword>
+			<keyword>Ambitus(Accidental|Line|NoteHead)?</keyword>
+			<keyword>Arpeggio</keyword>
+			<keyword>BalloonText</keyword>
+			<keyword>Bar(Line|Number)</keyword>
+			<keyword>BassFigure(Alignment(Positioning)?|Bracket|Continuation|Line)?</keyword>
+			<keyword>Beam</keyword>
+			<keyword>Bend(After|Spanner)</keyword>
+			<keyword>BreakAlign(Group|ment)</keyword>
+			<keyword>BreathingSign</keyword>
+			<keyword>(Caesura|CombineText|Jump)Script</keyword> <!--Script-->
+			<keyword>CenteredBarNumber(LineSpanner)?</keyword>
+			<keyword>Chord(Name|Square)</keyword>
+			<keyword>Clef(Modifier)?</keyword>
+			<keyword>ClusterSpanner(Beacon)?</keyword>
+			<keyword>(Coda|Metronome|Rehearsal|Segno)Mark</keyword> <!--Mark-->
+			<keyword>Control(Point|Polygon)</keyword>
+			<keyword>Cue(End)?Clef</keyword>
+			<keyword>Custos</keyword>
+			<keyword>Divisio</keyword>
+			<keyword>Dot(s|Column)</keyword>
+			<keyword>Double(PercentRepeat(Counter)?|RepeatSlash)</keyword>
+			<keyword>DurationLine</keyword>
+			<keyword>Dynamic(LineSpanner|Text(Spanner)?)</keyword>
+			<keyword>Episema</keyword>
+			<keyword>(FingerGlide|LedgerLine|Spacing)Spanner</keyword> <!--Spanner-->
+			<keyword>Fingering(Column)?</keyword>
+			<keyword>Flag</keyword>
+			<keyword>Footnote</keyword>
+			<keyword>FretBoard</keyword>
+			<keyword>Glissando</keyword>
+			<keyword>GraceSpacing</keyword>
+			<keyword>Grid(ChordName|Line|Point)</keyword>
+			<keyword>Hairpin</keyword>
+			<keyword>HorizontalBracket(Text)?</keyword>
+			<keyword>Instrument(Name|Switch)</keyword>
+			<keyword>Key(Cancellation|Signature)</keyword>
+			<keyword>(Kievan|Mensural|Vaticana)Ligature</keyword> <!--Ligature-->
+			<keyword>LaissezVibrerTie(Column)?</keyword>
+			<keyword>(Ligature|Ottava|PianoPedal|Tuplet)Bracket</keyword> <!--Bracket-->
+			<keyword>LeftEdge</keyword>
+			<keyword>Lyric(Extender|Hyphen|RepeatCount|Space|Text)</keyword>
+			<keyword>Measure(Counter|Grouping|Spanner)</keyword>
+			<keyword>MelodyItem</keyword>
+			<keyword>MultiMeasureRest(Number|Script|Text)?</keyword>
+			<keyword>(NonMusical)?PaperColumn</keyword> <!--PaperColumn-->
+			<keyword>Note(Collision|Column|Head|Name|Spacing)</keyword>
+			<keyword>Parentheses</keyword>
+			<keyword>PercentRepeat(Counter)?</keyword>
+			<keyword>(Phrasing)?Slur</keyword> <!--Slur-->
+			<keyword>Repeat(Slash|Tie(Column)?)</keyword>
+			<keyword>Rest(Collision)?</keyword>
+			<keyword>Script(Column|Row)?</keyword>
+			<keyword>SectionLabel</keyword>
+			<keyword>SignumRepetitionis</keyword>
+			<keyword>(Sostenuto|Sustain|UnaCorda)Pedal(LineSpanner)?</keyword> <!--Pedal and PedalLineSpanner-->
+			<keyword>SpanBar(Stub)?</keyword>
+			<keyword>Staff(Ellipsis|Grouper|Highlight|Spacing|Symbol)</keyword>
+			<keyword>(Stanza|String|Tuplet)Number</keyword> <!--Number-->
+			<keyword>Stem(Stub|Tremolo)?</keyword>
+			<keyword>StrokeFinger</keyword>
+			<keyword>System(Start(Bar|Brace|Bracket|Square))?</keyword>
+			<keyword>TabNoteHead</keyword>
+			<keyword>Text(Mark|Script|Spanner)</keyword>
+			<keyword>Tie(Column)?</keyword>
+			<keyword>TimeSignature</keyword>
+			<keyword>Trill(Pitch(Accidental|Group|Head|Parentheses)|Spanner)</keyword>
+			<keyword>Vertical(Alignment|AxisGroup)</keyword>
+			<keyword>VoiceFollower</keyword>
+			<keyword>VoltaBracket(Spanner)?</keyword>
+			<keyword>VowelTransition</keyword>
+		</context>
+
+		<context id="property-detail" class="no-spell-check" style-ref="property">
+				<!--subproperties basically
+				there is a level missing; that's because I cannot be bothered
+				so in TextSpanner.bound-details.left.text , text will not be highlighted
+				this is before the properties one to avoid overrides-->
+			<match extended="true">
+				(?&lt;=\.)(
+				dot-(color|label-font-mag|position|radius) | finger-code |      #fret-diagram-details
+				fret-(count|distance|label-(custom-format|font-mag|             ##fret-
+				(horizontal|vertical)-offset)) |                                ###
+				handedness | paren-padding | label-dir | orientation |          ##
+				string-(count|distance|label-font-mag|thickness-factor) |       ##
+				xo-(font-magnification|padding) |                               ##
+				(barre|number)-type | (capo|top-fret)-thickness |               ##-type, -thickness
+				(mute|open)-string |                                            ##-string
+				box-(offset|width|height) | circle-(thickness|(x|y)-padding) |  #harp-diagram-details
+				space-(after|before)-divider |                                  ##
+				fill-angle | text-trill-circled |                               #woodwind-diagram
+				ambitus | breathing-sign | custos | key-cancellation |          #space-alist
+				signum-repetitionis | staff-(bar|ellipsis) |                    ##
+				(cue-(end-)?)?clef | (first|next)-note | (key|time)-signature | ##clef, -clef, -note, -signature
+				(left|right)-edge |                                             ##-edge
+				(underlying-)?bar-line | breath | scripts |                     #caesuraType
+				(basic|minimum)-distance | padding | stretchability |           #*staff-spacing
+				C | F | G |                                                     #clef-alignments
+				(left|right)(-broken)? |                                        #bound-details
+				alignment-distances |                                           #line-break-system-details
+				absolute-closeness-measure | accidental-collision |             #details
+				arrow-stencil | beam-eps |                                      ##
+				bend-(arrowhead-(height|width)|amount-strings) |                ##
+				between-length-limit | bow-direction | close-to-edge-length |   ##
+				collision-(penalty|padding) | curve-(x|y)-padding-line-end |    ##
+				dashed-line-settings | edge-slope-exponent |                    ##
+				encompass-object-range-overshoot |                              ##
+				extra-encompass-(collision|free)-distance |                     ##
+				extra-object-collision-penalty | free-(head|slur)-distance |    ##
+				gap-to-staffline-(in|out)side | head-offset |                   ##
+				head-slur-distance-(factor|max-ratio) | height-limit |          ##
+				hook-(direction|height|thickness) | intra-space-threshold |     ##
+				max-slope(-factor)? | non-horizontal-penalty | note-head-gap |  ##
+				outer-tie-vertical-gap | ratio | round-to-zero-slope |          ##
+				same-(dir-as-stem|slope)-penalty | secondary-beam-demerit |     ##
+				slur-tie-extrema-min-distance(-penalty)? |                      ##
+				stem-length-(demerit-factor|limit-penalty) | stem-(gap|shorten)|##
+				successive-level | tie-tie-collision-(distance|penalty) |       ##
+				y-distance-from-tabstaff-to-arrow-tip |                         ##
+				(beamed-((extreme-)?minimum-free-)?)?lengths |                  ##lengths, -lengths
+				(cautionary|harmonic)-properties |                              ##-properties
+				(center|tip)-staff-line-clearance |                             ##-staff-line-clearance
+				(curvature|edge-attraction|(ideal|steeper)-slope|               ##-factor
+				musical-direction)-factor |                                     ###
+				(damping|hint)-direction-penalty |                              ##-direction-penalty
+				(extra-dot|horizontal-left|vertical)-padding |                  ##-padding
+				(head|stem)-encompass-penalty |                                 ##-encompass-penalty
+				(head-text-break|target)-visibility |                           ##-visibility
+				(horizontal-distance|min-length|outer-tie-                      ##-penalty-factor
+				(length|vertical-distance)-symmetry|vertical-distance)          ###
+				-penalty-factor |                                               ###
+				((multi|single)-tie-)?region-size  |                            ##region-size, -region-size
+				(repeat-)?tied-properties                                       ##tied-properties, -tied-properties
+				)(?!-)(\b)
+			</match>
+				<!--might wanna look at ClefModifier.clef-alignments-->
+		</context>
+
+		<context id="grob-property" class="no-spell-check" style-ref="property">
+				<!--layout object user and internal backend properties
+				they currently only highlight when after a dot (.damping), a tweak command
+				(\tweak color), or an offset or alterBroken command (\offset height 2 Hairpin)-->
+			<match extended="true">
+				((?&lt;=\.)|((?&lt;=\\tweak\s)|(?&lt;=\\offset\s)|(?&lt;=\\alterBroken\s))\s*)(
+				accidental-grob(s)? | add-(cauda|join|stem(-support)?) | adjacent-(pure-heights|spanners) |          ##a
+				allow-(loose-spacing|span-bar) | alteration(-(glyph-name-)?alist)? | annotation(-(balloon|line))? |  ##
+				arrow-(length|width) | auctum | axis-group-parent-(X|Y) | automatically-numbered |                   ##
+				average-spacing-wishes | avoid-(note-head|scripts|slur) | axes |                                     ##
+				bars | baseline-skip | beamed-stem-shorten | beaming |                                               ##b
+				beamlet-(default-length|max-length-proportion) | beam(-(segments|thickness|width))? |                ##
+				begin-of-line-visible | bend-me | between-cols | bezier |                                            ##
+				bound-(alignment-interfaces|details|padding|prefatory-paddings) | bounded-by-me |                    ##
+				bracket(-(flare|text|visibility))? |                                                                 ##
+				break-(alignment|align-(anchor(-alignment)?|orders|symbol(s)?)|overshoot|visibility) | breakable |   ##
+				cause | cavum | chord-(dots-limit|names) | circled-tip | clip-edges | collapse-height |              ##c
+				collision-(interfaces|voice-only) | color | columns | concaveness | concurrent-hairpins |            ##
+				connect-to-neighbor | context-info | count-from | covered-grobs | cross-staff |                      ##
+				damping | dash-(definition|fraction|period) | dashed-edge | default-(direction|staff-staff-spacing) |##d
+				deminutum | digit-names | direction(-source)? | display-cautionary | dots |                          ##
+				dot(-(count|negative-kern|placement-list|stencil))? | double-stem-separation | duration-log |        ##
+				eccentricity | edge-(height|text) | encompass-objects | expand-limit |                               ##e
+				extra-(dy|offset|spacing-(height|width)) | extroversion |                                            ##
+				fa-styles | figures | filled | flag(-(count|style))? | flexa-(height|interval|width) |               ##f
+				font(-(encoding|family|features|name|series|shape|size))? | force-hshift | forced(-spacing)? |       ##
+				fraction | french-beaming(-stem-adjustment)? |                                                       ##
+				full-(length-(padding|to-extent)|measure-extra-space|size-change) |                                  ##
+				gap(-count)? | glissando-(skip|index) | glyph(-(left|name|right))? | graphical |                     ##g
+				has-span-bar | heads | height(-limit)? | hide-tied-accidental-after-break | horizontal-shift |       ##h
+				id(eal-distances)? | ignore-(ambitus|collision) | implicit | important-column-ranks |                ##i
+				in-note-(direction|padding|stencil) | inclinatum | index | inspect-quants | interfaces |             ##
+				items-worth-living |                                                                                 ##
+				keep-(alive-with|inside-line) | knee(-(spacing-correction|to-beam))? |                               ##k
+				labels | layer | least-squares-dy | ledger-(extra|line-thickness|positions(-function)?) |            ##l
+				length(-fraction)? | line-(break-(penalty|permission|system-details)|count|positions|thickness) |    ##
+				linea | (long|pedal)-text |                                                                          ##
+				max-(beam-connect|symbol-separation) | maybe-loose |                                                 ##m
+				measure-(count|division(-(chord-placement|lines)-alist)?|length) | melody-spanner |                  ##
+				merge-differently-(dotted|headed) | meta |                                                           ##
+				minimum-(distance(s)?|length(-(after-break|fraction))?|space|translations-alist|(X|Y)-extent) |      ##
+				neighbors | neutral-(direction|position) | next | no-(ledgers|stem-extend) |                         ##n
+				non-(break-align-symbols|default|musical) | nonstaff-(non|related|unrelated)staff-spacing |          ##
+				normal-stems | normalized-endpoints | note-(collision(-threshold)?|columns|names) |                  ##
+				number-(range-separator|type) | numbering-assertion-function |                                       ##
+				oriscus | output-attributes | outside-staff-((horizontal-)?padding|placement-directive|priority) |   ##o
+				padding(-pairs)? | page-((break|turn)-(penalty|permission)|number) | parenthesis-(friends|id) |      ##p
+				parenthesized | positioning-done | prefer-dotted-right | prefix-set | primitive |                    ##
+				pure-(relevant-(grobs|items|spanners)|Y-(common|extent|offset-in-progress)) | protrusion |           ##
+				quilisma |                                                                                           ##q
+				rank-on-page | ratio | remove-(empty|first|layer) | replacement-alist | restore-first | rests |      ##r
+				rest(-collision)? | rhythmic-location | rotation | round-up-(exceptions|to-longer-rest) | rounded |  ##
+				same-direction-correction | script(s|-(column|priority|stencil)) | shape | shorten(-pair)? |         ##s
+				shortest-(duration-space|(playing|starter)-duration) | side-(axis|relative-direction) | size |       ##
+				skip-quanting | slope | slur(-padding)? | snap-radius | space-(alist|increment|to-barline) |         ##
+				spacing(-(increment|pair|wishes))? | span-start | spanner-(broken|id|placement) | springs-and-rods | ##
+				staff-(affinity|grouper|padding|position|space|symbol) | staff(group)?-staff-spacing |               ##
+				stemlet-length | stems | stem(-(attachment|begin-position|info|spacing-correction))? | stencil(s)? | ##
+				sticky-host | stropha | system-Y-offset |                                                            ##
+				text(-(alignment-(X|Y)|direction))? | tie(s|-configuration)? | to-barline |                          ##t
+				toward-stem-shift(-in-column)? | transparent | tremolo-flag | tuplet-(number|slur|start) | tuplets | ##
+				vertical-alignment | virga | ((visible-over-)?note-heads|note-head) |                                ##v
+				uniform-stretching | usable-duration-logs | use-skylines | used |                                    ##u
+				whiteout(-style)? | word-space |                                                                     ##w
+				X-(align-on-main-noteheads|positions) | (X|Y)-(attachment|common|extent|offset) | x-offset |         ##x
+				zigzag-(length|width) |                                                                              ##z
+				(align|stacking)-dir |                                            #-dir
+				((all|conditional|side-support|vertical-skyline)-)?elements |     #-elements
+				(arpeggio|fa-merge|grow|head)-direction |                         #-direction
+				(a|de)scendens |                                                  #ascendens, descendens
+				(auto-knee|maximum)-gap |                                         #-gap
+				(bar|main|widened)-extent |                                       #-extent
+				(base|common)-shortest-duration |                                 #-shortest-duration
+				(broken-bound|horizon)-padding |                                  #-padding
+				(c0|delta|voiced|quantize)-position |                             #-position
+				(clef|endpoint)-alignments |                                      #-alignments
+				((flat|quantized|sharp)-)?positions |                             #-positions
+				(footnotes-)?(after|before)-line-breaking |                       #-line-breaking
+				footnote(-(music|stencil|text))? |                                ##moved here to not interfere with previous line
+				(((fret|woodwind)-diagram|harp-pedal)-)?details |                 #-details
+				(grace|packed|strict-(grace|note))-spacing |                      #-spacing
+				((hair|thick)-)?thickness |                                       #thickness
+				(head-)?width |                                                   #width
+				(left|right)-(bound-info|items|neighbor|number-text|padding) |    #left-, right-
+				(ligature|pes-or)-flexa |                                         #-flexa
+				(make-dead-)?when |                                               #-when
+				(parent|self)-alignment-(X|Y) |                                   #-alignment-X, -alignment-Y
+				((segno|slash-negative)-)?kern |                                  #kern
+				(show-)?control-points |                                          #control-points
+				(show-)?(horizontal|vertical)-skylines |                          #-skylines
+				skyline-(horizontal|vertical)-padding |                           #skyline-*-padding
+				(stroke-)?style                                                   #style
+				)
+			</match>
+		</context>
+		
+	<!--IMPORTED FROM scheme.lang-->
+		
+		<context id="sch-op">
+			<include>
+				<context ref="scheme:keyword"/>
+			</include>
+		</context>
+		
+		<context id="sch-proc">
+			<include>
+				<context ref="scheme:function" style-ref="special-text"/>
+			</include>
+		</context>
+		
+	<!--THIS BITCH-->
+
+		<context id="this-bitch" end-parent="true">
+				<!--just to exclude this bitch → \\ from the commands-->
+			<match>\\\\</match>
+		</context>
+		
+	<!--\*** COMMANDS, <***> CHORD CONSTRUCTS, SCHEME CONSTRUCT STUFF-->
+
+		<context id="command" style-ref="function" class="no-spell-check" extend-parent="false" end-parent="true">
+			<start>\\</start>
+			<end>\s|$</end>
+			<include>
+				<context ref="articulation"/>
+				<context ref="chord-modifier"/>
+				<context ref="dynamic"/>
+				<context ref="long-articulation"/>
+				<context ref="misc-articulation"/>
+				<context ref="short-articulation"/>
+				<context ref="string"/>
+				<context ref="this-bitch"/>
+			</include>
+		</context>
+
+		<context id="chord-cons">
+				<!--here so you can typeset your figured bass in PEACE
+				\! highlights as command when inside a < > but in figured bass that
+				stops extenders which are started by a command so ¯\_(ツ)_/¯-->
+			<start>(?&lt;!&lt;)&lt;(?!&lt;)</start>
+			<end>(?&lt;!(&gt;|\^|-|_))&gt;(?!&gt;)</end>
+			<include>
+				<context ref="command"/>
+				<context ref="misc-articulation"/>
+				<context ref="number"/>
+			</include>
+		</context>
+
+		<context id="sch-exp">
+				<!--here so parentheses are not highlighted if they're part of scheme constructs or whatever-->
+			<start>(`|#'?|\$)\(</start>
+			<end>\)</end>
+			<include>
+				<context ref="all-caps-stuff"/>
+				<context ref="boolean"/>
+				<context ref="command"/>
+				<context ref="encode"/>
+				<context ref="encode-more"/>
+				<context ref="lily-preds"/>
+				<context ref="misc-func"/>
+				<context ref="number"/>
+				<context ref="predicates"/>
+				<context ref="sch-func"/>
+				<context ref="sch-func-elec-boog"/>
+				<context ref="sch-func-the-functioning"/>
+				<context ref="sch-op"/>
+				<context ref="sch-proc"/>
+				<context ref="string"/>
+				<context id="scheme-comment" style-ref="comment" end-at-line-end="true">
+					<start>;</start>
+					<include>
+						<context ref="def:in-comment"/>
+					</include>
+				</context>
+				<context id="extra-parentheses">
+					<start>\(</start><end>\)</end>
+					<include>
+						<context ref="all-caps-stuff"/>
+						<context ref="boolean"/>
+						<context ref="command"/>
+						<context ref="encode"/>
+						<context ref="encode-more"/>
+						<context ref="lily-preds"/>
+						<context ref="misc-func"/>
+						<context ref="number"/>
+						<context ref="predicates"/>
+						<context ref="sch-func"/>
+						<context ref="sch-func-elec-boog"/>
+						<context ref="sch-func-the-functioning"/>
+						<context ref="sch-op"/>
+						<context ref="sch-proc"/>
+						<context ref="string"/>
+						<context ref="scheme-comment"/>
+						<context ref="extra-parentheses"/>
+					</include>
+				</context>
+			</include>
+		</context>
+		
+		<context id="caret-dash-underscore-string" style-ref="string">
+			<start>(\^|-|_)(?=")</start>
+			<include>
+				<context ref="string"/>
+			</include>
+		</context>
+		
+		<context id="caret-dash-underscore-command" style-ref="function">
+			<start>(\^|-|_)(?=\\)</start>
+			<include>
+				<context ref="command"/>
+			</include>
+		</context>
+
+		</include>
+	</context>
+</definitions>
+
 </language>
