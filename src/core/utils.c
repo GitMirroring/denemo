@@ -3168,21 +3168,31 @@ use_markup (GtkWidget * widget)
 
 #ifdef FAKE_TOOLTIPS
 static GtkWidget *TooltipPopup = NULL;
-static gboolean not_wanted = TRUE;
-static gboolean not_wanted_in_this_session = FALSE;
+static guint hide_tooltip_timeout_id = 0;
 
+// Hide and destroy the tooltip window
+static void
+hide_tooltip_window (void)
+{
+  if (TooltipPopup != NULL)
+    {
+      gtk_widget_destroy (TooltipPopup);
+      TooltipPopup = NULL;
+    }
+  if (hide_tooltip_timeout_id > 0)
+    {
+      g_source_remove (hide_tooltip_timeout_id);
+      hide_tooltip_timeout_id = 0;
+    }
+}
+
+// Timeout callback to auto-hide tooltip
 static gboolean
-no_longer_wanted (GtkWidget * w)
-{  
-  if (TooltipPopup == NULL)
-    return FALSE;
-  not_wanted = TRUE;
-  if (Denemo.prefs.newbie)
-    not_wanted_in_this_session = FALSE;
-  GtkWidget *deleting = TooltipPopup; //to prevent recursion in popping down menu
-  TooltipPopup = NULL;
-  gtk_menu_popdown (GTK_MENU (deleting)); 
-  return FALSE;
+tooltip_auto_hide (gpointer data)
+{
+  hide_tooltip_window ();
+  hide_tooltip_timeout_id = 0;
+  return FALSE;  // Remove timeout
 }
 
 gchar *format_tooltip (const gchar *tip) {
@@ -3220,57 +3230,110 @@ show_tooltip (GtkWidget * w, GdkEvent * ev, gchar * text)
   static gint last_y;
   guint32 time;
   gdouble x, y;
-  
+
   if (w == NULL)
     {
-        last_widget = NULL;
-        last_y = last_time = 0;
-        no_longer_wanted (TooltipPopup);
-        return FALSE;
-    }
-  
-  time = gdk_event_get_time (ev); 
-  gdk_event_get_coords (ev, &x, &y);
- // g_print ( "widget same %d, time = %u, last_time = %u time diff %d y-diff %d\n",  (w == last_widget), time, last_time, time-last_time, (int)y-last_y);
-
-    if ( w != last_widget)
-        {
-            last_widget = w;
-            last_time = time;
-            return FALSE;  
-        }
-    if (abs (last_time - time) < Denemo.prefs.tooltip_timeout) //use ...
-        {
-            last_y = (int)y;
-            return FALSE;
-        }
-
-  if (abs (last_y - (int)y) > 3)
-    {
-        last_y = (int)y;
-        return FALSE;
-    }
-    
-  if (last_tooltip != text)
-   if (text && (*text) && (last_tooltip != text))
-    {
-      last_tooltip = text; 
-      TooltipPopup = gtk_menu_new ();
-      GtkWidget *item = gtk_menu_item_new_with_label (text); //FIXME remove markup and break into lines - do this at creation time.
-
-      gtk_menu_shell_append (GTK_MENU_SHELL (TooltipPopup), item);
-      g_signal_connect (G_OBJECT (item), "leave-notify-event", G_CALLBACK (no_longer_wanted), NULL);
-      gtk_widget_show_all (TooltipPopup);
-      gtk_menu_popup (GTK_MENU (TooltipPopup), NULL, NULL, NULL, NULL, 0, gtk_get_current_event_time ());
+      last_widget = NULL;
+      last_y = last_time = 0;
+      hide_tooltip_window ();
       return FALSE;
     }
-  return FALSE;                 //allow normal response
+
+  time = gdk_event_get_time (ev);
+  gdk_event_get_coords (ev, &x, &y);
+
+  if (w != last_widget)
+    {
+      last_widget = w;
+      last_time = time;
+      hide_tooltip_window ();  // Hide any existing tooltip when moving to new widget
+      return FALSE;
+    }
+
+  if (abs (last_time - time) < Denemo.prefs.tooltip_timeout)
+    {
+      last_y = (int)y;
+      return FALSE;
+    }
+
+  if (abs (last_y - (int)y) > 10)
+    {
+      last_y = (int)y;
+      hide_tooltip_window ();  // Hide on vertical movement
+      return FALSE;
+    }
+
+  if (last_tooltip != text)
+    if (text && (*text) && (last_tooltip != text))
+      {
+        last_tooltip = text;
+        hide_tooltip_window ();  // Hide old tooltip first
+
+        // Create a lightweight popup window (no decorations, no grab!)
+        TooltipPopup = gtk_window_new (GTK_WINDOW_POPUP);
+        gtk_window_set_type_hint (GTK_WINDOW (TooltipPopup), GDK_WINDOW_TYPE_HINT_TOOLTIP);
+        gtk_window_set_resizable (GTK_WINDOW (TooltipPopup), FALSE);
+
+        // Enable visual transparency for rounded corners
+        GdkScreen *screen = gtk_widget_get_screen (TooltipPopup);
+        GdkVisual *visual = gdk_screen_get_rgba_visual (screen);
+        if (visual)
+          gtk_widget_set_visual (TooltipPopup, visual);
+
+        // Create label with tooltip text
+        GtkWidget *label = gtk_label_new (text);
+        gtk_label_set_line_wrap (GTK_LABEL (label), TRUE);
+        gtk_label_set_max_width_chars (GTK_LABEL (label), 80);
+        gtk_widget_set_margin_start (label, 8);
+        gtk_widget_set_margin_end (label, 8);
+        gtk_widget_set_margin_top (label, 6);
+        gtk_widget_set_margin_bottom (label, 6);
+
+        gtk_container_add (GTK_CONTAINER (TooltipPopup), label);
+
+        // Style it to look like a tooltip (light yellow background, rounded corners)
+        GtkCssProvider *css_provider = gtk_css_provider_new ();
+        gtk_css_provider_load_from_data (css_provider,
+          "window { "
+          "  background-color: rgba(255, 255, 204, 0.98); "  /* Slight transparency */
+          "  border: 1px solid #888888; "
+          "  border-radius: 6px; "
+          "}"
+          "label { "
+          "  color: #000000; "
+          "  font-size: 9pt; "
+          "}",
+          -1, NULL);
+        gtk_style_context_add_provider (gtk_widget_get_style_context (TooltipPopup),
+                                        GTK_STYLE_PROVIDER (css_provider),
+                                        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+        g_object_unref (css_provider);
+
+        // Position near mouse cursor
+        gint mouse_x, mouse_y;
+        GdkDisplay *display = gdk_display_get_default ();
+        GdkSeat *seat = gdk_display_get_default_seat (display);
+        GdkDevice *pointer = gdk_seat_get_pointer (seat);
+        gdk_device_get_position (pointer, NULL, &mouse_x, &mouse_y);
+
+        gtk_window_move (GTK_WINDOW (TooltipPopup), mouse_x + 10, mouse_y + 15);
+        gtk_widget_show_all (TooltipPopup);
+
+        // Auto-hide after 15 seconds to prevent permanent tooltips
+        if (hide_tooltip_timeout_id > 0)
+          g_source_remove (hide_tooltip_timeout_id);
+        hide_tooltip_timeout_id = g_timeout_add (15000, tooltip_auto_hide, NULL);
+
+        return FALSE;
+      }
+  return FALSE;  // Allow normal response
 }
 
 void
 free_tooltip (GtkWidget * w, gchar * tooltip)
 {
-  //g_print ("Freeing tooltip\n");
+  // When widget is destroyed, hide any active tooltip
+  hide_tooltip_window ();
   g_free (tooltip);
 }
 #endif
