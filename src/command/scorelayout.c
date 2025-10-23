@@ -1711,7 +1711,7 @@ get_movement_widget (GList ** pstaffs, gchar * partname, DenemoMovement * si, gi
         {
           if (partname == NULL)
             {
-              g_warning ("Staff group start without end - terminating it");
+              g_warning ("In movement %d: Staff group start without end - terminating it", movementnum);
               add_lilypond (vbox, NULL, g_strdup (" >>%Missing staff group end inserted here\n"));
             }
           else
