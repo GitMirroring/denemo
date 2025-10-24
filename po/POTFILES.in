@@ -1183,6 +1183,8 @@ actions/menus/ObjectMenu/Key/FlattenKeysig.scm
 actions/menus/ObjectMenu/Key/FlattenKeysig.xml
 actions/menus/ObjectMenu/Key/HideKeysig.scm
 actions/menus/ObjectMenu/Key/HideKeysig.xml
+actions/menus/ObjectMenu/Key/InsertKeyChange.scm
+actions/menus/ObjectMenu/Key/InsertKeyChange.xml
 actions/menus/ObjectMenu/Key/SharpenInitialKeysigs.scm
 actions/menus/ObjectMenu/Key/SharpenInitialKeysigs.xml
 actions/menus/ObjectMenu/Key/SharpenKeysig.scm

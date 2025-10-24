@@ -9106,6 +9106,13 @@ Marks can be deleted just like any other object or the Clear All Marks option ca
         <_label>Highlight Cursor Position</_label>
         <_tooltip>Highlights the cursor so you can spot where it is in a large score. It will move the cursor onto the display if needed and turn on cursor highlighting.</_tooltip>
       </row>
+      <row type="scheme">
+        <action>InsertKeyChange</action>
+        <after>InsertKey</after>
+        <menupath>/ObjectMenu/Key</menupath>
+        <_label>Insert Key Change</_label>
+        <_tooltip>Inserts a key change object. If you need to change key mid bar split the bar at that point and then join again aftewards.</_tooltip>
+      </row>
     </map>
   </merge>
 </Denemo>
