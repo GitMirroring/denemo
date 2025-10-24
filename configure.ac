@@ -252,6 +252,7 @@ AC_ARG_ENABLE(
     if test "x$enableval" != "xno"; then
       usegtk2=yes
       PKG_CHECK_MODULES(GTK2, gtk+-2.0 >= 2.0.3)
+      AC_MSG_WARN([GTK2 support is deprecated and will be removed later.])
     fi
   ], [ usegtk2=no ])
 
@@ -261,6 +262,7 @@ AC_ARG_ENABLE(
   [
     if test "x$enableval" != "xno"; then
       usegtk3=yes
+      usegtk2=no
       PKG_CHECK_MODULES(GTK3, gtk+-3.0 >= 3.0.0)
     fi
   ], [ usegtk3=no ])
@@ -268,8 +270,9 @@ AC_ARG_ENABLE(
 if [test "x$usegtk2" = "xno"] && [test "x$usegtk3" = "xno"]; then
   PKG_CHECK_MODULES(GTK3, gtk+-3.0 >= 3.0.0, havegtk3=yes, havegtk3=no)
   if test "x$havegtk3" = "xno"; then
-    PKG_CHECK_MODULES(GTK2, gtk+-2.0 >= 2.0.3)
-    usegtk2=yes
+    AC_MSG_ERROR([GTK3 not found.
+                  For now, you can explicitly enable GTK2 support with --enable-gtk2.
+                  This will be removed later.])
   else
     usegtk3=yes
   fi
