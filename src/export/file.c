@@ -1287,6 +1287,22 @@ file_dialog_response (GtkWidget * dialog, gint response_id, struct FileDialogDat
   /*set default folder for saving */\
   set_current_folder(file_selection, template==SAVE_TEMPLATE?SAVE_TEMPLATE:SAVE_NORMAL);\
   \
+  /* Pre-fill filename if current file has a name */\
+  if (Denemo.project->filename && Denemo.project->filename->len > 0) {\
+    gchar *basename = g_path_get_basename (Denemo.project->filename->str);\
+    /* Strip existing extension and add the appropriate one for the format */\
+    gchar *basename_no_ext = g_strdup (basename);\
+    gchar *dot = strrchr (basename_no_ext, '.');\
+    if (dot != NULL && dot != basename_no_ext) {\
+      *dot = '\0';\
+    }\
+    gchar *suggested_name = g_strconcat (basename_no_ext, FORMAT_EXTENSION(format_id), NULL);\
+    gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_selection), suggested_name);\
+    g_free (basename);\
+    g_free (basename_no_ext);\
+    g_free (suggested_name);\
+  }\
+  \
   filter = gtk_file_filter_new ();\
   gtk_file_filter_set_name (filter, FORMAT_DESCRIPTION(format_id));\
   gtk_file_filter_add_pattern (filter, FORMAT_MASK(format_id));\
