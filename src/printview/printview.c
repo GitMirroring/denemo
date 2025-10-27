@@ -209,17 +209,24 @@ static void
 set_printarea_doc (EvDocument * doc)
 {
   EvDocumentModel *model;
+  GtkWidget *old_printarea;
+  GtkWidget *new_printarea;
+  GtkWidget *container;
+
   changecount = Denemo.project->changecount;
+
   model = g_object_get_data (G_OBJECT (Denemo.printarea), "model");     //there is no ev_view_get_model(), when there is use it
   if (model == NULL)
     {
+      // First time setup - just set the document on the existing widget
       model = ev_document_model_new_with_document (doc);
       ev_view_set_model ((EvView *) Denemo.printarea, model);
       g_object_set_data (G_OBJECT (Denemo.printarea), "model", model);  //there is no ev_view_get_model(), when there is use it
     }
   else
     {
-      g_object_unref (ev_document_model_get_document (model));  //FIXME check if this releases the file lock on windows.s
+      model = g_object_get_data (G_OBJECT (Denemo.printarea), "model");
+      g_object_unref (ev_document_model_get_document (model));  //FIXME check if this releases the file lock on windows.
       ev_document_model_set_document (model, doc);
     }
    gint dual = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (Denemo.printarea), "Duplex"));
@@ -622,6 +629,7 @@ void
 printview_finished (G_GNUC_UNUSED GPid pid, gint status, gboolean print)
 {
   progressbar_stop ();
+  stop_typeset_progress ();  // Hide the spinner in Print View toolbar
   console_output (_("Done\n"));
 #if GLIB_CHECK_VERSION(2,34,0)
   {
@@ -2468,6 +2476,27 @@ static gboolean retypeset (void)
 }
 
 GtkWidget *ContinuousUpdateButton = NULL;
+static GtkWidget *typeset_spinner = NULL;  // Spinner to show typesetting progress
+
+// Start showing typesetting progress indicator
+void start_typeset_progress (void)
+{
+  if (typeset_spinner)
+    {
+      gtk_widget_set_opacity (typeset_spinner, 1.0);  // Make visible
+      gtk_spinner_start (GTK_SPINNER (typeset_spinner));
+    }
+}
+
+// Stop showing typesetting progress indicator
+void stop_typeset_progress (void)
+{
+  if (typeset_spinner)
+    {
+      gtk_spinner_stop (GTK_SPINNER (typeset_spinner));
+      gtk_widget_set_opacity (typeset_spinner, 0.0);  // Make invisible but keep space
+    }
+}
 
 //turn the continuous update off and on
 static void
@@ -2881,7 +2910,6 @@ void install_printpreview (void)
 //  hbox = gtk_hbox_new (FALSE, 1);
 //  gtk_box_pack_end (GTK_BOX (main_hbox), hbox, FALSE, TRUE, 0);
 
-
   button = gtk_button_new_with_label (_("Duplex"));
   gtk_widget_set_tooltip_text (button, _("Shows pages side by side, so you can see page turns for back-to-back printing\n"));
   g_signal_connect (button, "clicked", G_CALLBACK (dual_page), NULL);
@@ -2900,12 +2928,23 @@ void install_printpreview (void)
   g_signal_connect (button, "clicked", G_CALLBACK (page_display), (gpointer) - 1);
   gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, TRUE, 0);
 
-  
-   
+  // Add a spinner at the far right to show typesetting progress
+  // It always reserves space but is invisible when not spinning (no button shifting)
+  typeset_spinner = gtk_spinner_new ();
+  gtk_widget_set_size_request (typeset_spinner, 20, 20);  // Reserve fixed space
+  gtk_widget_set_tooltip_text (typeset_spinner, _("LilyPond is typesetting your score..."));
+  gtk_box_pack_start (GTK_BOX (hbox), typeset_spinner, FALSE, TRUE, 8);  // 8px padding for spacing
+  gtk_widget_show (typeset_spinner);  // Always visible
+  gtk_widget_set_opacity (typeset_spinner, 0.0);  // But invisible when not spinning
+
+
+
   // if(!Denemo.prefs.manualtypeset)
   //      gtk_window_set_urgency_hint (GTK_WINDOW(Denemo.window), TRUE);//gtk_window_set_transient_for (GTK_WINDOW(top_window), GTK_WINDOW(Denemo.window));
   gtk_window_set_title (GTK_WINDOW (top_window), _("Denemo Print View"));
   gtk_window_set_default_size (GTK_WINDOW (top_window), 600, 750);
+  // Set minimum size to prevent window from shrinking during re-typesetting
+  gtk_widget_set_size_request (GTK_WIDGET (top_window), 400, 500);
   g_signal_connect (G_OBJECT (top_window), "delete-event", G_CALLBACK (hide_printarea_on_delete), NULL);
   g_signal_connect (G_OBJECT (top_window), "configure_event", G_CALLBACK (printwindow_configure_event), NULL);
 

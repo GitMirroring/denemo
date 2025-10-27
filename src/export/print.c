@@ -104,12 +104,9 @@ void initialize_print_status (void)
 static void
 advance_printname ()
 {
-
-
   Denemo.printstatus->cycle = !Denemo.printstatus->cycle;
   /*gint success =*/ g_unlink (Denemo.printstatus->printname_pdf[Denemo.printstatus->cycle]);
   g_unlink (Denemo.printstatus->printname_svg[Denemo.printstatus->cycle]);
-
   //g_debug("Removed old pdf file %s %d\n",Denemo.printstatus->printname_pdf[Denemo.printstatus->cycle], success);
 }
 
@@ -565,8 +562,16 @@ run_lilypond (gchar ** arguments)
       old_error = FALSE;  
     }
   Denemo.printstatus->pages = 0;
+  // Don't show progress bar if Print View is visible - the user is watching it already
+  // and the progress bar steals focus, pushing Print View behind main window
+  gboolean printview_visible = (Denemo.printarea && gtk_widget_get_visible(gtk_widget_get_toplevel(Denemo.printarea)));
   if (Denemo.printstatus->background == STATE_NONE)
-    progressbar (_("Denemo Typesetting"), call_stop_lilypond);
+    {
+      if (printview_visible)
+        start_typeset_progress ();  // Show spinner in Print View toolbar
+      else
+        progressbar (_("Denemo Typesetting"), call_stop_lilypond);  // Show separate progress window
+    }
   if (lily_err)
     {
       g_warning ("Old error message from launching lilypond still present - message was %s\nDiscarding...", lily_err->message);
