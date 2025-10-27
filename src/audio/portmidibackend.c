@@ -142,19 +142,19 @@ portmidi_initialize (DenemoPrefs * config)
       info = Pm_GetDeviceInfo (id);
       if (info == NULL)
         {
-          g_warning ("No output device");
-          portmidi_destroy ();
-          return -1;
+          g_message ("No MIDI output device available, continuing with input only");
+          output_stream = NULL;
         }
-
-      g_message ("Opening output device '%s: %s'", info->interf, info->name);
-
-      err = Pm_OpenOutput (&output_stream, id, NULL, OUTPUT_BUFFER_SIZE, NULL, NULL, 0);
-      if (err != pmNoError)
+      else
         {
-          g_warning ("Couldn't open output stream");
-          portmidi_destroy ();
-          return -1;
+          g_message ("Opening output device '%s: %s'", info->interf, info->name);
+
+          err = Pm_OpenOutput (&output_stream, id, NULL, OUTPUT_BUFFER_SIZE, NULL, NULL, 0);
+          if (err != pmNoError)
+            {
+              g_warning ("Couldn't open output stream, continuing with input only");
+              output_stream = NULL;
+            }
         }
     }
   else

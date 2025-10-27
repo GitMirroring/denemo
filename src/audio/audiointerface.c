@@ -226,7 +226,7 @@ initialize_midi (DenemoPrefs * config)
 gboolean
 have_midi (void)
 {
-  return strcmp (Denemo.prefs.portmidi_input_device->str, "default") && (backends[MIDI_BACKEND] != &dummy_midi_backend);
+  return strcmp (Denemo.prefs.portmidi_input_device->str, "none") != 0 && (backends[MIDI_BACKEND] != &dummy_midi_backend);
 }
 
 int
