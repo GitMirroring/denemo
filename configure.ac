@@ -198,7 +198,7 @@ AC_ARG_ENABLE(
 AM_CONDITIONAL(HAVE_EVINCE, [test x$useevince = xyes])
 
 if test "x$useevince" = "xyes"; then
-    PKG_CHECK_MODULES(EVINCE, evince-view-3.0 >= 3.0, have_evince_3_0=yes, have_evince_3_0=no)
+    PKG_CHECK_MODULES(EVINCE, evince-view-3.0 >= 3.0)
     CFLAGS="$CFLAGS $EVINCE_CFLAGS -DUSE_EVINCE"
     LIBS="$LIBS $EVINCE_LIBS"
 fi
