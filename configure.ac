@@ -229,6 +229,15 @@ AC_ARG_ENABLE(
     fi
   ])
 AM_CONDITIONAL(HAVE_ATRIL, [test x$useatril = xyes])
+  if test "x$useatril" != "xno"; then
+    PKG_CHECK_MODULES(ATRIL, atril-view-1.5.0 >= 1.5, have_atril=yes, have_atril=no)
+    CFLAGS="$CFLAGS $ATRIL_CFLAGS -DUSE_EVINCE -DUSE_ATRIL"
+    LIBS="$LIBS $ATRIL_LIBS"
+
+    if test "x$have_atril" = "xno"; then
+      AC_MSG_ERROR([atril was requested but not found])
+    fi
+  fi
 
 AC_ARG_ENABLE(
   aubio,
@@ -256,29 +265,10 @@ fi
   LIBS="$LIBS $GTK3_LIBS"
 
 
-  if test "x$useatril" != "xno"; then
-    PKG_CHECK_MODULES(ATRIL, atril-view-1.5.0 >= 1.5, have_atril=yes, have_atril=no)
-    CFLAGS="$CFLAGS $ATRIL_CFLAGS -DUSE_EVINCE -DUSE_ATRIL"
-    LIBS="$LIBS $ATRIL_LIBS"
-
-    if test "x$have_atril" = "xno"; then
-      AC_MSG_ERROR([atril was requested but not found])
-    fi
-  fi
-
   PKG_CHECK_MODULES(GTKSOURCEVIEW, gtksourceview-3.0 >= 3.0)
   CFLAGS="$CFLAGS $GTKSOURCEVIEW_CFLAGS"
   LIBS="$LIBS $GTKSOURCEVIEW_LIBS"
 
-  if test "x$useatril" != "xno"; then
-    PKG_CHECK_MODULES(ATRIL, atril-view-1.5.0 >= 1.5, have_atril=yes, have_atril=no)
-    CFLAGS="$CFLAGS $ATRIL_CFLAGS -DUSE_EVINCE -DUSE_ATRIL"
-    LIBS="$LIBS $ATRIL_LIBS"
-
-    if test "x$have_atril" = "xno"; then
-      AC_MSG_ERROR([atril was requested but not found])
-    fi
-  fi
 
 AC_ARG_ENABLE(
   alsa,
