@@ -195,6 +195,8 @@ AC_ARG_ENABLE(
       useevince=yes
     fi
   ], [ useevince=auto ])
+AM_CONDITIONAL(HAVE_EVINCE, [test x$useevince = xyes])
+
 
 AC_ARG_ENABLE(
   atril,
@@ -221,7 +223,7 @@ AC_ARG_ENABLE(
       useatril=no
     fi
   ])
-AM_CONDITIONAL(HAVE_EVINCE, [test x$useevince = xyes -o x$useatril = xyes])
+AM_CONDITIONAL(HAVE_ATRIL, [test x$useatril = xyes])
 
 AC_ARG_ENABLE(
   aubio,
@@ -267,10 +269,9 @@ fi
     PKG_CHECK_MODULES(EVINCE, evince-view-3.0 >= 3.0, have_evince_3_0=yes, have_evince_3_0=no)
     CFLAGS="$CFLAGS $EVINCE_CFLAGS -DUSE_EVINCE"
     LIBS="$LIBS $EVINCE_LIBS"
-
+    fi
     if test "x$have_evince_3_0" = "xno"; then
       AC_MSG_ERROR([evince was requested but not found])
-    fi
   fi
 
   if test "x$useatril" != "xno"; then
