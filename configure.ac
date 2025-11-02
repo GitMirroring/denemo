@@ -248,11 +248,6 @@ fi
   CFLAGS="$CFLAGS $GTK3_CFLAGS"
   LIBS="$LIBS $GTK3_LIBS"
 
-
-  PKG_CHECK_MODULES(GTKSOURCEVIEW, gtksourceview-2.0 >= 2.0)
-  CFLAGS="$CFLAGS $GTKSOURCEVIEW_CFLAGS"
-  LIBS="$LIBS $GTKSOURCEVIEW_LIBS"
-
   if test "x$useevince" != "xno"; then
     PKG_CHECK_MODULES(EVINCE_2_0, evince-view-2.0 >= 2.0, have_evince2=yes, have_evince2=no)
     CFLAGS="$CFLAGS $EVINCE_2_0_CFLAGS -DUSE_EVINCE"
