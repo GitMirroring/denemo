@@ -197,6 +197,11 @@ AC_ARG_ENABLE(
   ], [ useevince=auto ])
 AM_CONDITIONAL(HAVE_EVINCE, [test x$useevince = xyes])
 
+if test "x$useevince" != "xno"; then
+    PKG_CHECK_MODULES(EVINCE, evince-view-3.0 >= 3.0, have_evince_3_0=yes, have_evince_3_0=no)
+    CFLAGS="$CFLAGS $EVINCE_CFLAGS -DUSE_EVINCE"
+    LIBS="$LIBS $EVINCE_LIBS"
+fi
 
 AC_ARG_ENABLE(
   atril,
@@ -264,15 +269,6 @@ fi
   PKG_CHECK_MODULES(GTKSOURCEVIEW, gtksourceview-3.0 >= 3.0)
   CFLAGS="$CFLAGS $GTKSOURCEVIEW_CFLAGS"
   LIBS="$LIBS $GTKSOURCEVIEW_LIBS"
-
-  if test "x$useevince" != "xno"; then
-    PKG_CHECK_MODULES(EVINCE, evince-view-3.0 >= 3.0, have_evince_3_0=yes, have_evince_3_0=no)
-    CFLAGS="$CFLAGS $EVINCE_CFLAGS -DUSE_EVINCE"
-    LIBS="$LIBS $EVINCE_LIBS"
-    fi
-    if test "x$have_evince_3_0" = "xno"; then
-      AC_MSG_ERROR([evince was requested but not found])
-  fi
 
   if test "x$useatril" != "xno"; then
     PKG_CHECK_MODULES(ATRIL, atril-view-1.5.0 >= 1.5, have_atril=yes, have_atril=no)
