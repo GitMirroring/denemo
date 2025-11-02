@@ -258,7 +258,6 @@ fi
       AC_MSG_ERROR([atril was requested but not found])
     fi
   fi
-fi
 
   PKG_CHECK_MODULES(GTKSOURCEVIEW, gtksourceview-3.0 >= 3.0)
   CFLAGS="$CFLAGS $GTKSOURCEVIEW_CFLAGS"
@@ -283,7 +282,6 @@ fi
       AC_MSG_ERROR([atril was requested but not found])
     fi
   fi
-fi
 
 AC_ARG_ENABLE(
   alsa,
