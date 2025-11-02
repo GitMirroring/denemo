@@ -248,30 +248,6 @@ fi
   CFLAGS="$CFLAGS $GTK3_CFLAGS"
   LIBS="$LIBS $GTK3_LIBS"
 
-  if test "x$useevince" != "xno"; then
-    PKG_CHECK_MODULES(EVINCE_2_0, evince-view-2.0 >= 2.0, have_evince2=yes, have_evince2=no)
-    CFLAGS="$CFLAGS $EVINCE_2_0_CFLAGS -DUSE_EVINCE"
-    LIBS="$LIBS $EVINCE_2_0_LIBS"
-
-    if test "x$have_evince2" = "xno"; then
-      PKG_CHECK_MODULES(EVINCE_2_30, evince-view-2.30 >= 2.0, have_evince2_3=yes, have_evince2_3=no)
-      CFLAGS="$CFLAGS $EVINCE_2_30_CFLAGS -DUSE_EVINCE"
-      LIBS="$LIBS $EVINCE_2_30_LIBS"
-    fi
-
-    if test "x$have_evince2_3" = "xno"; then
-      PKG_CHECK_MODULES(EVINCE_2_32, evince-view-2.32 >= 2.0, have_evince2_32=yes, have_evince2_32=no)
-      CFLAGS="$CFLAGS $EVINCE_2_32_CFLAGS -DUSE_EVINCE"
-      LIBS="$LIBS $EVINCE_2_32_LIBS"
-    fi
-
-    if test "x$have_evince2" = "xno" -a \
-        "x$have_evince2_3" = "xno" -a \
-        "x$have_evince2_32" = "xno"
-    then
-      AC_MSG_ERROR([evince was requested but not found])
-    fi
-  fi
 
   if test "x$useatril" != "xno"; then
     PKG_CHECK_MODULES(ATRIL, atril-view-1.5.0 >= 1.5, have_atril=yes, have_atril=no)
