@@ -771,7 +771,10 @@ load_command_from_location (GtkWidget * w, gchar * filepath)
 {
   gchar *location = g_strdup_printf ("%s%c", filepath, G_DIR_SEPARATOR);
   g_info ("Calling the file loader with %s", location);
-  load_keymap_dialog_location (location);
+  if (Denemo.command_manager)
+	warningdialog (_("Unable to load new commands as the Command Center is already created - re-start Denemo to do this"));
+  else
+	load_keymap_dialog_location (location);
   g_free (location);
 }
 
@@ -850,7 +853,10 @@ menu_click (GtkWidget * widget, GdkEventButton * event, DenemoAction * action)
       gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
       g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (save_default_keymap_file), action);
 
-
+	  item = gtk_menu_item_new_with_label (_("Load Command Set"));
+	  gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+	  g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (load_keymap_dialog), action);
+		
       item = gtk_separator_menu_item_new ();
       gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
     }                           //idx!=-1
