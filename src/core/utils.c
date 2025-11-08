@@ -3402,7 +3402,7 @@ KeyStrokeShow (gchar * str, gint command_idx, DenemoShortcutType type)
             }
           else
             {
-              text = g_strdup_printf (_("Key Presses <span font_desc=\"24\"  bgcolor=\"white\" font=\"mono\" foreground=\"blue\">%s</span>" " invoke command <span font_desc=\"24\" foreground=\"dark red\">%s</span>"), str, label);
+              text = g_strdup_printf (_("Key Presses <span font_desc=\"24\"  bgcolor=\"white\" face=\"mono\" foreground=\"blue\">%s</span>" " invoke command <span font_desc=\"24\" foreground=\"dark red\">%s</span>"), str, label);
             }
           gtk_window_set_title (GTK_WINDOW (KeyStrokes), type == SingleKey ? _("Single Key Press") : _("Two Key Presses"));
           gtk_label_set_markup (GTK_LABEL (KeyStrokeLabel), text);
