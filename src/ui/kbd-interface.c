@@ -97,7 +97,7 @@ capture_add_binding (GtkWidget * widget, GdkEventKey * event, gpointer user_data
         {
           cbdata->two_key = 0;
           gchar *msg = g_strdup_printf (_("The command %s has the shortcut: %s\nDelete it first or start again selecting an unused keypress."), lookup_name_from_idx (Denemo.map, command_idx), name);
-          warningdialog (msg);
+          infodialog (msg);
           g_free (msg);
           g_free (name);
           g_warning ("trying to set a two key starting with a single");
@@ -139,9 +139,16 @@ capture_add_binding (GtkWidget * widget, GdkEventKey * event, gpointer user_data
   GtkListStore* bindings_model = GTK_LIST_STORE(gtk_tree_view_get_model(cbdata->binding_view));
   update_bindings_model(bindings_model, row->bindings);
 
+  // Update the command view to show the new shortcut in the Shortcut(s) column
+  // We need to update the COL_BINDINGS value in the list store to trigger a redraw
+  GtkListStore* command_list = GTK_LIST_STORE(model);
+  gtk_list_store_set(command_list, &iter, COL_BINDINGS, row->bindings, -1);
+
   gtk_statusbar_pop (cbdata->statusbar, cbdata->context_id);
-  g_signal_handler_disconnect (GTK_WIDGET (widget), cbdata->handler_key_press);
-  g_signal_handler_disconnect (GTK_WIDGET (widget), cbdata->handler_focus_out);
+  if (g_signal_handler_is_connected (GTK_WIDGET (widget), cbdata->handler_key_press))
+    g_signal_handler_disconnect (GTK_WIDGET (widget), cbdata->handler_key_press);
+  if (g_signal_handler_is_connected (GTK_WIDGET (widget), cbdata->handler_focus_out))
+    g_signal_handler_disconnect (GTK_WIDGET (widget), cbdata->handler_focus_out);
   cbdata->two_key = 0;
   return TRUE;
 }
@@ -276,7 +283,19 @@ kbd_interface_del_binding (G_GNUC_UNUSED GtkButton * button, gpointer user_data)
 
   if(command_id_ptr > -1){
     if(keymap_get_command_row (Denemo.map, &row, command_id_ptr))
-      update_bindings_model(GTK_LIST_STORE(model), row->bindings);
+      {
+        update_bindings_model(GTK_LIST_STORE(model), row->bindings);
+
+        // Update the command view to show the removed shortcut is gone from the Shortcut(s) column
+        GtkTreeModel *command_model = gtk_tree_view_get_model(cbdata->command_view);
+        GtkTreeIter command_iter;
+        GtkTreeSelection *command_selection = gtk_tree_view_get_selection(cbdata->command_view);
+        if (gtk_tree_selection_get_selected(command_selection, &command_model, &command_iter))
+          {
+            GtkListStore* command_list = GTK_LIST_STORE(command_model);
+            gtk_list_store_set(command_list, &command_iter, COL_BINDINGS, row->bindings, -1);
+          }
+      }
   }
   else
     g_debug("Cannot find command to delete.\n");
@@ -592,10 +611,11 @@ static void createMouseShortcut_from_data (keyboard_dialog_data *data) {
 static gboolean search_entry_character (GtkWidget *entry,  GdkEventKey *event)
 {
    gint key = event->keyval;
+   // Don't allow Tab or Return - they should trigger search navigation, not add spaces
    if ((key == GDK_KEY_Tab) || (event->keyval == GDK_KEY_Return))
-    { //transform into spaces
-        event->keyval = GDK_KEY_space;
-        event->hardware_keycode = 0x41;
+    {
+      // Return TRUE to block these keys from being inserted as text
+      return TRUE;
     }
   return FALSE;
 }
@@ -646,22 +666,18 @@ command_center_select_idx (DenemoAction * dummy, gint command_idx)
 
   if(Denemo.command_manager)   {
       model = gtk_tree_view_get_model (GTK_TREE_VIEW (cbdata.command_view));
-      if (command_idx == -1)
+      // Only select and scroll to a command if a specific command_idx was provided
+      if (command_idx != -1)
         {
-        //selecting the first command
-        gtk_tree_model_get_iter_first (model, &iter);
-        }
-      else
-        {
-      gint pos = get_command_position(model, command_idx);
-      gtk_tree_model_iter_nth_child (model, &iter, NULL, pos);
+          gint pos = get_command_position(model, command_idx);
+          gtk_tree_model_iter_nth_child (model, &iter, NULL, pos);
+          selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (cbdata.command_view));
+          gtk_tree_selection_select_iter (selection, &iter);
+          path = gtk_tree_model_get_path (model, &iter);
+          gtk_tree_view_scroll_to_cell ((GtkTreeView *) cbdata.command_view, path, NULL, FALSE, 0, 0);
+          gtk_tree_path_free (path);
         }
       gtk_widget_grab_focus (SearchEntry);
-      selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (cbdata.command_view));
-      gtk_tree_selection_select_iter (selection, &iter);
-      path = gtk_tree_model_get_path (model, &iter);
-      gtk_tree_view_scroll_to_cell ((GtkTreeView *) cbdata.command_view, path, NULL, FALSE, 0, 0);
-      gtk_tree_path_free (path);
       if(!gtk_widget_get_visible(Denemo.command_manager))
         set_toggle (ToggleCommandManager_STRING, TRUE);
       return;
@@ -685,6 +701,8 @@ command_center_select_idx (DenemoAction * dummy, gint command_idx)
   g_signal_connect_after(G_OBJECT(Denemo.command_manager), "key-press-event", G_CALLBACK(command_center_keypress_event), &cbdata);
 
   gtk_window_set_title(GTK_WINDOW(Denemo.command_manager), (_("Command Center")));
+  // Set wider default size to accommodate Command, Shortcut, and Hidden columns
+  gtk_window_set_default_size (GTK_WINDOW(Denemo.command_manager), 900, 600);
   if (Denemo.prefs.newbie)
     gtk_widget_set_tooltip_text (Denemo.command_manager,
                                  _
@@ -712,6 +730,11 @@ command_center_select_idx (DenemoAction * dummy, gint command_idx)
   text_view = gtk_text_view_new ();
   gtk_text_view_set_editable (GTK_TEXT_VIEW (text_view), FALSE);
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (text_view), GTK_WRAP_WORD);
+  // Add padding around the text for better readability
+  gtk_text_view_set_left_margin (GTK_TEXT_VIEW (text_view), 8);
+  gtk_text_view_set_right_margin (GTK_TEXT_VIEW (text_view), 8);
+  gtk_text_view_set_top_margin (GTK_TEXT_VIEW (text_view), 8);
+  gtk_text_view_set_bottom_margin (GTK_TEXT_VIEW (text_view), 8);
   scrolled_text_view = gtk_scrolled_window_new (gtk_adjustment_new (1.0, 1.0, 2.0, 1.0, 4.0, 1.0), gtk_adjustment_new (1.0, 1.0, 2.0, 1.0, 4.0, 1.0));
   gtk_container_add (GTK_CONTAINER (scrolled_text_view), text_view);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_text_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -728,7 +751,7 @@ command_center_select_idx (DenemoAction * dummy, gint command_idx)
   gtk_box_pack_start (GTK_BOX (inner_hbox), inner_vbox,  TRUE, TRUE, 0);
   GtkWidget *label = gtk_label_new ("");
   gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
-  gtk_label_set_markup (GTK_LABEL (label), _("List of shortcuts\nfor <i>selected</i> command\nfrom table on left.\nSelect a shortcut\nto remove\nwith button below."));
+  gtk_label_set_markup (GTK_LABEL (label), _("To remove a shortcut,\nselect it below and click\nthe Remove button."));
 
   gtk_box_pack_start (GTK_BOX (inner_vbox), label,  TRUE, TRUE, 0);
   gtk_box_pack_start (GTK_BOX (inner_vbox), binding_view,  FALSE, TRUE, 0);
@@ -739,6 +762,7 @@ command_center_select_idx (DenemoAction * dummy, gint command_idx)
   }
 
   vbox = gtk_vbox_new (FALSE, 8);
+  gtk_container_set_border_width (GTK_CONTAINER (vbox), 12);  // Add padding around right-side buttons
   gtk_box_pack_end (GTK_BOX (outer_hbox), vbox, FALSE, TRUE, 0);
 
    {
@@ -751,14 +775,13 @@ command_center_select_idx (DenemoAction * dummy, gint command_idx)
     gtk_box_pack_start (GTK_BOX (inner_hbox), button_save_as, FALSE, TRUE, 0);
 
     button_load = gtk_button_new_with_label (_("Load a Standard Command Set"));
+    button_load_from = gtk_button_new_with_label (_("Load a Custom Command Set"));
+#ifdef COMMAND_CENTER_WILL_UPDATE
+//until the command center can be updated with new commands this is disabled
     inner_hbox = gtk_hbox_new (FALSE, 8);
     gtk_box_pack_start (GTK_BOX (vbox), inner_hbox, FALSE, TRUE, 0);
-    button_load = gtk_button_new_with_label (_("Load a Standard Command Set"));
-    gtk_box_pack_start (GTK_BOX (inner_hbox), button_load, FALSE, TRUE, 0);
-
-    button_load_from = gtk_button_new_with_label (_("Load a Custom Command Set"));
     gtk_box_pack_start (GTK_BOX (inner_hbox), button_load_from, FALSE, TRUE, 0);
-
+#endif
 
 
     inner_hbox = gtk_hbox_new (FALSE, 8);
@@ -830,26 +853,27 @@ command_center_select_idx (DenemoAction * dummy, gint command_idx)
   cbdata.two_key = 0;
   cbdata.twokeylist = NULL;
 
+  // Initialize help pane with "No command found/selected" message
+  GtkTextBuffer *initial_buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (text_view));
+  gtk_text_buffer_set_text (initial_buffer, _("No command found/selected.\n\nSearch again by entering a key word into the search box. You can use the down arrow to find the next matching command, and the [ -> ] button to restart the search.\n\nYou can also sort the command list four different ways: click on the column headers or on the \"Sort by Name\" button."), -1);
+
   //setup the link between command_view and binding_view
   selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (command_tree_view));
   gtk_tree_selection_set_select_function (selection, keymap_change_binding_view_on_command_selection, &cbdata, NULL);
 
   model = gtk_tree_view_get_model (GTK_TREE_VIEW (command_tree_view));
-  if (command_idx == -1)
-    {
-      //selecting the first command
-      gtk_tree_model_get_iter_first (model, &iter);
-    }
-  else
+  // Only select a command if a specific command_idx was provided (not -1)
+  // Otherwise, start with no selection to show the "No command selected" message
+  if (command_idx != -1)
     {
       gint pos = get_command_position(model, command_idx);
       gtk_tree_model_iter_nth_child (model, &iter, NULL, pos);
       path = gtk_tree_model_get_path (model, &iter);
       gtk_tree_view_scroll_to_cell ((GtkTreeView *) command_tree_view, path, NULL, FALSE, 0, 0);
       gtk_tree_path_free (path);
+      gtk_tree_selection_select_iter (selection, &iter);
     }
   gtk_widget_grab_focus (SearchEntry);
-  gtk_tree_selection_select_iter (selection, &iter);
 
 
   GtkWidget *shortcut_button = gtk_button_new_with_label (_("Set Mouse Shortcut"));
