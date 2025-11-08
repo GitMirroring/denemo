@@ -1226,9 +1226,11 @@ add_named_binding_to_idx (keymap * the_keymap, gchar * kb_name, guint command_id
     Denemo.accelerator_status = TRUE;
   if(g_hash_table_lookup(Denemo.map->continuations_table, kb_name))
     {
-         gchar *text = g_strdup_printf (_("The key %s is the first keypress of some two key shortcuts.\nIf you wish to re-assign it you will need to remove those first.\nOpen the View->Command Center to find and remove the shortcuts."), kb_name);
-        infodialog (text);//Warning! cannot use warningdialog() here as it is modal, resulting in a deadlock if a command which also modal is fired off from the menu at the same time.
+         gchar *msg = g_strdup_printf (_("The key %s is the first keypress of some two key shortcuts.\nIf you wish to re-assign it you will need to remove those first.\nOpen the View->Command Center to find and remove the shortcuts."), kb_name);
+         gchar *text = g_strdup_printf ("(d-InfoDialog \"%s\" #t)", msg);//This should make the dialog non-modal, why doesn't it???
+         call_out_to_guile (text);// infowarningdialog (text, TRUE);//Warning! cannot use warningdialog() here as it is modal, resulting in a deadlock if a command which also modal is fired off from the menu at the same time.
         g_free(text);
+        g_free(msg);
     } else
     {
 
@@ -1488,6 +1490,11 @@ show_type (GtkWidget * widget, gchar * message)
 void
 load_keymap_dialog_location (gchar * location)
 {
+ if (Denemo.command_manager)
+	{
+		warningdialog (_("Unable to load new commands as the Command Center is already created - re-start Denemo to do this"));
+		return;
+	}
   GList *exts = g_list_append (NULL, "*.commands" );
   exts = g_list_append (exts, "*.shortcuts");
   exts = g_list_append (exts, "*.xml");
@@ -1716,6 +1723,117 @@ command_hidden_data_function (G_GNUC_UNUSED GtkTreeViewColumn * col, GtkCellRend
     g_object_set (renderer, "active", row->hidden, NULL);
 }
 
+// Custom sort function for command labels
+static gint
+label_sort_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data)
+{
+  gchar *label_a = NULL;
+  gchar *label_b = NULL;
+  gint result = 0;
+
+  gtk_tree_model_get (model, a, COL_LABEL, &label_a, -1);
+  gtk_tree_model_get (model, b, COL_LABEL, &label_b, -1);
+
+  result = g_strcmp0 (label_a, label_b);
+
+  return result;
+}
+
+// Custom sort function for hidden status
+static gint
+hidden_sort_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data)
+{
+  command_row *row_a = NULL;
+  command_row *row_b = NULL;
+  gboolean hidden_a = FALSE;
+  gboolean hidden_b = FALSE;
+
+  gtk_tree_model_get (model, a, COL_ROW, &row_a, -1);
+  gtk_tree_model_get (model, b, COL_ROW, &row_b, -1);
+
+  if (row_a)
+    hidden_a = row_a->hidden;
+  if (row_b)
+    hidden_b = row_b->hidden;
+
+  // Sort with hidden items first (TRUE < FALSE means checked items come first)
+  if (hidden_a && !hidden_b)
+    return -1;
+  else if (!hidden_a && hidden_b)
+    return 1;
+  else
+    return 0;
+}
+
+// Custom sort function for shortcuts - empty shortcuts go last
+static gint
+shortcut_sort_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data)
+{
+  GList *bindings_a = NULL;
+  GList *bindings_b = NULL;
+  gchar *shortcut_a = NULL;
+  gchar *shortcut_b = NULL;
+  gint result = 0;
+
+  gtk_tree_model_get (model, a, COL_BINDINGS, &bindings_a, -1);
+  gtk_tree_model_get (model, b, COL_BINDINGS, &bindings_b, -1);
+
+  // Get the first binding string or NULL
+  if (bindings_a && bindings_a->data)
+    shortcut_a = (gchar *) bindings_a->data;
+  if (bindings_b && bindings_b->data)
+    shortcut_b = (gchar *) bindings_b->data;
+
+  // Handle empty shortcuts - they go last
+  if (!shortcut_a && !shortcut_b)
+    result = 0;  // Both empty, equal
+  else if (!shortcut_a)
+    result = 1;   // a is empty, goes after b
+  else if (!shortcut_b)
+    result = -1;  // b is empty, goes after a
+  else
+    result = g_strcmp0 (shortcut_a, shortcut_b);  // Normal string comparison
+
+  return result;
+}
+
+// Data function to display keyboard shortcuts for a command
+static void
+shortcut_data_function (G_GNUC_UNUSED GtkTreeViewColumn * col, GtkCellRenderer * renderer, GtkTreeModel * model, GtkTreeIter * iter, G_GNUC_UNUSED gpointer user_data)
+{
+  GList *bindings = NULL;
+  gtk_tree_model_get (model, iter, COL_BINDINGS, &bindings, -1);
+
+  // Use bold medium blue text to differentiate shortcut column
+  g_object_set (renderer, "foreground", "#2c5aa0",
+                "weight", PANGO_WEIGHT_BOLD, NULL);
+
+  if (bindings)
+    {
+      // Build a | separated list of all shortcuts
+      GString *all_shortcuts = g_string_new ("");
+      GList *current = bindings;
+
+      while (current != NULL)
+        {
+          if (current->data)
+            {
+              if (all_shortcuts->len > 0)
+                g_string_append (all_shortcuts, " | ");
+              g_string_append (all_shortcuts, (gchar *) current->data);
+            }
+          current = current->next;
+        }
+
+      g_object_set (renderer, "text", all_shortcuts->str, NULL);
+      g_string_free (all_shortcuts, TRUE);
+    }
+  else
+    {
+      g_object_set (renderer, "text", "", NULL);
+    }
+}
+
 static gint fuzzy = 0;          // number of mis-matched words to allow
 static gint last_row = -1;      // implemented as last found idx
 static gboolean
@@ -1730,8 +1848,9 @@ search_equal_func (GtkTreeModel * model, gint G_GNUC_UNUSED column, const gchar 
     
     while (*key==' ')
         key++;
-        
-    if (*key == 0 || strlen(key)<4)
+
+    // Require at least 2 characters for search (reduced from 4 for better usability)
+    if (*key == 0 || strlen(key)<2)
         return TRUE;
     if ((!last_key) || strcmp (key, last_key))
     {
@@ -1750,17 +1869,58 @@ search_equal_func (GtkTreeModel * model, gint G_GNUC_UNUSED column, const gchar 
         backspace = last_key && (strlen(key)<strlen(last_key));
         g_free (last_key);
         last_key = g_strdup(key);
-    }
-    if (backspace)
-      return FALSE;
-    gchar *tooltip;
-    gtk_tree_model_get (model, iter, COL_TOOLTIP, &tooltip, -1);
-    gchar *label;
-    gtk_tree_model_get (model, iter, COL_LABEL, &label, -1);
-    gchar *name;
-    gtk_tree_model_get (model, iter, COL_NAME, &name, -1);
 
-    lookin = g_strconcat (tooltip, " ", label," ", name, " ", NULL);
+        // When backspacing, restart search from the beginning
+        if (backspace)
+          last_row = -1;
+    }
+
+    // Get checkbox states to determine which fields to search
+    GtkWidget *name_checkbox = g_object_get_data (G_OBJECT(model), "search-in-name");
+    GtkWidget *label_checkbox = g_object_get_data (G_OBJECT(model), "search-in-label");
+    GtkWidget *tooltip_checkbox = g_object_get_data (G_OBJECT(model), "search-in-tooltip");
+
+    gboolean search_name = name_checkbox && gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(name_checkbox));
+    gboolean search_label = label_checkbox && gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(label_checkbox));
+    gboolean search_tooltip = tooltip_checkbox && gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(tooltip_checkbox));
+
+    // Build search string based on selected filters
+    GString *search_text = g_string_new ("");
+
+    if (search_tooltip)
+      {
+        gchar *tooltip;
+        gtk_tree_model_get (model, iter, COL_TOOLTIP, &tooltip, -1);
+        if (tooltip)
+          {
+            g_string_append (search_text, tooltip);
+            g_string_append_c (search_text, ' ');
+          }
+      }
+
+    if (search_label)
+      {
+        gchar *label;
+        gtk_tree_model_get (model, iter, COL_LABEL, &label, -1);
+        if (label)
+          {
+            g_string_append (search_text, label);
+            g_string_append_c (search_text, ' ');
+          }
+      }
+
+    if (search_name)
+      {
+        gchar *name;
+        gtk_tree_model_get (model, iter, COL_NAME, &name, -1);
+        if (name)
+          {
+            g_string_append (search_text, name);
+            g_string_append_c (search_text, ' ');
+          }
+      }
+
+    lookin = g_string_free (search_text, FALSE);
     gchar *this;
     this = g_utf8_casefold (lookin, -1);
 
@@ -1782,7 +1942,9 @@ search_equal_func (GtkTreeModel * model, gint G_GNUC_UNUSED column, const gchar 
     notfound = (matches + fuzzy < number_of_search_terms);
   else
     notfound = !matches;
-  if ((!notfound) && (rownum <= last_row))
+  // Skip rows before the last found row (for "find next" behavior)
+  // But allow the current row to match again if search string changed
+  if ((!notfound) && (rownum < last_row))
     notfound = TRUE;
   if (!notfound)
     {
@@ -1826,13 +1988,26 @@ toggle_hidden_on_action (G_GNUC_UNUSED GtkCellRendererToggle * cell_renderer, gc
 static void
 search_next (GtkWidget *SearchEntry)
 {
+    // Advance to next matching row
     if ( gtk_tree_selection_get_selected (gtk_tree_view_get_selection (GTK_TREE_VIEW(get_command_view())), NULL, NULL))
-        ;//last_row++;
+        last_row++;  // Move to next row for next search
     else
        last_row = -1;
-  //FIXME issue some signal to cause a search to be made instead of this:
-  g_signal_emit_by_name (SearchEntry, "insert-at-cursor", " ");
-  gtk_widget_grab_focus (SearchEntry);
+
+  // Trigger search by programmatically starting interactive search
+  GtkTreeView *view = GTK_TREE_VIEW(get_command_view());
+  if (view)
+    {
+      // Force a search update by toggling search
+      const gchar *text = gtk_entry_get_text (GTK_ENTRY(SearchEntry));
+      if (text && *text)
+        {
+          gtk_tree_view_set_search_entry (view, GTK_ENTRY(SearchEntry));
+          // This triggers the search without inserting spaces
+          gtk_widget_grab_focus (GTK_WIDGET(view));
+          gtk_widget_grab_focus (SearchEntry);
+        }
+    }
 }
 
 static void toggle_fuzzy (void)
@@ -1842,9 +2017,8 @@ static void toggle_fuzzy (void)
 
 static void prepend_no_selection (GtkTextBuffer *text_buffer) //for "No selection
 {
-    GtkTextIter iter;
-    gtk_text_buffer_get_start_iter (text_buffer, &iter);
-    gtk_text_buffer_insert (text_buffer, &iter, _("NO COMMAND SELECTED.\nPress -> to search again\n_________________________________\nLast selected command was:\n"), -1);
+    // Clear the buffer completely - don't show previous command details
+    gtk_text_buffer_set_text (text_buffer, _("No command found/selected.\n\nSearch again by entering a key word into the search box. You can use the down arrow to find the next matching command, and the [ -> ] button to restart the search.\n\nYou can also sort the command list four different ways: click on the column headers or on the \"Sort by Name\" button."), -1);
 }
 
 static void selection_changed (GtkTreeSelection *selection, GtkTreeModel* model) {
@@ -1887,6 +2061,30 @@ command_from_hashtable_to_treemodel(gpointer key, gpointer value, gpointer data)
                       -1);
 }
 
+// Custom sort function for command names
+static gint
+name_sort_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data)
+{
+  gchar *name_a = NULL;
+  gchar *name_b = NULL;
+  gint result = 0;
+
+  gtk_tree_model_get (model, a, COL_NAME, &name_a, -1);
+  gtk_tree_model_get (model, b, COL_NAME, &name_b, -1);
+
+  result = g_strcmp0 (name_a, name_b);
+
+  return result;
+}
+
+// Callback for "Sort by Name" button
+static void
+sort_by_name_clicked (GtkButton *button, gpointer user_data)
+{
+  GtkTreeModel *model = GTK_TREE_MODEL (user_data);
+  gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE(model), COL_NAME, GTK_SORT_ASCENDING);
+}
+
 static GtkTreeModel*
 commands_treemodel(keymap * the_keymap){
   GtkListStore* list = gtk_list_store_new (N_COLUMNS,
@@ -1904,6 +2102,11 @@ commands_treemodel(keymap * the_keymap){
                                             G_TYPE_POINTER             //row
                                            );
   g_hash_table_foreach(the_keymap->commands, command_from_hashtable_to_treemodel, list);
+
+  // Set default sort by command name (alphabetically)
+  gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE(list), COL_NAME, name_sort_func, NULL, NULL);
+  gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE(list), COL_NAME, GTK_SORT_ASCENDING);
+
   return GTK_TREE_MODEL(list);
 }
 
@@ -1932,8 +2135,35 @@ keymap_get_command_view (keymap * the_keymap, GtkWidget *SearchEntry, GtkWidget 
   gtk_tree_view_append_column (res, col);
 
   renderer = gtk_cell_renderer_text_new ();
+  g_object_set (renderer, "xpad", 8, NULL);  // Add horizontal padding
   gtk_tree_view_column_pack_start (col, renderer, TRUE);
   gtk_tree_view_column_set_cell_data_func (col, renderer, label_data_function, NULL, NULL);
+
+  // Make Command column sortable with custom sort function
+  gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE(model), COL_LABEL, label_sort_func, NULL, NULL);
+  gtk_tree_view_column_set_sort_column_id (col, COL_LABEL);
+  gtk_tree_view_column_set_clickable (col, TRUE);
+  gtk_tree_view_column_set_resizable (col, TRUE);
+
+  // Add Shortcut column to display keyboard shortcuts
+  GtkTreeViewColumn *shortcut_col = gtk_tree_view_column_new ();
+  gtk_tree_view_column_set_title (shortcut_col, _("Shortcut(s)"));
+  gtk_tree_view_append_column (res, shortcut_col);
+
+  renderer = gtk_cell_renderer_text_new ();
+  g_object_set (renderer,
+                "xpad", 8,              // Add horizontal padding
+                "wrap-mode", PANGO_WRAP_WORD_CHAR,  // Enable text wrapping
+                "wrap-width", 200,      // Set maximum width before wrapping (in pixels)
+                NULL);
+  gtk_tree_view_column_pack_start (shortcut_col, renderer, TRUE);
+  gtk_tree_view_column_set_cell_data_func (shortcut_col, renderer, shortcut_data_function, NULL, NULL);
+
+  // Make Shortcut column sortable with custom sort function (empty shortcuts last)
+  gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE(model), COL_BINDINGS, shortcut_sort_func, NULL, NULL);
+  gtk_tree_view_column_set_sort_column_id (shortcut_col, COL_BINDINGS);
+  gtk_tree_view_column_set_clickable (shortcut_col, TRUE);
+  gtk_tree_view_column_set_resizable (shortcut_col, TRUE);
 
 #if 0
 /* including this column makes the command manager too wide */
@@ -1954,6 +2184,40 @@ keymap_get_command_view (keymap * the_keymap, GtkWidget *SearchEntry, GtkWidget 
   //gtk_tree_view_column_add_attribute (col, renderer, "active", COL_HIDDEN); this causes warnings from GLib-GObject
   gtk_tree_view_column_set_cell_data_func (col, renderer, command_hidden_data_function, NULL, NULL);
   g_signal_connect (renderer, "toggled", (GCallback) toggle_hidden_on_action, (gpointer) model);
+
+  // Make Hidden column sortable with custom sort function (checked/hidden items first when sorted ascending)
+  gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE(model), COL_HIDDEN, hidden_sort_func, NULL, NULL);
+  gtk_tree_view_column_set_sort_column_id (col, COL_HIDDEN);
+  gtk_tree_view_column_set_clickable (col, TRUE);
+  gtk_tree_view_column_set_resizable (col, TRUE);
+
+  // Style all column header buttons with gray background and dark text
+  GList *columns = gtk_tree_view_get_columns (res);
+  GtkCssProvider *header_css_provider = gtk_css_provider_new ();
+  gtk_css_provider_load_from_data (header_css_provider,
+    "button {"
+    "  background-image: linear-gradient(to bottom, #f0f0f0, #e0e0e0);"
+    "  color: #2a2a2a;"
+    "  font-weight: bold;"
+    "  border: 1px solid #c0c0c0;"
+    "}"
+    "button:hover {"
+    "  background-image: linear-gradient(to bottom, #f5f5f5, #e5e5e5);"
+    "}"
+    , -1, NULL);
+
+  for (GList *l = columns; l != NULL; l = l->next)
+    {
+      GtkTreeViewColumn *column = GTK_TREE_VIEW_COLUMN (l->data);
+      GtkWidget *button = gtk_tree_view_column_get_button (column);
+      if (button)
+        {
+          gtk_style_context_add_provider (gtk_widget_get_style_context (button),
+                                           GTK_STYLE_PROVIDER (header_css_provider),
+                                           GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+        }
+    }
+  g_list_free (columns);
 
 #if 0
   col = gtk_tree_view_column_new ();
@@ -1978,7 +2242,42 @@ keymap_get_command_view (keymap * the_keymap, GtkWidget *SearchEntry, GtkWidget 
 //gtk_tree_view_set_search_column (res, COL_LABEL);
   gtk_tree_view_set_enable_search (res, TRUE);
 
+  // Enable grid lines for better column separation
+  gtk_tree_view_set_grid_lines (res, GTK_TREE_VIEW_GRID_LINES_BOTH);
 
+  // Style the tree view with horizontal grid lines and header styling
+  GtkCssProvider *tree_css_provider = gtk_css_provider_new ();
+  gtk_css_provider_load_from_data (tree_css_provider,
+    "treeview.view {"
+    "  -GtkTreeView-grid-line-width: 1;"
+    "  -GtkTreeView-horizontal-separator: 0;"
+    "  -GtkTreeView-vertical-separator: 0;"
+    "}"
+    "treeview.view.cell {"
+    "  border-bottom: 1px solid #dadada;"
+    "}"
+    "treeview.view:selected {"
+    "  background-color: #4a90d9;"
+    "  color: white;"
+    "}"
+    "treeview.view:selected.cell {"
+    "  border-bottom: 1px solid #9dc3e6;"
+    "}"
+    /* Style column headers with gray background and dark text */
+    "treeview.view header button {"
+    "  background-image: linear-gradient(to bottom, #f0f0f0, #e0e0e0);"
+    "  color: #2a2a2a;"
+    "  font-weight: bold;"
+    "  border: 1px solid #c0c0c0;"
+    "  padding: 4px 8px;"
+    "}"
+    "treeview.view header button:hover {"
+    "  background-image: linear-gradient(to bottom, #f5f5f5, #e5e5e5);"
+    "}"
+    , -1, NULL);
+  gtk_style_context_add_provider (gtk_widget_get_style_context (GTK_WIDGET (res)),
+                                   GTK_STYLE_PROVIDER (tree_css_provider),
+                                   GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
   //setting up the scrolledwindow
   res2 = GTK_SCROLLED_WINDOW (gtk_scrolled_window_new (gtk_adjustment_new (1.0, 1.0, 2.0, 1.0, 4.0, 1.0), gtk_adjustment_new (1.0, 1.0, 2.0, 1.0, 4.0, 1.0)));
@@ -2008,6 +2307,52 @@ keymap_get_command_view (keymap * the_keymap, GtkWidget *SearchEntry, GtkWidget 
   g_signal_connect_swapped (G_OBJECT (SearchNext), "clicked", G_CALLBACK (search_next), SearchEntry);
 
   gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, TRUE, 0);
+
+  // Add filter checkboxes to control which fields are searched
+  GtkWidget *filter_hbox = gtk_hbox_new (FALSE, 8);
+  GtkWidget *filter_label = gtk_label_new (_("Search in:"));
+  gtk_box_pack_start (GTK_BOX (filter_hbox), filter_label, FALSE, TRUE, 0);
+
+  // Create three checkboxes for filtering search fields (all enabled by default)
+  static GtkWidget *search_in_name_checkbox = NULL;
+  static GtkWidget *search_in_label_checkbox = NULL;
+  static GtkWidget *search_in_tooltip_checkbox = NULL;
+
+  search_in_name_checkbox = gtk_check_button_new_with_label (_("Name"));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(search_in_name_checkbox), TRUE);
+  gtk_widget_set_can_focus (search_in_name_checkbox, FALSE);
+  gtk_widget_set_tooltip_text (search_in_name_checkbox, _("Search in the internal command name"));
+  gtk_box_pack_start (GTK_BOX (filter_hbox), search_in_name_checkbox, FALSE, TRUE, 0);
+
+  search_in_label_checkbox = gtk_check_button_new_with_label (_("Label"));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(search_in_label_checkbox), TRUE);
+  gtk_widget_set_can_focus (search_in_label_checkbox, FALSE);
+  gtk_widget_set_tooltip_text (search_in_label_checkbox, _("Search in the visible command label"));
+  gtk_box_pack_start (GTK_BOX (filter_hbox), search_in_label_checkbox, FALSE, TRUE, 0);
+
+  search_in_tooltip_checkbox = gtk_check_button_new_with_label (_("Tooltip"));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(search_in_tooltip_checkbox), TRUE);
+  gtk_widget_set_can_focus (search_in_tooltip_checkbox, FALSE);
+  gtk_widget_set_tooltip_text (search_in_tooltip_checkbox, _("Search in the tooltip text"));
+  gtk_box_pack_start (GTK_BOX (filter_hbox), search_in_tooltip_checkbox, FALSE, TRUE, 0);
+
+  // Store checkbox and search entry references in model for access by search function and highlighting
+  g_object_set_data (G_OBJECT(model), "search-in-name", search_in_name_checkbox);
+  g_object_set_data (G_OBJECT(model), "search-in-label", search_in_label_checkbox);
+  g_object_set_data (G_OBJECT(model), "search-in-tooltip", search_in_tooltip_checkbox);
+  g_object_set_data (G_OBJECT(model), "search-entry", SearchEntry);
+
+  // Add "Sort by Name" button to reset to default alphabetical order
+  GtkWidget *sort_button = gtk_button_new_with_label (_("Sort by Name"));
+  gtk_widget_set_tooltip_text (sort_button, _("Sort commands alphabetically by internal command name (the default order)"));
+  gtk_box_pack_start (GTK_BOX (filter_hbox), sort_button, FALSE, TRUE, 0);
+
+  // Connect button click to sort by name
+  g_signal_connect (G_OBJECT (sort_button), "clicked",
+                    G_CALLBACK (sort_by_name_clicked),
+                    (gpointer) model);
+
+  gtk_box_pack_start (GTK_BOX (vbox), filter_hbox, FALSE, TRUE, 0);
   gtk_box_pack_start (GTK_BOX (vbox), (GtkWidget*)res2, TRUE, TRUE, 0);
 
 
@@ -2082,6 +2427,135 @@ get_bindings_model(GList *bindings)
   return GTK_TREE_MODEL(list);
 }
 
+// Helper function to set text in buffer with search term highlighting
+static void
+set_help_text_with_highlighting (GtkTextBuffer *buffer, const gchar *text, GtkTreeModel *model)
+{
+  // Clear the buffer
+  gtk_text_buffer_set_text (buffer, "", 0);
+
+  // Insert the text first
+  GtkTextIter iter;
+  gtk_text_buffer_get_start_iter (buffer, &iter);
+  gtk_text_buffer_insert (buffer, &iter, text, -1);
+
+  // Create or get tags
+  GtkTextTagTable *tag_table = gtk_text_buffer_get_tag_table (buffer);
+
+  // Blue tag for Location menu path
+  GtkTextTag *blue_tag = gtk_text_tag_table_lookup (tag_table, "location-blue");
+  if (!blue_tag)
+    {
+      blue_tag = gtk_text_buffer_create_tag (buffer, "location-blue",
+                                              "foreground", "#0066CC",  // Blue color for menu paths
+                                              "weight", PANGO_WEIGHT_BOLD,
+                                              NULL);
+    }
+
+  // Teal tag for "Not in menu system" message
+  GtkTextTag *teal_tag = gtk_text_tag_table_lookup (tag_table, "location-teal");
+  if (!teal_tag)
+    {
+      teal_tag = gtk_text_buffer_create_tag (buffer, "location-teal",
+                                              "foreground", "#0f8a7a",  // Darker teal for better contrast
+                                              "weight", PANGO_WEIGHT_BOLD,
+                                              NULL);
+    }
+
+  // Highlight only the menu path part of "Location:" line (not the "Location: " prefix)
+  GtkTextIter search_start, search_end, line_start, line_end;
+  gtk_text_buffer_get_start_iter (buffer, &search_start);
+  if (gtk_text_iter_forward_search (&search_start, "Location:",
+                                     GTK_TEXT_SEARCH_TEXT_ONLY,
+                                     &line_start, &line_end, NULL))
+    {
+      // Start highlighting after "Location: " (skip the prefix and space)
+      GtkTextIter path_start = line_end;
+      gtk_text_iter_forward_char (&path_start);  // Skip the space after colon
+
+      // Find the end of the line
+      GtkTextIter path_end = path_start;
+      gtk_text_iter_forward_to_line_end (&path_end);
+
+      // Get the location text to determine which color to use
+      gchar *location_text = gtk_text_buffer_get_text (buffer, &path_start, &path_end, FALSE);
+
+      // Use teal for "Not in menu system" message, blue for actual menu paths
+      if (location_text && g_strstr_len (location_text, -1, "Not in menu system"))
+        gtk_text_buffer_apply_tag (buffer, teal_tag, &path_start, &path_end);
+      else
+        gtk_text_buffer_apply_tag (buffer, blue_tag, &path_start, &path_end);
+
+      g_free (location_text);
+    }
+
+  // Purple foreground tag for WARNING line
+  GtkTextTag *warning_tag = gtk_text_tag_table_lookup (tag_table, "warning-fg");
+  if (!warning_tag)
+    {
+      warning_tag = gtk_text_buffer_create_tag (buffer, "warning-fg",
+                                                 "foreground", "#8B008B",  // Dark purple foreground
+                                                 "weight", PANGO_WEIGHT_BOLD,
+                                                 NULL);
+    }
+
+  // Highlight the WARNING line with purple foreground (just the WARNING line, not beyond)
+  gtk_text_buffer_get_start_iter (buffer, &search_start);
+  if (gtk_text_iter_forward_search (&search_start, "WARNING:",
+                                     GTK_TEXT_SEARCH_TEXT_ONLY,
+                                     &line_start, &line_end, NULL))
+    {
+      // Find the end of just this line (not the next line)
+      GtkTextIter warning_end = line_start;
+      gtk_text_iter_forward_to_line_end (&warning_end);
+
+      // Apply warning tag only to the WARNING line
+      gtk_text_buffer_apply_tag (buffer, warning_tag, &line_start, &warning_end);
+    }
+
+  // Get the search entry widget for search term highlighting
+  GtkWidget *search_entry = g_object_get_data (G_OBJECT(model), "search-entry");
+  if (!search_entry)
+    return;
+
+  const gchar *search_text = gtk_entry_get_text (GTK_ENTRY(search_entry));
+  if (!search_text || strlen(search_text) < 2)
+    return;
+
+  // Create or get the search highlight tag
+  GtkTextTag *highlight_tag = gtk_text_tag_table_lookup (tag_table, "search-highlight");
+  if (!highlight_tag)
+    {
+      highlight_tag = gtk_text_buffer_create_tag (buffer, "search-highlight",
+                                                   "background", "#fff33f",  // Perky yellow background
+                                                   NULL);
+    }
+
+  // Parse search terms (split by spaces)
+  gchar **search_terms = g_strsplit (search_text, " ", -1);
+
+  // For each search term, find and highlight occurrences using GTK text search
+  for (gchar **term = search_terms; *term && **term; term++)
+    {
+      GtkTextIter search_start, match_start, match_end;
+      gtk_text_buffer_get_start_iter (buffer, &search_start);
+
+      // Search for all occurrences of this term (case-insensitive)
+      while (gtk_text_iter_forward_search (&search_start, *term,
+                                           GTK_TEXT_SEARCH_CASE_INSENSITIVE | GTK_TEXT_SEARCH_TEXT_ONLY,
+                                           &match_start, &match_end, NULL))
+        {
+          // Apply highlight tag to this match
+          gtk_text_buffer_apply_tag (buffer, highlight_tag, &match_start, &match_end);
+
+          // Move search position past this match
+          search_start = match_end;
+        }
+    }
+
+  g_strfreev (search_terms);
+}
+
 gboolean
 keymap_change_binding_view_on_command_selection (GtkTreeSelection * selection, GtkTreeModel * model, GtkTreePath * path, gboolean path_currently_selected, gpointer data)
 {
@@ -2142,13 +2616,13 @@ keymap_change_binding_view_on_command_selection (GtkTreeSelection * selection, G
       if (menupath==NULL)
         menupath = g_strdup (_("Not in menu system. You can create a palette button for it using the Add to Palette button."));
       if (plain)
-        text = g_strdup_printf (_( "%sCommand: %s\n%s\nLocation: %s\nInternal Name: %s"), hidden?_("WARNING!!:\nThis command is hidden.\nMost likely you want to continue your search for a better command.\nHidden commands are either for LilyPond users or low-level interfaces for more user-friendly versions.\n"):"", label, plain, menupath, denemo_action_get_name(action));
+        text = g_strdup_printf (_( "Location: %s\n%sLabel: %s\nName: %s\nTooltip: %s"), menupath, hidden?_("WARNING: This command is hidden. Hidden commands are either for Lilypond-level usage or other back-end directives.\n\n"):"", label, denemo_action_get_name(action), plain);
       g_free (plain);
 
       if (text)
-        gtk_text_buffer_set_text (text_buffer, text, -1);
+        set_help_text_with_highlighting (text_buffer, text, model);
       else
-        gtk_text_buffer_set_text (text_buffer, "Internal Problem", -1);
+        set_help_text_with_highlighting (text_buffer, "Internal Problem", model);
 
       g_free(text);
       g_free(menupath);
