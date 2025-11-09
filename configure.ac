@@ -138,6 +138,14 @@ if [test "x$useguile_1_8" = "xno"] && [test "x$useguile_2_0" = "xno"] && [test "
   )
 fi
 
+PKG_CHECK_MODULES(GTK3, gtk+-3.0 >= 3.0.0)
+CFLAGS="$CFLAGS $GTK3_CFLAGS"
+LIBS="$LIBS $GTK3_LIBS"
+
+PKG_CHECK_MODULES(GTKSOURCEVIEW, gtksourceview-3.0 >= 3.0)
+CFLAGS="$CFLAGS $GTKSOURCEVIEW_CFLAGS"
+LIBS="$LIBS $GTKSOURCEVIEW_LIBS"
+
 PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.30])
 CFLAGS="$CFLAGS $GLIB_CFLAGS"
 LIBS="$LIBS $GLIB_LIBS"
@@ -195,6 +203,13 @@ AC_ARG_ENABLE(
       useevince=yes
     fi
   ], [ useevince=auto ])
+AM_CONDITIONAL(HAVE_EVINCE, [test x$useevince = xyes])
+
+if test "x$useevince" = "xyes"; then
+    PKG_CHECK_MODULES(EVINCE, evince-view-3.0 >= 3.0)
+    CFLAGS="$CFLAGS $EVINCE_CFLAGS -DUSE_EVINCE"
+    LIBS="$LIBS $EVINCE_LIBS"
+fi
 
 AC_ARG_ENABLE(
   atril,
@@ -221,7 +236,16 @@ AC_ARG_ENABLE(
       useatril=no
     fi
   ])
-AM_CONDITIONAL(HAVE_EVINCE, [test x$useevince = xyes -o x$useatril = xyes])
+AM_CONDITIONAL(HAVE_ATRIL, [test x$useatril = xyes])
+  if test "x$useatril" != "xno"; then
+    PKG_CHECK_MODULES(ATRIL, atril-view-1.5.0 >= 1.5, have_atril=yes, have_atril=no)
+    CFLAGS="$CFLAGS $ATRIL_CFLAGS -DUSE_EVINCE -DUSE_ATRIL"
+    LIBS="$LIBS $ATRIL_LIBS"
+
+    if test "x$have_atril" = "xno"; then
+      AC_MSG_ERROR([atril was requested but not found])
+    fi
+  fi
 
 AC_ARG_ENABLE(
   aubio,
@@ -242,113 +266,6 @@ fi
 if test "x$useaubio" = "xno"; then
       CFLAGS="$CFLAGS -DDISABLE_AUBIO"
       LIBS="$LIBS -DDISABLE_AUBIO"
-fi
-
-
-AC_ARG_ENABLE(
-  gtk2,
-  AS_HELP_STRING([--enable-gtk2], [use GTK2 @<:@default=no@:>@]),
-  [
-    if test "x$enableval" != "xno"; then
-      usegtk2=yes
-      PKG_CHECK_MODULES(GTK2, gtk+-2.0 >= 2.0.3)
-      AC_MSG_WARN([GTK2 support is deprecated and will be removed later.])
-    fi
-  ], [ usegtk2=no ])
-
-AC_ARG_ENABLE(
-  gtk3,
-  AS_HELP_STRING([--enable-gtk3], [use GTK3 @<:@default=no@:>@]),
-  [
-    if test "x$enableval" != "xno"; then
-      usegtk3=yes
-      usegtk2=no
-      PKG_CHECK_MODULES(GTK3, gtk+-3.0 >= 3.0.0)
-    fi
-  ], [ usegtk3=no ])
-
-if [test "x$usegtk2" = "xno"] && [test "x$usegtk3" = "xno"]; then
-  PKG_CHECK_MODULES(GTK3, gtk+-3.0 >= 3.0.0, havegtk3=yes, havegtk3=no)
-  if test "x$havegtk3" = "xno"; then
-    AC_MSG_ERROR([GTK3 not found.
-                  For now, you can explicitly enable GTK2 support with --enable-gtk2.
-                  This will be removed later.])
-  else
-    usegtk3=yes
-  fi
-fi
-
-if test "x$usegtk2" = "xyes"; then
-  CFLAGS="$CFLAGS $GTK2_CFLAGS"
-  LIBS="$LIBS $GTK2_LIBS"
-
-  PKG_CHECK_MODULES(GTKSOURCEVIEW, gtksourceview-2.0 >= 2.0)
-  CFLAGS="$CFLAGS $GTKSOURCEVIEW_CFLAGS"
-  LIBS="$LIBS $GTKSOURCEVIEW_LIBS"
-
-  if test "x$useevince" != "xno"; then
-    PKG_CHECK_MODULES(EVINCE_2_0, evince-view-2.0 >= 2.0, have_evince2=yes, have_evince2=no)
-    CFLAGS="$CFLAGS $EVINCE_2_0_CFLAGS -DUSE_EVINCE"
-    LIBS="$LIBS $EVINCE_2_0_LIBS"
-
-    if test "x$have_evince2" = "xno"; then
-      PKG_CHECK_MODULES(EVINCE_2_30, evince-view-2.30 >= 2.0, have_evince2_3=yes, have_evince2_3=no)
-      CFLAGS="$CFLAGS $EVINCE_2_30_CFLAGS -DUSE_EVINCE"
-      LIBS="$LIBS $EVINCE_2_30_LIBS"
-    fi
-
-    if test "x$have_evince2_3" = "xno"; then
-      PKG_CHECK_MODULES(EVINCE_2_32, evince-view-2.32 >= 2.0, have_evince2_32=yes, have_evince2_32=no)
-      CFLAGS="$CFLAGS $EVINCE_2_32_CFLAGS -DUSE_EVINCE"
-      LIBS="$LIBS $EVINCE_2_32_LIBS"
-    fi
-
-    if test "x$have_evince2" = "xno" -a \
-        "x$have_evince2_3" = "xno" -a \
-        "x$have_evince2_32" = "xno"
-    then
-      AC_MSG_ERROR([evince was requested but not found])
-    fi
-  fi
-
-  if test "x$useatril" != "xno"; then
-    PKG_CHECK_MODULES(ATRIL, atril-view-1.5.0 >= 1.5, have_atril=yes, have_atril=no)
-    CFLAGS="$CFLAGS $ATRIL_CFLAGS -DUSE_EVINCE -DUSE_ATRIL"
-    LIBS="$LIBS $ATRIL_LIBS"
-
-    if test "x$have_atril" = "xno"; then
-      AC_MSG_ERROR([atril was requested but not found])
-    fi
-  fi
-fi
-
-if test "x$usegtk3" = "xyes"; then
-  CFLAGS="$CFLAGS $GTK3_CFLAGS"
-  LIBS="$LIBS $GTK3_LIBS"
-
-  PKG_CHECK_MODULES(GTKSOURCEVIEW, gtksourceview-3.0 >= 3.0)
-  CFLAGS="$CFLAGS $GTKSOURCEVIEW_CFLAGS"
-  LIBS="$LIBS $GTKSOURCEVIEW_LIBS"
-
-  if test "x$useevince" != "xno"; then
-    PKG_CHECK_MODULES(EVINCE, evince-view-3.0 >= 3.0, have_evince_3_0=yes, have_evince_3_0=no)
-    CFLAGS="$CFLAGS $EVINCE_CFLAGS -DUSE_EVINCE"
-    LIBS="$LIBS $EVINCE_LIBS"
-
-    if test "x$have_evince_3_0" = "xno"; then
-      AC_MSG_ERROR([evince was requested but not found])
-    fi
-  fi
-
-  if test "x$useatril" != "xno"; then
-    PKG_CHECK_MODULES(ATRIL, atril-view-1.5.0 >= 1.5, have_atril=yes, have_atril=no)
-    CFLAGS="$CFLAGS $ATRIL_CFLAGS -DUSE_EVINCE -DUSE_ATRIL"
-    LIBS="$LIBS $ATRIL_LIBS"
-
-    if test "x$have_atril" = "xno"; then
-      AC_MSG_ERROR([atril was requested but not found])
-    fi
-  fi
 fi
 
 AC_ARG_ENABLE(
