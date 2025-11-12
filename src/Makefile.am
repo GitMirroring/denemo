@@ -184,17 +184,16 @@ denemo_SOURCES = \
 nodist_denemo_SOURCES = pathconfig.h
 
 
-if HAVE_EVINCE
-  denemo_SOURCES += \
-    source/source.c \
-    source/source.h \
-    source/proof.c \
-    source/proof.h \
-    printview/markupview.h \
-    printview/markupview.c \
-    printview/printview.h \
-    printview/printview.c
-endif
+denemo_SOURCES += \
+  source/source.c \
+  source/source.h \
+  source/proof.c \
+  source/proof.h \
+  printview/markupview.h \
+  printview/markupview.c \
+  printview/printview.h \
+  printview/printview.c
+
 
 noinst_LIBRARIES = libaudiobackend.a
 libaudiobackend_a_CFLAGS = -W -Wall -Wno-unused-parameter $(PLATFORM_CFLAGS) 
