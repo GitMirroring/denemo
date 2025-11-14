@@ -375,20 +375,6 @@ if test "x$useportmidi" = "xyes"; then
   LIBS="$LIBS $PORTMIDI_LIBS"
 fi
 
-AC_ARG_ENABLE(
-  x11,
-  AS_HELP_STRING([--enable-x11], [use X11 @<:@default=yes@:>@]),
-  [
-    if test "x$enableval" != "xno"; then
-      enable_x11=yes
-    fi
-  ], [ enable_x11=yes ])
-AM_CONDITIONAL(WITH_X11, [test x$enable_x11 = xyes])
-
-if test "x$enable_x11" = "xyes"; then
-  CFLAGS="$CFLAGS -D_HAVE_X11_"
-  LIBS="$LIBS -D_HAVE_X11_"
-fi
 
 dnl Memory debugging
 mem_debug=no
