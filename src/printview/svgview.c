@@ -35,8 +35,10 @@
 
 
 #ifndef USE_EVINCE
+#ifndef USE_ATRIL
 void set_continuous_typesetting (gboolean setting){return FALSE;}
 gboolean continuous_typesetting () {return FALSE;}
+#endif
 #endif
 
 static gint changecount = -1;   //changecount when the playback typeset was last created
