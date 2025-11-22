@@ -1,7 +1,10 @@
+;;;;;;InsertKeyChange
 (if (= 1 (d-GetHorizontalPosition))
-	(let ((sharps (d-GetUserInput (_ "Key Signature Change") (_ "Give a number of sharps (negative for flats):") "0")))(disp "string " (string? sharps) sharps "ok")
+	(let ((sharps (d-GetUserInput (_ "Key Signature Change") (_ "Give a number of sharps (negative for flats):") "0"))
+		(extra (d-GetUserInput (_ "Extra space") (_ "Give  any extra space before next note (Cancel for default)") "0")))
 		(if (string? sharps)
 			(begin
+
 				(set! sharps (string->number sharps))	
 				(if (Keysignature?)
 					(begin
@@ -17,6 +20,9 @@
 						(d-PopPosition)))
 				(d-InsertKey "C major")
 				(d-MoveCursorLeft)
+				(if (and extra (string->number extra))
+					(d-DirectivePut-keysig-prefix "InsertKeyChange" 
+						(string-append " \\once\\override Staff.KeySignature.space-alist.next-note = #'(semi-fixed-space . " extra ")\\once\\override Staff.KeyCancellation.space-alist.next-note = #'(semi-fixed-space . " extra ")")))
 				(while (positive? sharps)
 					(d-SharpenKeysig) (set! sharps (1- sharps)))
 				(while (negative? sharps)
