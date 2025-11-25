@@ -32,6 +32,7 @@
 #else
 #include <evince-view.h>
 #include <evince-document.h>
+#define EV_DOCUMENT_ANNOTATIONS(x) x
 #endif
 
 static const gchar *nearest_annotation_text = NULL;
