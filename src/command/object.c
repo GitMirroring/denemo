@@ -1127,7 +1127,7 @@ create_script_for_directive (GtkWidget * button, gchar * what)
   DenemoPalette *pal = NULL;
   if (!strcmp (what, "lilycontrol"))
     what = "score";
-  gchar *script = g_strdup_printf ( ";;;;;;;;;;;;;;;;;;;;;;\n;;;Create %s directive tagged %s if it is not present\n\
+  gchar *script = g_strdup_printf ( ";;;;;;;;;;;;;;;;;;;;;;\n#!Create %s directive tagged %s if it is not present\n!#\
 (if (not (d-Directive-%s? \"%s\"))\n%s);END OF SCRIPT\n", 
 									what, directive->tag->str, what, directive->tag->str, get_script_for_directive (directive, what));
   appendSchemeText (script);
