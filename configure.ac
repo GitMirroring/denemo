@@ -239,7 +239,7 @@ AC_ARG_ENABLE(
 AM_CONDITIONAL(HAVE_ATRIL, [test x$useatril = xyes])
   if test "x$useatril" != "xno"; then
     PKG_CHECK_MODULES(ATRIL, atril-view-1.5.0 >= 1.5, have_atril=yes, have_atril=no)
-    CFLAGS="$CFLAGS $ATRIL_CFLAGS -DUSE_ATRIL"
+    CFLAGS="$CFLAGS $ATRIL_CFLAGS -DUSE_ATRIL -DUSE_EVINCE"
     LIBS="$LIBS $ATRIL_LIBS"
 
     if test "x$have_atril" = "xno"; then
