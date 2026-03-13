@@ -1,15 +1,26 @@
-*.o
-*.a
-*.gcno
-*.gcda
-*~
+# Local build artifacts
+*.tar.gz
+*.tar.xz
+*.zip
+*.log
+*.orig
+*.rej
+
+# Backup files
+*.backup
+*.backup2
+*.backup3
 *.bak
-.libs
-.deps
-.dirstamp
+*.patch
+*~
+
+# Local notes
+notes.txt
+startup.log
+
+# Autotools generated files
 Makefile
 Makefile.in
-INSTALL
 aclocal.m4
 autom4te.cache/
 compile
@@ -20,57 +31,33 @@ config.log
 config.status
 config.sub
 configure
-intltool-*.in
-denemo.spec
 depcomp
 install-sh
 libtool
 ltmain.sh
 missing
-mkinstalldirs
 stamp-h1
-tags
-
-# Build directory
-build/libtool.m4
-build/ltoptions.m4
-build/ltsugar.m4
-build/ltversion.m4
-build/lt~obsolete.m4
-build/intltool.m4
-
-# Built directory
-bin
-
-# Translation directory
-po/POTFILES
-po/notexist
-po/Makefile.in.in
-po/stamp-it
-po/*.gmo
-po/denemo-*.pot
-po/.intltool-merge-cache
-
-# Source files
-src/denemo
-src/lyparser.c
-src/pathconfig.h
-src/*.cDEV
-
-# Tools directory
-tools/cairo_svg2path
-tools/extract_scheme
-tools/generate_source
-
-# Anjuta ignores
-Debug
-.anjuta*
-*.anjuta
-
-# Vim files
-*.swp
-
-#Tests
 test-driver
+denemo.spec
+intltool-extract.in
+intltool-merge.in
+intltool-update.in
 
-*.appdata.xml
+# Build output
+.deps/
+.dirstamp
+*.gmo
+po/stamp-it
+po/POTFILES
+po/Makefile
+po/Makefile.in
+po/Makefile.in.in
+po/.intltool-merge-cache.lock
+
+# Misc local files
+ChordComparison.diff
+patch_denemo_evince.sh
+
+# Build m4 files
+build/*.m4
+build/lt~obsolete.m4
