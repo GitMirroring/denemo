@@ -6,7 +6,7 @@ $(PKG)_VERSION  := 2.6.51
 $(PKG)_CHECKSUM := e623b4061b3b6122b6db996e12d9df3324e140435d04ae55b4a6eec7f67cc6eb
 $(PKG)_SUBDIR   := denemo-$($(PKG)_VERSION)
 $(PKG)_FILE     := denemo-$($(PKG)_VERSION).tar.gz
-$(PKG)_URL      := http://www.denemo.org/~jjbenham/denemo-snapshot/$($(PKG)_FILE)
+$(PKG)_URL      := https://denemo.org/~jjbenham/denemo-snapshot/$($(PKG)_FILE)
 $(PKG)_DEPS     := gcc gtk3 gtksourceview aubio portaudio librsvg libgcrypt portmidi libsndfile evince rubberband fluidsynth  
 
 #TODO portmidi rubnerband path
@@ -15,7 +15,7 @@ $(PKG)_DEPS     := gcc gtk3 gtksourceview aubio portaudio librsvg libgcrypt port
 #z%TODO write test for aubio
 #TODO write test for evince 
 define $(PKG)_UPDATE
-    $(WGET) -q -O- 'http://www.denemo.org/~jjbenham/denemo-snapshot/' | \
+    $(WGET) -q -O- 'https://denemo.org/~jjbenham/denemo-snapshot/' | \
     grep 'denemo-' | \
    $(SED) -n 's,.*denemo-\([0-9][^>]*\)\.tar.*,\1,p' | \
 sort | \
