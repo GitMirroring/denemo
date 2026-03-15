@@ -7,7 +7,7 @@ $(PKG)_CHECKSUM := e623b4061b3b6122b6db996e12d9df3324e140435d04ae55b4a6eec7f67cc
 $(PKG)_SUBDIR   := denemo-$($(PKG)_VERSION)
 $(PKG)_FILE     := denemo-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://denemo.org/~jjbenham/denemo-snapshot/$($(PKG)_FILE)
-$(PKG)_DEPS     := gcc gtk3 gtksourceview aubio portaudio librsvg libgcrypt portmidi libsndfile evince rubberband fluidsynth  
+$(PKG)_DEPS     := gcc gtk3 gtksourceview aubio portaudio librsvg libgcrypt portmidi libsndfile evince rubberband fluidsynth guile
 
 #TODO portmidi rubnerband path
 #TODO make tests for gtksourceview
