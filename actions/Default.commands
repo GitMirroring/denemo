@@ -4075,7 +4075,7 @@ accidentals are usually printed over the note.</_tooltip>
       </row>
       <row type="scheme">
         <action>FingeringPosition</action>
-        <menupath>/ObjectMenu/NotesRests/Markings/Strings</menupath>
+        <menupath>/ObjectMenu/NotesRests/Markings/Strings/Fingerings</menupath>
         <_label>Fingering Position</_label>
         <_tooltip>Allows you to specify the position of the fingering relative to the note at the cursor.</_tooltip>
       </row>
