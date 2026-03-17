@@ -1739,8 +1739,8 @@ actions/menus/ObjectMenu/NotesRests/Markings/Ornaments/Trill+Above.scm
 actions/menus/ObjectMenu/NotesRests/Markings/Ornaments/Trill+Above.xml
 actions/menus/ObjectMenu/NotesRests/Markings/Ornaments/Trill+Below.scm
 actions/menus/ObjectMenu/NotesRests/Markings/Ornaments/Trill+Below.xml
-actions/menus/ObjectMenu/NotesRests/Markings/Strings/FingeringPosition.scm
-actions/menus/ObjectMenu/NotesRests/Markings/Strings/FingeringPosition.xml
+actions/menus/ObjectMenu/NotesRests/Markings/Strings/Fingerings/FingeringPosition.scm
+actions/menus/ObjectMenu/NotesRests/Markings/Strings/Fingerings/FingeringPosition.xml
 actions/menus/ObjectMenu/NotesRests/Markings/Strings/Fingerings/Finger0.scm
 actions/menus/ObjectMenu/NotesRests/Markings/Strings/Fingerings/Finger0.xml
 actions/menus/ObjectMenu/NotesRests/Markings/Strings/Fingerings/Finger1.scm
