@@ -150,7 +150,7 @@ else
     echo "  WARNING: ${LILYPOND_SRC} not found — LilyPond will NOT be bundled"
 fi
 # copy the wrapper scipt over
-cp "${MXE_PREFIX}/bin/lilypond-windows.exe" "${PKG}/lilypond/bin/"
+[ -d "${PKG}/lilypond/bin" ] && cp "${MXE_PREFIX}/bin/lilypond-windows.exe" "${PKG}/lilypond/bin/" || echo "WARNING: lilypond dir not found, skipping lilypond-windows.exe"
 
 # ------------------------------------------------------------------------------
 # 12. Launcher scripts
