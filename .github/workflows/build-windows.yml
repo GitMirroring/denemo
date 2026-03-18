@@ -1,0 +1,28 @@
+name: Build Denemo Windows installer
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/jbenham2015/mxe:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Denemo and create installer
+        run: |
+          bash packaging/BuildCI.sh
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: denemo-windows-installer
+          path: "*.exe"
