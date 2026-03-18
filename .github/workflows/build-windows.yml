@@ -17,27 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch Denemo tarball
-        run: |
-          cd /opt/mxe
-          make denemo-download \
-            MXE_TARGETS=x86_64-w64-mingw32.shared
-
-      - name: Build Denemo
-        run: |
-          cd /opt/mxe
-          make denemo \
-            MXE_TARGETS=x86_64-w64-mingw32.shared \
-            -j$(nproc)
-
-      - name: Assemble package and create installer
-        run: |
-          cd /opt/mxe
-          bash $GITHUB_WORKSPACE/packaging/BuildSharedSnapshot.sh
+      - name: Build Denemo and create installer
+        run: bash packaging/BuildCI.sh
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
           name: denemo-windows-installer
           path: "*.exe"
-
