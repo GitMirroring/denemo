@@ -64,7 +64,7 @@ for font in DejaVuSans.ttf DejaVuSans-Bold.ttf DejaVuSansMono.ttf; do
     [ -f "${src}" ] && cp "${src}" "${PKG}/share/fonts/"
 done
 cp regfont.exe "${PKG}/bin/"
-cp "${MXE_PREFIX}/bin/update-mime-database.exe" "${PKG}/bin/"
+[ -f "${MXE_PREFIX}/bin/update-mime-database.exe" ] && cp "${MXE_PREFIX}/bin/update-mime-database.exe" "${PKG}/bin/" || echo "WARNING: update-mime-database.exe not found, skipping"
 
 # ------------------------------------------------------------------------------
 # 5. Guile pre-compiled .go files
