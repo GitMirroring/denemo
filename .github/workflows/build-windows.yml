@@ -1,8 +1,10 @@
 name: Build Denemo Windows installer
+
 on:
   push:
     branches: [master]
   workflow_dispatch:
+
 jobs:
   build-windows:
     runs-on: ubuntu-latest
@@ -11,12 +13,23 @@ jobs:
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Download LilyPond
+        run: |
+          cd /opt/mxe
+          wget -q https://gitlab.com/lilypond/lilypond/-/releases/v2.24.4/downloads/lilypond-2.24.4-mingw-x86_64.zip
+          unzip -q lilypond-2.24.4-mingw-x86_64.zip -d lilypond-2.24.4
+          rm lilypond-2.24.4-mingw-x86_64.zip
+          echo "LilyPond $(ls lilypond-2.24.4/)"
+
       - name: Build Denemo and create installer
         run: |
           ls packaging/
           bash packaging/BuildCI.sh
+
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
