@@ -3,7 +3,7 @@ set -euo pipefail
 # CI-adapted build script for GitHub Actions
 # Runs inside the ghcr.io/jbenham2015/mxe Docker container
 
-MXE_DIR="/opt/mxe"
+export MXE_DIR="/opt/mxe"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Copy packaging files into MXE directory where script expects them
