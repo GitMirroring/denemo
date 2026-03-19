@@ -5,13 +5,13 @@
 ; Note that d-Quit only returns the status if invoked non-interactively, so this script cannot be tested interactively.
 (disp "\nChecking score " (d-GetFilename) " movements " (if (zero? DenemoSearchMovement) "All " (number->string DenemoSearchMovement)) "\n")
 (let loop ((movement_number 1))
-	(disp "Checking movement " movement_number " against " (d-GetMovementsInScore) "\n")
+	(disp "Checking movement " movement_number " against " (d-GetMovementsInScore) "starting at bar " DenemoSearchStartBar "\n")
 	(if (<= movement_number (d-GetMovementsInScore))
 		(let loopstaff ((staff_number 1))
 		 (disp "testing at staff" staff_number " with " (zero? DenemoSearchMovement) " or " (= movement_number DenemoSearchMovement) " giving " (or (zero? DenemoSearchMovement)(= movement_number DenemoSearchMovement)) "\n\n")
-			(if (or (zero? DenemoSearchMovement)(= movement_number DenemoSearchMovement))
+			(if (or (zero? DenemoSearchMovement)(= movement_number DenemoSearchMovement) (> (d-GetMeasuresInStaff) DenemoSearchStartBar))
 				(begin
-					(d-GoToPosition movement_number staff_number 1 1)
+					(d-GoToPosition movement_number staff_number DenemoSearchStartBar 1)
 					(disp "Went to " (GetPosition) " for " DenemoSearchMovement " at " movement_number " staff " staff_number "\n\n")
 					(let ((current (d-GetNoteFromTopAsMidi))
 							(sig DenemoMusicSignature)
@@ -33,7 +33,7 @@
 											(if (null? sig)
 												(begin
 													;(disp  "\nThe file " (d-GetFilename) " matches the given Denemo Music Signature\n")
-													(d-GoToPosition movement_number staff_number 1 1)
+													(d-GoToPosition movement_number staff_number DenemoSearchStartBar 1)
 													(d-Save) ;save position
 													(d-Quit (number->string movement_number)))))
 										(begin
