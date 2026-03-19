@@ -455,7 +455,7 @@
 	(d-TogglePlayAlong)
 	(d-Play "(d-PopPosition)(d-TogglePlayAlong)(d-DenemoPlayCursorToEnd)"))
 		
-(define (DenemoPlayAlongPlay) (disp "Reached DenemoPlayAlongPlay now\n")
+(define (DenemoPlayAlongPlay)
 	(d-CreateTimebase)
 	(d-SetPlaybackInterval (d-GetMidiOnTime) -1)
 	(define midi (d-GetMidi))
