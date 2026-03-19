@@ -458,10 +458,9 @@
 (define (DenemoPlayAlongPlay)
 	(d-CreateTimebase)
 	(d-SetPlaybackInterval (d-GetMidiOnTime) -1)
-	(define midi (d-GetMidi))
 	(disp "Starting play along play")
 	(d-SetMidiCapture #f)
-	(d-PutMidi midi)
+	(d-PutMidi (d-GetMidi))
 	(d-Play "(disp \"Play (along) finished\")"))
 ;Scripted start stop - use on Windows.
 (define-once DenemoPaused? #f)
