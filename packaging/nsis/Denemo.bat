@@ -86,6 +86,9 @@ bin\update-mime-database.exe share\mime
 echo Environment ready, launching Denemo...
 echo GUILE_LOAD_PATH=%GUILE_LOAD_PATH%
 echo GUILE_LOAD_COMPILED_PATH=%GUILE_LOAD_COMPILED_PATH%
+
+set DBUS_SESSION_BUS_ADDRESS=disabled
+set NO_AT_BRIDGE=1
 bin\denemo.exe %*
 
 IF %ERRORLEVEL% NEQ 0 (
