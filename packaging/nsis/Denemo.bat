@@ -81,7 +81,8 @@ set EVINCE_BACKENDS_DIR=%~dp0lib\evince\4\backends
 set GI_TYPELIB_PATH=%~dp0lib\girepository-1.0
 
 REM mime database
-bin\update-mime-database.exe share\mime
+if exist bin\update-mime-database.exe bin\update-mime-database.exe share\mime
+
 
 echo Environment ready, launching Denemo...
 echo GUILE_LOAD_PATH=%GUILE_LOAD_PATH%
