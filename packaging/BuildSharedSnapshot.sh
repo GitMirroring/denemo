@@ -144,13 +144,15 @@ echo "  immodules.cache written"
 # ------------------------------------------------------------------------------
 LILYPOND_ZIP="lilypond-2.24.4-mingw-x86_64.zip"
 LILYPOND_URL="https://gitlab.com/lilypond/lilypond/-/releases/v2.24.4/downloads/${LILYPOND_ZIP}"
-if [ ! -d "${LILYPOND_SRC}" ]; then
+if [ ! -f "${LILYPOND_SRC}/bin/lilypond.exe" ]; then
     echo "Downloading LilyPond..."
+    rm -rf "${LILYPOND_SRC}"
     wget -q --show-progress "${LILYPOND_URL}" -O "${LILYPOND_ZIP}"
     echo "Extracting LilyPond..."
     unzip -q "${LILYPOND_ZIP}"
     rm "${LILYPOND_ZIP}"
 fi
+
 echo "LilyPond source directory: ${LILYPOND_SRC}"
 ls "${LILYPOND_SRC}/bin/lilypond.exe" || { echo "ERROR: LilyPond extraction failed"; exit 1; }
 
