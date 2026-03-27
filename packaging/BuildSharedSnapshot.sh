@@ -140,6 +140,21 @@ wine "${MXE_PREFIX}/bin/gtk-query-immodules-3.0.exe" \
 echo "  immodules.cache written"
 
 # ------------------------------------------------------------------------------
+# 10b. Download and extract LilyPond if not already present
+# ------------------------------------------------------------------------------
+LILYPOND_ZIP="lilypond-2.24.4-mingw-x86_64.zip"
+LILYPOND_URL="https://gitlab.com/lilypond/lilypond/-/releases/v2.24.4/downloads/${LILYPOND_ZIP}"
+if [ ! -d "${LILYPOND_SRC}" ]; then
+    echo "Downloading LilyPond..."
+    wget -q --show-progress "${LILYPOND_URL}" -O "${LILYPOND_ZIP}"
+    echo "Extracting LilyPond..."
+    unzip -q "${LILYPOND_ZIP}"
+    rm "${LILYPOND_ZIP}"
+fi
+echo "LilyPond source directory: ${LILYPOND_SRC}"
+ls "${LILYPOND_SRC}/bin/lilypond.exe" || { echo "ERROR: LilyPond extraction failed"; exit 1; }
+
+# ------------------------------------------------------------------------------
 # 11. Install LilyPond into its OWN subdirectory — DO NOT merge into denemo/bin
 # ------------------------------------------------------------------------------
 echo "Installing LilyPond into ${PKG}/lilypond/ ..."
