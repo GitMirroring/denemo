@@ -210,7 +210,7 @@ init_environment()
 #ifdef G_OS_WIN32
   gchar *prefix = g_win32_get_package_installation_directory (NULL, NULL);
   gchar *guile = g_build_filename (prefix, "share", "guile", NULL);
-  gchar *guile_3_0 = g_build_filename (guile, "2.2", NULL);
+  gchar *guile_2_2 = g_build_filename (guile, "2.2", NULL);
   gchar *guile_ccache = g_build_filename (prefix, "lib", "guile", "2.2", "ccache", NULL);
   gchar *lilypond_current_scm = g_build_filename (prefix, "share", "lilypond", "current", "scm", NULL);
   gchar *denemo_scm = g_build_filename (get_system_data_dir (), COMMANDS_DIR, NULL);
@@ -449,10 +449,13 @@ main (int argc, char *argv[])
     check_if_upgrade();
     
   init_environment();
+  fprintf(stderr, "[DEBUG] after init_environment\n"); fflush(stderr);
 
   localization_init();
 
+  fprintf(stderr, "[DEBUG] before scm_with_guile\n"); fflush(stderr);
   scm_with_guile (inner_main, files);
+  fprintf(stderr, "[DEBUG] after scm_with_guile\n"); fflush(stderr);
 
   return 0;
 }
