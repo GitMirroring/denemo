@@ -14,16 +14,33 @@ cp "${SCRIPT_DIR}/nsis/Denemo.bat" "${MXE_DIR}/"
 cp "${SCRIPT_DIR}/nsis/denemo.nsi" "${MXE_DIR}/"
 cp "${SCRIPT_DIR}/nsis/lilypond-prepost.nsh" "${MXE_DIR}/"
 
+# Get version from denemo.mk
+export VERSION=$(grep '$(PKG)_VERSION' "${MXE_DIR}/src/denemo.mk" | sed 's/.*:= *//')
+
+# Create denemo tarball from checked-out source
+echo "Creating denemo tarball from source..."
+cd "${SCRIPT_DIR}/.."
+find . -xtype l -delete 2>/dev/null || true
+tar czf /tmp/denemo-${VERSION}.tar.gz \
+    --transform "s,^\.,denemo-${VERSION}," \
+    --exclude='.git' --exclude='*.o' --exclude='*.lo' --exclude='*.a' .
+CHECKSUM=$(sha256sum /tmp/denemo-${VERSION}.tar.gz | cut -d' ' -f1)
+echo "Tarball checksum: ${CHECKSUM}"
+mkdir -p "${MXE_DIR}/pkg"
+cp /tmp/denemo-${VERSION}.tar.gz "${MXE_DIR}/pkg/"
+sed -i "s/\$(PKG)_CHECKSUM := .*/\$(PKG)_CHECKSUM := ${CHECKSUM}/" "${MXE_DIR}/src/denemo.mk"
+rm -f "${MXE_DIR}/usr/x86_64-w64-mingw32.shared/installed/denemo"
+rm -rf "${MXE_DIR}/tmp-denemo-x86_64-w64-mingw32.shared"
+
 # Run the build from MXE directory
 cd "${MXE_DIR}"
 
 # Override variables for CI
 export MXE_PREFIX="usr/x86_64-w64-mingw32.shared"
 export LILYPOND_SRC=""  # skip LilyPond for now
-export VERSION=$(grep '$(PKG)_VERSION' src/denemo.mk | sed 's/.*:= *//')
+# export VERSION=$(grep '$(PKG)_VERSION' src/denemo.mk | sed 's/.*:= *//')
 
 # Skip the make steps at top of BuildSharedSnapshot.sh
-# Denemo is already built in the Docker image
 # Patch the script to skip make calls and Wine steps
 sed \
     -e 's|^make update-package-denemo||' \
