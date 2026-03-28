@@ -573,7 +573,6 @@ autosave_recovery_check (void)
 void *
 inner_main (void *files)
 {
-  fprintf(stderr, "[DEBUG] inside inner_main\n"); fflush(stderr);
 #if 0
   //disabled pending appearance of pathconfig.h
   /* initialize guile core */
@@ -649,39 +648,28 @@ inner_main (void *files)
   //Scheme initializations
   {
     const char prog[] = "(catch #t (lambda () (setlocale LC_ALL \"\")) (lambda _(display \"Locale not supported by the C library. Falling back to default \\\"C\\\" locale.\\n\"(current-error-port))))";
-    fprintf(stderr, "[DEBUG] before scm_c_eval_string\n"); fflush(stderr);
-    scm_c_eval_string (prog);
-    fprintf(stderr, "[DEBUG] after scm_c_eval_string\n"); fflush(stderr);
-    //scm_setlocale( scm_variable_ref(scm_c_lookup("LC_ALL")), scm_from_locale_string("") );
-    fprintf(stderr, "[DEBUG] before create_scheme_identfiers\n"); fflush(stderr);
-    create_scheme_identfiers ();
-    fprintf(stderr, "[DEBUG] after create_scheme_identfiers\n"); fflush(stderr);
-
+      scm_c_eval_string (prog);
+      //scm_setlocale( scm_variable_ref(scm_c_lookup("LC_ALL")), scm_from_locale_string("") );
+      create_scheme_identfiers ();
+  
     if (Denemo.prefs.autoupdate)
       fetchcommands (NULL, NULL);
 
     gint i;
 
     //ensure (use-modules (ice-9 optargs)) is loaded first #:optional params
-    fprintf(stderr, "[DEBUG] before use-modules\n"); fflush(stderr);
-    call_out_to_guile ("(use-modules (ice-9 optargs))");
-    fprintf(stderr, "[DEBUG] after use-modules\n"); fflush(stderr);
-    fprintf(stderr, "[DEBUG] before init_keymap\n"); fflush(stderr);
-    init_keymap ();
-    fprintf(stderr, "[DEBUG] after init_keymap\n"); fflush(stderr);
-
+      call_out_to_guile ("(use-modules (ice-9 optargs))");
+        init_keymap ();
+  
     define_scheme_constants ();
     
-    fprintf(stderr, "[DEBUG] before load_default_keymap_file\n"); fflush(stderr);
-    load_default_keymap_file ();
+      load_default_keymap_file ();
     fprintf(stderr, "[DEBUG] after load_default_keymap_file\n"); fflush(stderr); //loads scripted commands and their shortcuts
 
 
 
-    fprintf(stderr, "[DEBUG] before load_scheme_init\n"); fflush(stderr);
-    load_scheme_init ();
-    fprintf(stderr, "[DEBUG] after load_scheme_init\n"); fflush(stderr);
-    if(!Denemo.non_interactive)
+      load_scheme_init ();
+      if(!Denemo.non_interactive)
       readHistory ();
 
  

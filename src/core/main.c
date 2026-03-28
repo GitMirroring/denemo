@@ -449,13 +449,10 @@ main (int argc, char *argv[])
     check_if_upgrade();
     
   init_environment();
-  fprintf(stderr, "[DEBUG] after init_environment\n"); fflush(stderr);
 
   localization_init();
 
-  fprintf(stderr, "[DEBUG] before scm_with_guile\n"); fflush(stderr);
   scm_with_guile (inner_main, files);
-  fprintf(stderr, "[DEBUG] after scm_with_guile\n"); fflush(stderr);
 
   return 0;
 }
