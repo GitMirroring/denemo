@@ -5,14 +5,16 @@
 	(source (d-GetFilename))
 	(movement-number "1") (skips (d-GetUserInput (_"Create Music Signature")
 				(_ "Give number of matching scores to skip (-1 to find all): ") "-1"))
-        (count (string->number (d-GetUserInput (_"Create Music Signature") 
-												(_ "Give number of notes to match: ") "5")))
-        (startdir #f)
-        (theproc #f)
-        (sig "")
-        (test #f)
-        (found #f)
-        (next #f))
+	(count (string->number (d-GetUserInput (_"Create Music Signature") 
+											(_ "Give number of notes to match: ") "5")))
+	(startat   (d-GetUserInput (_"Create Music Signature") 
+			(_ "Give bar to search from: ") "1"))
+	(startdir #f)
+	(theproc #f)
+	(sig "")
+	(test #f)
+	(found #f)
+	(next #f))
         
       (define (theproc filename statinfo flag) ;(disp "searching file " filename "\nwith flag " flag "\n")
         (d-KeepAlive)
@@ -21,8 +23,12 @@
                 (set! status  (d-System 
                     (string-append (string-append "\"" DENEMO_BIN_DIR  "/denemo" "\"")
                     " -n " 
-                    " -a \"" (string-append "(define DenemoSearchMovement " movement-number ") (define DenemoMusicSignature '(" sig "))")
-                    "\" -i " (string-append "\"" DENEMO_ACTIONS_DIR "checkMusicSignature.scm" "\"") 
+                    " -a \"" (string-append 
+                    "(define DenemoSearchStartBar " startat ")"
+                    "(define DenemoSearchMovement " movement-number ") (define DenemoMusicSignature '(" sig "))")
+                    "\" -i " (string-append "\"" DENEMO_ACTIONS_DIR 
+                    (if (equal? startat "1") "checkMusicSignature.scm" "checkMusicSignatureAllStaffs.scm")
+                     "\"") 
                     " \"" filename "\""))) (disp "Returned " status "\n")
                 (if (positive? status)
                     (begin
@@ -62,5 +68,5 @@
   (d-InfoDialog "Searching ... the display will be very sluggish!")
   (ftw startdir theproc)
   (if found
-	(d-InfoDialog (_ "This movement starts with the same intervals"))
+	(d-InfoDialog (_ "This movement has the same intervals"))
     (d-InfoDialog (string-append "No (other) score in or below " startdir " starts with the same intervals"))))
