@@ -19,6 +19,11 @@ export VERSION=$(grep -m1 '_VERSION' "${MXE_DIR}/src/denemo.mk" | grep -o '[0-9]
 
 # Create denemo tarball from checked-out source
 echo "Creating denemo tarball from source..."
+# Generate configure script if not present
+if [ ! -f configure ]; then
+    echo "Running autoreconf..."
+    autoreconf -fi
+fi
 cd "${SCRIPT_DIR}/.."
 find . -xtype l -delete 2>/dev/null || true
 tar czf /tmp/denemo-${VERSION}.tar.gz \
