@@ -25,7 +25,7 @@ define $(PKG)_BUILD
     cd '$(1)/' && ./configure \
         $(MXE_CONFIGURE_OPTS) \
         --disable-binreloc \
-        --enable-debug \
+        --disable-debug \
         --enable-guile_2_2 \
         --enable-portmidi \
         --disable-atril \
