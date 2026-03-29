@@ -40,6 +40,10 @@ export MXE_PREFIX="usr/x86_64-w64-mingw32.shared"
 export LILYPOND_SRC=""  # skip LilyPond for now
 # export VERSION=$(grep '$(PKG)_VERSION' src/denemo.mk | sed 's/.*:= *//')
 
+# Build denemo from the tarball we just created
+echo "Building denemo..."
+make denemo MXE_TARGETS=x86_64-w64-mingw32.shared -j$(nproc)
+
 # Skip the make steps at top of BuildSharedSnapshot.sh
 # Patch the script to skip make calls and Wine steps
 sed \
