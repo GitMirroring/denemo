@@ -46,16 +46,3 @@ define $(PKG)_BUILD
 
 endef
 
-
-#define $(PKG)_BUILD
-#    cd '$(1)/' && ./autogen.sh \
-#    cd '$(1)/' && ./configure \
-#        $(MXE_CONFIGURE_OPTS) \
-#        --disable-binreloc \
-#	--enable-guile_1_8 \
-#	--enable-portmidi \
-#	--enable-portaudio \
-#	--disable-rubberband \
-#        CFLAGS="-mwindows -D_GUB_BUILD_"
-#    $(MAKE) -C '$(1)/' -j '$(JOBS)' AM_LDFLAGS="-mwindows" LDFLAGS="-lportmidi" install
-#endef

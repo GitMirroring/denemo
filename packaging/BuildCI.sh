@@ -22,6 +22,14 @@ echo "Creating denemo tarball from source..."
 # Generate configure script if not present
 if [ ! -f configure ]; then
     echo "Running autoreconf..."
+    AUTOCONF_OPTS="-fi"
+    # gtkdocize may not be available, create stub if needed
+    if ! command -v gtkdocize &>/dev/null; then
+        echo "Creating gtkdocize stub..."
+        mkdir -p /usr/local/bin
+        echo "exit 0" >> /usr/local/bin/gtkdocize
+        chmod +x /usr/local/bin/gtkdocize
+    fi
     autoreconf -fi
 fi
 cd "${SCRIPT_DIR}/.."
