@@ -12,13 +12,25 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup MacPorts
-      id: macports
-      uses: melusina-org/setup-macports@v1
+    - name: Cache MacPorts
+      id: cache-macports
+      uses: actions/cache@v4
+      with:
+        path: /opt/local
+        key: macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-v1
+        restore-keys: |
+          macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-
+
+    - name: Install MacPorts
+      if: steps.cache-macports.outputs.cache-hit != 'true'
+      run: |
+        curl -LO https://raw.githubusercontent.com/GiovanniBussi/macports-ci/master/macports-ci
+        source ./macports-ci install
 
     - name: Install build dependencies
+      if: steps.cache-macports.outputs.cache-hit != 'true'
       run: |
-        port install \
+        sudo port install \
           autoconf \
           automake \
           libtool \
@@ -42,6 +54,9 @@ jobs:
           jack \
           lilypond
 
+    - name: Add MacPorts to PATH
+      run: echo "/opt/local/bin:/opt/local/sbin" >> $GITHUB_PATH
+
     - name: Run autogen.sh
       run: ./autogen.sh
 
@@ -59,7 +74,7 @@ jobs:
     - name: Make install
       run: |
         cd _build
-        make install
+        sudo make install
 
     - name: Prepare Staging Directory
       run: |
