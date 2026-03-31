@@ -10,5 +10,18 @@ jobs:
   build:
     runs-on: macos-15
     steps:
-      - name: Hello
-        run: echo "Hello from macOS"
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup MacPorts
+      # Using the dedicated marketplace action is the most reliable way to set up MacPorts
+      uses: MacPorts/setup-macports@v1
+
+    - name: Update MacPorts
+      run: sudo port selfupdate
+
+      name: Install Denemo
+      # MacPorts will automatically handle all required dependencies like GTK+ and LilyPond
+      run: sudo port install denemo
+
+
