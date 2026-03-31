@@ -17,7 +17,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: /opt/local
-        key: macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-v1
+        key: macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-v4
         restore-keys: |
           macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-
 
@@ -30,6 +30,30 @@ jobs:
     - name: Install build dependencies
       if: steps.cache-macports.outputs.cache-hit != 'true'
       run: |
+        # Install poppler first - libpoppler-glib is built as part of the
+        # base poppler port (no separate +glib variant exists or is needed)
+        sudo port install poppler
+
+        # Pre-install evince's direct deps explicitly before evince itself.
+        # gobject-introspection in particular needs to be fully settled on
+        # Sequoia before evince's own meson/gobject configure step runs.
+        sudo port install \
+          gobject-introspection \
+          appstream-glib \
+          desktop-file-utils \
+          adwaita-icon-theme \
+          gdk-pixbuf2 \
+          gsettings-desktop-schemas \
+          gspell \
+          libsecret \
+          libarchive \
+          libspectre \
+          texlive-bin
+
+        # Now install evince itself
+        sudo port install evince +quartz
+
+        # Install remaining Denemo build dependencies
         sudo port install \
           autoconf \
           automake \
@@ -38,7 +62,6 @@ jobs:
           pkgconfig \
           gtk3 +quartz \
           librsvg +quartz \
-          evince +quartz \
           gtksourceview3 +quartz \
           guile \
           aubio \
