@@ -4,6 +4,7 @@ on:
     branches:
       - master
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: macos-15
@@ -11,34 +12,54 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Cache MacPorts & ccache
-      id: cache-macports
-      uses: actions/cache@v4
-      with:
-        path: |
-          /opt/local
-          ~/.macports-ci-ccache
-        key: macports-${{ runner.os }}-${{ github.sha }}
-        restore-keys: |
-          macports-${{ runner.os }}-
-
     - name: Setup MacPorts
-      if: steps.cache-macports.outputs.cache-hit != 'true'
-      uses: MacPorts/setup-macports@v1
+      id: macports
+      uses: melusina-org/setup-macports@v1
 
-    - name: Configure ccache in MacPorts
-      if: steps.cache-macports.outputs.cache-hit != 'true'
+    - name: Install build dependencies
       run: |
-        sudo port install ccache
-        sudo sed -i '' 's/configureccache no/configureccache yes/' /opt/local/etc/macports/macports.conf
-        sudo mkdir -p /opt/local/var/macports/build/.ccache
-        sudo ln -s ~/.macports-ci-ccache /opt/local/var/macports/build/.ccache
+        port install \
+          autoconf \
+          automake \
+          libtool \
+          intltool \
+          pkgconfig \
+          gtk3 +quartz \
+          librsvg +quartz \
+          evince +quartz \
+          gtksourceview3 +quartz \
+          guile \
+          aubio \
+          portaudio \
+          fftw-3 \
+          libxml2 \
+          fluidsynth \
+          libsmf \
+          portmidi \
+          rubberband \
+          libsndfile \
+          gettext \
+          jack \
+          lilypond
 
-    - name: Update MacPorts
-      run: sudo port selfupdate
+    - name: Run autogen.sh
+      run: ./autogen.sh
 
-    - name: Install Denemo
-      run: sudo port install denemo
+    - name: Configure
+      run: |
+        mkdir -p _build
+        cd _build
+        ../configure --prefix=/opt/local
+
+    - name: Make
+      run: |
+        cd _build
+        make -j$(sysctl -n hw.logicalcpu)
+
+    - name: Make install
+      run: |
+        cd _build
+        make install
 
     - name: Prepare Staging Directory
       run: |
@@ -48,7 +69,12 @@ jobs:
 
     - name: Create DMG
       run: |
-        hdiutil create -volname "Denemo-macOS" -srcfolder dmg_staging -ov -format UDZO Denemo.dmg
+        hdiutil create \
+          -volname "Denemo-macOS" \
+          -srcfolder dmg_staging \
+          -ov \
+          -format UDZO \
+          Denemo.dmg
 
     - name: Upload DMG Artifact
       uses: actions/upload-artifact@v4
