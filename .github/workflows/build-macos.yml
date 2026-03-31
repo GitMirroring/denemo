@@ -17,7 +17,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: /opt/local
-        key: macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-v4
+        key: macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-v5
         restore-keys: |
           macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-
 
@@ -34,15 +34,18 @@ jobs:
         # base poppler port (no separate +glib variant exists or is needed)
         sudo port install poppler
 
-        # Pre-install evince's direct deps explicitly before evince itself.
-        # gobject-introspection in particular needs to be fully settled on
-        # Sequoia before evince's own meson/gobject configure step runs.
+        # Install gtk3 +quartz and friends first - evince's Portfile
+        # explicitly checks that gtk3 is active with +quartz before it
+        # will configure, so this must come before evince.
         sudo port install \
+          gtk3 +quartz \
+          librsvg +quartz \
+          gtksourceview3 +quartz \
+          gdk-pixbuf2 \
           gobject-introspection \
           appstream-glib \
           desktop-file-utils \
           adwaita-icon-theme \
-          gdk-pixbuf2 \
           gsettings-desktop-schemas \
           gspell \
           libsecret \
@@ -50,7 +53,7 @@ jobs:
           libspectre \
           texlive-bin
 
-        # Now install evince itself
+        # Now evince can find gtk3 +quartz as required
         sudo port install evince +quartz
 
         # Install remaining Denemo build dependencies
@@ -60,9 +63,6 @@ jobs:
           libtool \
           intltool \
           pkgconfig \
-          gtk3 +quartz \
-          librsvg +quartz \
-          gtksourceview3 +quartz \
           guile \
           aubio \
           portaudio \
