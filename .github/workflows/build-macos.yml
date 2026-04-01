@@ -17,7 +17,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: /opt/local
-        key: macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-v7
+        key: macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-v8
         restore-keys: |
           macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-
 
@@ -69,7 +69,11 @@ jobs:
           texlive-bin
 
         # evince — by now gtk3 and glib2 are both +quartz
-        sudo port install evince
+        sudo port install evince || {
+          echo "=== evince configure log ==="
+          sudo cat /opt/local/var/macports/logs/_opt_local_var_macports_sources_rsync.macports.org_macports_release_tarballs_ports_gnome_evince/evince/main.log | tail -100
+          exit 1
+        }
 
         # Remaining Denemo build dependencies
         sudo port install \
