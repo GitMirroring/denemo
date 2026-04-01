@@ -12,82 +12,41 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Cache MacPorts
-      id: cache-macports
+    - name: Cache Homebrew packages
+      id: cache-homebrew
       uses: actions/cache@v4
       with:
-        path: /opt/local
-        key: macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-v8
+        path: |
+          ~/Library/Caches/Homebrew
+          /opt/homebrew/Cellar
+          /opt/homebrew/lib
+          /opt/homebrew/include
+          /opt/homebrew/share
+        key: homebrew-${{ runner.os }}-${{ runner.arch }}-denemo-deps-v1
         restore-keys: |
-          macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-
-
-    - name: Install MacPorts
-      if: steps.cache-macports.outputs.cache-hit != 'true'
-      run: |
-        curl -LO https://raw.githubusercontent.com/GiovanniBussi/macports-ci/master/macports-ci
-        source ./macports-ci install
-
-    - name: Configure MacPorts variants
-      if: steps.cache-macports.outputs.cache-hit != 'true'
-      run: |
-        # Set +quartz -x11 globally so every port that supports these
-        # variants picks them up automatically — no need to specify
-        # +quartz on individual port install commands.
-        printf '+quartz\n-x11\n-gnome\n' | sudo tee /opt/local/etc/macports/variants.conf
+          homebrew-${{ runner.os }}-${{ runner.arch }}-denemo-deps-
 
     - name: Install build dependencies
-      if: steps.cache-macports.outputs.cache-hit != 'true'
+      if: steps.cache-homebrew.outputs.cache-hit != 'true'
       run: |
-        # Install in dependency order so each port finds its deps
-        # already present with the correct +quartz variant active.
-
-        # glib2 must come first — gtk3, evince, and others check for
-        # glib2 +quartz before they will configure.
-        sudo port install glib2
-
-        # poppler (includes libpoppler-glib, no separate variant needed)
-        sudo port install poppler
-
-        # gtk3 and friends — these check for glib2 +quartz
-        sudo port install \
-          gtk3 \
-          gdk-pixbuf2 \
-          librsvg \
-          gtksourceview3 \
-          gobject-introspection
-
-        # evince's remaining direct deps
-        sudo port install \
-          appstream-glib \
-          desktop-file-utils \
-          adwaita-icon-theme \
-          gsettings-desktop-schemas \
-          gspell \
-          libsecret \
-          libarchive \
-          libspectre \
-          texlive-bin
-
-        # evince — by now gtk3 and glib2 are both +quartz
-        sudo port install evince || {
-          echo "=== evince configure log ==="
-          sudo cat /opt/local/var/macports/logs/_opt_local_var_macports_sources_rsync.macports.org_macports_release_tarballs_ports_gnome_evince/evince/main.log | tail -100
-          exit 1
-        }
-
-        # Remaining Denemo build dependencies
-        sudo port install \
+        # Homebrew ships gtk+3 quartz-only by default - no variants needed.
+        # evince 48.x ships as a prebuilt bottle for Sequoia.
+        brew install \
           autoconf \
           automake \
           libtool \
           intltool \
-          pkgconfig \
+          pkg-config \
+          gtk+3 \
+          librsvg \
+          gtksourceview3 \
+          evince \
           guile \
           aubio \
           portaudio \
-          fftw-3 \
+          fftw \
           libxml2 \
-          fluidsynth \
+          fluid-synth \
           libsmf \
           portmidi \
           rubberband \
@@ -96,32 +55,38 @@ jobs:
           jack \
           lilypond
 
-    - name: Add MacPorts to PATH
-      run: echo "/opt/local/bin:/opt/local/sbin" >> $GITHUB_PATH
-
     - name: Run autogen.sh
-      run: ./autogen.sh
+      run: |
+        export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+        ./autogen.sh
 
     - name: Configure
       run: |
+        export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+        # Tell pkg-config where Homebrew's libs are
+        export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig:/opt/homebrew/share/pkgconfig"
         mkdir -p _build
         cd _build
-        ../configure --prefix=/opt/local
+        ../configure --prefix=/opt/homebrew
 
     - name: Make
       run: |
+        export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
         cd _build
         make -j$(sysctl -n hw.logicalcpu)
 
     - name: Make install
       run: |
+        export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
         cd _build
-        sudo make install
+        make install
 
     - name: Prepare Staging Directory
       run: |
         mkdir -p dmg_staging
-        cp -R /Applications/MacPorts/Denemo.app dmg_staging/
+        cp -R /opt/homebrew/bin/denemo dmg_staging/ || \
+        cp -R /Applications/Denemo.app dmg_staging/ || \
+        echo "Warning: could not find Denemo.app - may need gtk-mac-bundler step"
         ln -s /Applications dmg_staging/Applications
 
     - name: Create DMG
