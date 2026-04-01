@@ -17,7 +17,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: /opt/local
-        key: macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-v5
+        key: macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-v6
         restore-keys: |
           macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-
 
@@ -27,22 +27,41 @@ jobs:
         curl -LO https://raw.githubusercontent.com/GiovanniBussi/macports-ci/master/macports-ci
         source ./macports-ci install
 
+    - name: Configure MacPorts variants
+      if: steps.cache-macports.outputs.cache-hit != 'true'
+      run: |
+        # Set +quartz -x11 globally so every port that supports these
+        # variants picks them up automatically — no need to specify
+        # +quartz on individual port install commands.
+        cat <<'EOF' | sudo tee /opt/local/etc/macports/variants.conf
++quartz
+-x11
+-gnome
+EOF
+
     - name: Install build dependencies
       if: steps.cache-macports.outputs.cache-hit != 'true'
       run: |
-        # Install poppler first - libpoppler-glib is built as part of the
-        # base poppler port (no separate +glib variant exists or is needed)
+        # Install in dependency order so each port finds its deps
+        # already present with the correct +quartz variant active.
+
+        # glib2 must come first — gtk3, evince, and others check for
+        # glib2 +quartz before they will configure.
+        sudo port install glib2
+
+        # poppler (includes libpoppler-glib, no separate variant needed)
         sudo port install poppler
 
-        # Install gtk3 +quartz and friends first - evince's Portfile
-        # explicitly checks that gtk3 is active with +quartz before it
-        # will configure, so this must come before evince.
+        # gtk3 and friends — these check for glib2 +quartz
         sudo port install \
-          gtk3 +quartz \
-          librsvg +quartz \
-          gtksourceview3 +quartz \
+          gtk3 \
           gdk-pixbuf2 \
-          gobject-introspection \
+          librsvg \
+          gtksourceview3 \
+          gobject-introspection
+
+        # evince's remaining direct deps
+        sudo port install \
           appstream-glib \
           desktop-file-utils \
           adwaita-icon-theme \
@@ -53,10 +72,10 @@ jobs:
           libspectre \
           texlive-bin
 
-        # Now evince can find gtk3 +quartz as required
-        sudo port install evince +quartz
+        # evince — by now gtk3 and glib2 are both +quartz
+        sudo port install evince
 
-        # Install remaining Denemo build dependencies
+        # Remaining Denemo build dependencies
         sudo port install \
           autoconf \
           automake \
