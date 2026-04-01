@@ -17,7 +17,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: /opt/local
-        key: macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-v6
+        key: macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-v7
         restore-keys: |
           macports-${{ runner.os }}-${{ runner.arch }}-denemo-deps-
 
@@ -33,11 +33,7 @@ jobs:
         # Set +quartz -x11 globally so every port that supports these
         # variants picks them up automatically — no need to specify
         # +quartz on individual port install commands.
-        cat <<'EOF' | sudo tee /opt/local/etc/macports/variants.conf
-+quartz
--x11
--gnome
-EOF
+        printf '+quartz\n-x11\n-gnome\n' | sudo tee /opt/local/etc/macports/variants.conf
 
     - name: Install build dependencies
       if: steps.cache-macports.outputs.cache-hit != 'true'
