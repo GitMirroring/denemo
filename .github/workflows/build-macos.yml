@@ -61,7 +61,7 @@ jobs:
         # libsmf is not in Homebrew core - build from source
         git clone https://github.com/stump/libsmf.git /tmp/libsmf
         cd /tmp/libsmf
-        autoreconf -fi
+        ./autogen.sh
         ./configure --prefix=/opt/homebrew
         make -j$(sysctl -n hw.logicalcpu)
         make install
