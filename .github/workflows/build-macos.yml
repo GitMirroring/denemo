@@ -60,14 +60,18 @@ jobs:
         # autogen.sh hardcodes /usr/share/aclocal which doesn't exist on macOS
         # (SIP makes /usr/share read-only). Patch it in-place to use the
         # Homebrew aclocal path instead. Same fix used by the Guix package.
-        sed -i '' 's|/usr/share/aclocal|/opt/homebrew/share/aclocal|g' autogen.sh
+        # Also fix libtoolize -> glibtoolize (Homebrew renames it to avoid
+        # conflicting with macOS system libtool).
+        sed -i '' \
+          's|/usr/share/aclocal|/opt/homebrew/share/aclocal|g' \
+          autogen.sh
+        sed -i '' \
+          's|libtoolize|glibtoolize|g' \
+          autogen.sh
 
     - name: Run autogen.sh
       run: |
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
-        # Homebrew installs libtoolize as glibtoolize to avoid conflict
-        # with macOS system libtool. autogen.sh expects plain libtoolize.
-        ln -sf /opt/homebrew/bin/glibtoolize /opt/homebrew/bin/libtoolize
         ./autogen.sh
 
     - name: Configure
