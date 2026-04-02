@@ -68,8 +68,11 @@ jobs:
         # Run each autotools step explicitly rather than via autogen.sh,
         # so we can use glibtoolize (Homebrew renames libtoolize to avoid
         # conflicting with the macOS system libtool).
+        # AC_LIB_LINKFLAGS_FROM_LIBS comes from gettext's lib-link.m4 -
+        # include gettext's m4 dir explicitly.
+        GETTEXT_M4="$(brew --prefix gettext)/share/aclocal"
         glibtoolize --force --copy
-        aclocal -I /opt/homebrew/share/aclocal
+        aclocal -I /opt/homebrew/share/aclocal -I "$GETTEXT_M4" -I build
         autoheader
         automake --add-missing --copy --force-missing
         autoconf
