@@ -22,7 +22,7 @@ jobs:
           /opt/homebrew/lib
           /opt/homebrew/include
           /opt/homebrew/share
-        key: homebrew-${{ runner.os }}-${{ runner.arch }}-denemo-deps-v2
+        key: homebrew-${{ runner.os }}-${{ runner.arch }}-denemo-deps-v5
         restore-keys: |
           homebrew-${{ runner.os }}-${{ runner.arch }}-denemo-deps-
 
@@ -31,8 +31,8 @@ jobs:
       run: |
         # Homebrew ships gtk+3 quartz-only - no variant flags needed.
         # evince 48.x has prebuilt Sequoia bottles - no compile needed.
-        # Note: libsmf and portmidi are not in Homebrew core; we build
-        # them from source in the next step.
+        # libsmf is vendored in libs/libsmf/ - no install needed.
+        # portmidi is disabled via --disable-portmidi in configure.
         brew install \
           autoconf \
           automake \
@@ -55,32 +55,12 @@ jobs:
           jack \
           lilypond
 
-    - name: Build libsmf from source
-      if: steps.cache-homebrew.outputs.cache-hit != 'true'
-      run: |
-        # libsmf is not in Homebrew core - build from source
-        git clone https://github.com/stump/libsmf.git /tmp/libsmf
-        cd /tmp/libsmf
-        ./autogen.sh
-        ./configure --prefix=/opt/homebrew
-        make -j$(sysctl -n hw.logicalcpu)
-        make install
-
-    - name: Build portmidi from source
-      if: steps.cache-homebrew.outputs.cache-hit != 'true'
-      run: |
-        # portmidi is not in Homebrew core - build from source
-        git clone https://github.com/PortMidi/portmidi.git /tmp/portmidi
-        cd /tmp/portmidi
-        cmake -B build \
-          -DCMAKE_INSTALL_PREFIX=/opt/homebrew \
-          -DCMAKE_BUILD_TYPE=Release
-        cmake --build build -j$(sysctl -n hw.logicalcpu)
-        cmake --install build
-
     - name: Run autogen.sh
       run: |
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+        export ACLOCAL_PATH="/opt/homebrew/share/aclocal"
+        # aclocal hardcodes /usr/share/aclocal and fails if it doesn't exist
+        sudo mkdir -p /usr/share/aclocal
         ./autogen.sh
 
     - name: Configure
@@ -89,7 +69,11 @@ jobs:
         export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig:/opt/homebrew/share/pkgconfig"
         mkdir -p _build
         cd _build
-        ../configure --prefix=/opt/homebrew
+        # --disable-portmidi: portmidi is not in Homebrew and handles live
+        # hardware MIDI input only - not needed for a CI/distribution build.
+        # FluidSynth covers MIDI playback.
+        ../configure --prefix=/opt/homebrew \
+          --disable-portmidi
 
     - name: Make
       run: |
