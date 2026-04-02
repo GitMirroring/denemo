@@ -55,15 +55,12 @@ jobs:
           jack \
           lilypond
 
+    - name: Fix aclocal system directory
+      run: sudo mkdir -p /usr/share/aclocal
+
     - name: Run autogen.sh
       run: |
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
-        # aclocal hardcodes /usr/share/aclocal and errors if it doesn't exist.
-        # Creating it empty satisfies the check.
-        sudo mkdir -p /usr/share/aclocal
-        # Also tell aclocal where Homebrew's m4 macros are, both via
-        # ACLOCAL_PATH and by overriding the aclocal command itself with
-        # the extra -I flag, since autogen.sh calls aclocal internally.
         export ACLOCAL_PATH="/opt/homebrew/share/aclocal"
         export ACLOCAL="aclocal -I /opt/homebrew/share/aclocal"
         ./autogen.sh
