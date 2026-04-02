@@ -56,13 +56,21 @@ jobs:
           lilypond
 
     - name: Fix aclocal system directory
-      run: sudo mkdir -p /usr/share/aclocal
+      run: |
+        # /usr/share is read-only on macOS (SIP). aclocal hardcodes
+        # /usr/share/aclocal and fails if it doesn't exist.
+        # The workaround is to override automake's system acdir to point
+        # somewhere writable by symlinking through the datadir.
+        # The simplest fix: create a writable dummy dir and tell aclocal
+        # to use it as the system dir via ACLOCAL_SYSTEM_DIR.
+        mkdir -p "$HOME/.aclocal-system"
+        echo "ACLOCAL_SYSTEM_DIR=$HOME/.aclocal-system" >> $GITHUB_ENV
+        echo "ACLOCAL_PATH=/opt/homebrew/share/aclocal:$HOME/.aclocal-system" >> $GITHUB_ENV
+        echo "ACLOCAL=aclocal -I /opt/homebrew/share/aclocal" >> $GITHUB_ENV
 
     - name: Run autogen.sh
       run: |
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
-        export ACLOCAL_PATH="/opt/homebrew/share/aclocal"
-        export ACLOCAL="aclocal -I /opt/homebrew/share/aclocal"
         ./autogen.sh
 
     - name: Configure
