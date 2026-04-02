@@ -65,6 +65,9 @@ jobs:
     - name: Run autogen.sh
       run: |
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+        # Homebrew installs libtoolize as glibtoolize to avoid conflict
+        # with macOS system libtool. autogen.sh expects plain libtoolize.
+        ln -sf /opt/homebrew/bin/glibtoolize /opt/homebrew/bin/libtoolize
         ./autogen.sh
 
     - name: Configure
