@@ -437,7 +437,7 @@ AC_LINK_IFELSE(
 
 
 dnl Set PACKAGE_LOCALE_DIR in config.h.
-
+AC_CHECK_HEADERS_ONCE([sys/time.h])
 
 if test "${prefix}" = "NONE"; then
   prefix=${ac_default_prefix}
