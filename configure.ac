@@ -1,9 +1,9 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([denemo], [2.6.51], [denemo-devel@gnu.org])
+AC_INIT([denemo],[2.6.51],[denemo-devel@gnu.org])
 AC_CONFIG_SRCDIR([src/core/main.c])
 AM_INIT_AUTOMAKE([tar-pax foreign dist-xz subdir-objects])
-dnl AC_CANONICAL_SYSTEM
-AC_CONFIG_HEADER(config.h)
+dnl AC_CANONICAL_TARGET
+AC_CONFIG_HEADERS([config.h])
 
 AC_CONFIG_MACRO_DIR([build])
 AM_MAINTAINER_MODE
@@ -32,7 +32,7 @@ AC_PROG_YACC
 AM_PROG_LEX
 GUILE_FLAGS
 
-AC_PROG_LIBTOOL
+LT_INIT
 
 dnl Options for configuration
 build_debug=no
@@ -419,7 +419,7 @@ dnl Checks for header files.
 
 AC_CHECK_HEADERS(sys/soundcard.h)
 AC_CHECK_HEADERS(errno.h)
-AC_CHECK_HEADERS(getopt.h sys/wait.h wait.h sys/time.h sys/resource.h)
+AC_CHECK_HEADERS(getopt.h sys/wait.h wait.h sys/resource.h)
 
 AC_COMPILE_IFELSE(
   [AC_LANG_PROGRAM([#include <signal.h>], [int mysignal = SIGCHLD;])],
@@ -435,10 +435,6 @@ AC_LINK_IFELSE(
     ])],
   [AC_DEFINE(HAVE_FILE_LOCKS, 1, [Define to 1 if file locking is available])])
 
-dnl Checks for typedefs, structures, and compiler characteristics.
-dnl AC_HEADER_TIME
-
-dnl Checks for library functions.
 
 dnl Set PACKAGE_LOCALE_DIR in config.h.
 
@@ -477,8 +473,7 @@ AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
 
-AC_OUTPUT(
-[
+AC_CONFIG_FILES([
   build/Makefile
   Makefile
   denemo.spec
@@ -498,3 +493,4 @@ AC_OUTPUT(
   libs/libsffile/Makefile
   libs/libsmf/Makefile
 ])
+AC_OUTPUT
