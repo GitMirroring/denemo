@@ -44,6 +44,7 @@ jobs:
           gtk-doc \
           gtksourceview3 \
           evince \
+          expat \
           guile \
           aubio \
           portaudio \
