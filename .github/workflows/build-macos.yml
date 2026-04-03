@@ -41,6 +41,7 @@ jobs:
           pkg-config \
           gtk+3 \
           librsvg \
+          gtk-doc \
           gtksourceview3 \
           evince \
           guile \
