@@ -47,6 +47,7 @@ jobs:
           expat \
           guile \
           aubio \
+          perl-xml-parser \
           portaudio \
           fftw \
           libxml2 \
