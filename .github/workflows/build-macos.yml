@@ -52,7 +52,6 @@ jobs:
           rubberband \
           libsndfile \
           gettext \
-          jack \
           lilypond
 
     - name: Fix aclocal system directory
@@ -86,7 +85,8 @@ jobs:
         # hardware MIDI input only - not needed for a CI/distribution build.
         # FluidSynth covers MIDI playback.
         ../configure --prefix=/opt/homebrew \
-          --disable-portmidi
+          --disable-portmidi \
+          --disable-jack
 
     - name: Make
       run: |
