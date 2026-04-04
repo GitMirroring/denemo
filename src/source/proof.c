@@ -22,17 +22,17 @@
 #include "core/view.h"
 #include "core/utils.h"
 #ifdef USE_ATRIL
-#include <atril-view.h>
-#include <atril-document.h>
-#ifndef  EV_DOCUMENT_ANNOTATIONS
-#define ATRIL_COMPILATION
-#include <libdocument/ev-document-annotations.h>
-#undef ATRIL_COMPILATION
-#endif
+#  include <atril-view.h>
+#  include <atril-document.h>
+#  ifndef  EV_DOCUMENT_ANNOTATIONS
+#     define ATRIL_COMPILATION
+#     include <libdocument/ev-document-annotations.h>
+#     undef ATRIL_COMPILATION
+#  endif
 #else
-#include <evince-view.h>
-#include <evince-document.h>
-//#define EV_DOCUMENT_ANNOTATIONS(x) x
+#  include <evince-view.h>
+#  include <evince-document.h>
+#  include <libdocument/ev-document-annotations.h>
 #endif
 
 static const gchar *nearest_annotation_text = NULL;
@@ -285,7 +285,6 @@ press (EvView * view,  GdkEventButton  *event, EvDocumentModel *model)
     if (event->button != 1)
         infodialog (help_text);
     nearest_annotation_text = NULL;
-    extern EvMappingList * ev_document_annotations_get_annotations();
     EvMappingList *mapping_list = ev_document_annotations_get_annotations (EV_DOCUMENT_ANNOTATIONS(doc), ev_document_get_page(doc, i));
     if(mapping_list)
     {
@@ -318,7 +317,6 @@ find_annotated_pages (EvDocumentModel *model)
     gint i;
     for (i=0; i< ev_document_get_n_pages(doc);i++)
         {
-            extern EvMappingList * ev_document_annotations_get_annotations();
             EvMappingList *mapping_list = ev_document_annotations_get_annotations (EV_DOCUMENT_ANNOTATIONS(doc), ev_document_get_page(doc, i));
             if(mapping_list)
             {
