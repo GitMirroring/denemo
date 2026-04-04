@@ -4918,7 +4918,7 @@ scheme_get_command (void)
 
 
 gchar *
-return_command (gchar * name, GdkEvent * event)
+return_command (const gchar * name, GdkEventKey * event)
 {
   return name;
 }
