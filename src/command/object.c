@@ -64,6 +64,7 @@ static gboolean invert_selection (GtkWidget *selector) {
 		//g_signal_emit_by_name (G_OBJECT(g->data), "toggled"); this doesn't set the check instead do this:
 		gtk_toggle_button_set_active (g->data, !gtk_toggle_button_get_active (g->data));
 	}
+	return TRUE;
 }
 static GtkWidget *properties_selector (SELECTOR_ACTION action, DenemoDirective *direc, GtkWidget *item, gchar *label) {
 	static GtkWidget *selector = NULL;
@@ -1026,15 +1027,15 @@ show_window (GtkWidget * w)
 }
 
 static void
-set_false (GtkWidget * button, gboolean * bool)
+set_false (GtkWidget * button, gboolean * flag)
 {
 #ifndef G_OS_WIN32
   show_window (button);
 #endif
   gtk_widget_destroy (button);
-  if (*bool)
+  if (*flag)
     score_status (Denemo.project, TRUE);
-  *bool = FALSE;
+  *flag = FALSE;
 }
 static void
 chuck_object_editor (void)
