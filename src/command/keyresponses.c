@@ -72,7 +72,7 @@ lock_mask (gint keyval)
   if ((keyval == GDK_Super_L) || (keyval == GDK_Super_R))
     return GDK_MOD4_MASK;
 
-  if (keyval == GDK_Alt_R || GDK_ISO_Level3_Shift)
+  if (keyval == GDK_Alt_R || (keyval == GDK_ISO_Level3_Shift))
     return GDK_MOD5_MASK;
 
   return 0;
@@ -98,7 +98,7 @@ klock_mask (gint keyval)
   if ((keyval == GDK_Super_L) || (keyval == GDK_Super_R))
     return GDK_MOD4_MASK;
 
-  if (keyval == GDK_Alt_R || GDK_ISO_Level3_Shift)
+  if (keyval == GDK_Alt_R || (keyval == GDK_ISO_Level3_Shift))
     return GDK_MOD5_MASK;
 
   return 0;
