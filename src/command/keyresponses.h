@@ -125,8 +125,7 @@ void blank_mode (DenemoAction * action, DenemoScriptParam *param);
 
 void append_measure_score (DenemoAction* action, DenemoScriptParam *param);
 
-gchar *process_key_event (GdkEventKey * event, gchar * perform_command ());
-
+gchar *process_key_event (GdkEventKey * event, gchar * (*perform_command)(const gchar *, GdkEventKey *));
 
 void InsertRest(gint duration);
 void InsertDur(gint duration);
