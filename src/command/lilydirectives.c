@@ -46,7 +46,7 @@ gchar * difference_of_directive (DenemoDirective *d1, DenemoDirective *d2)
 #undef NEQ
 #define STR1(x)  #x
 #define STR(x)  STR1(x)
-#define NEQ(a) if(!compare_gstring((GString*)d1->a, (GString*)d2->a)) return g_strdup_printf ("\nDirective tagged %s differ in the \"%s\" field.\nfirst score has: %s\nsecond score has: %s", d1->tag->str, STR(a), d1->a?(void*)((GString*)d1->a->str):(void*)"empty",d2->a? (void*)((GString*)d2->a->str) : (void*)"empty");
+#define NEQ(a) if(!compare_gstring((GString*)d1->a, (GString*)d2->a)) return g_strdup_printf ("\nDirective tagged %s differ in the \"%s\" field.\nfirst score has: %s\nsecond score has: %s", d1->tag->str, STR(a), d1->a?(char*)((GString*)d1->a->str):(void*)"empty",d2->a? (char*)((GString*)d2->a->str) : (void*)"empty");
       
       NEQ(prefix);
       NEQ(postfix);
