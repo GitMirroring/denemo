@@ -125,7 +125,7 @@ llock_mask (gint keyval)
  * sets cursor if a modifier
  */
 
-gchar *process_key_event (GdkEventKey * event, gchar * (*perform_command)(const gchar *, GdkEventKey *));
+gchar *process_key_event (GdkEventKey * event, gchar * (*perform_command)(const gchar *, GdkEventKey *))
 {
 	//g_print ("Scorearea key release event: keyval %d (%s), string |%s|, length %d, state %x, keycode %d, group %d, is_modifier flag %d\n", event->keyval, gdk_keyval_name(event->keyval), event->string, event->length, event->state, event->hardware_keycode, event->group, event->is_modifier);
      if(!Denemo.keyboard_state_locked)
@@ -204,7 +204,7 @@ perform_command (const gchar * command_name, GdkEventKey * event)
 }
 
 //return the value of perform_command if executed or "" if keypress is part of a two-key shortcut, or NULL toherwise
-gchar *process_key_event (GdkEventKey * event, gchar * (*perform_command)(const gchar *, GdkEventKey *));
+gchar *process_key_event (GdkEventKey * event, gchar * (*perform_command)(const gchar *, GdkEventKey *))
 {
   keymap *the_keymap = Denemo.map;
   //g_debug("\n********\nCaps Lock %x?\n\n********\nShifted %x?\n", event->state&GDK_LOCK_MASK,          event->state&GDK_SHIFT_MASK     );
