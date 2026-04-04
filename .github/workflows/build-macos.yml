@@ -76,8 +76,8 @@ jobs:
           -I "$GETTEXT_M4"
         autoheader
         automake --add-missing --copy --force-missing
-        autoconf
-        intltool-update --dist --gettext-package denemo
+        autoreconf -i
+        
 
     - name: Configure
       run: |
