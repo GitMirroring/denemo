@@ -57,27 +57,11 @@ jobs:
           gettext \
           lilypond
 
-    - name: Fix aclocal system directory
-      run: |
-        # autogen.sh hardcodes /usr/share/aclocal which doesn't exist on macOS.
-        # Patch it in-place to use the Homebrew path instead.
-        sed -i '' 's|/usr/share/aclocal|/opt/homebrew/share/aclocal|g' autogen.sh
 
     - name: Run autotools
       run: |
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
-        GETTEXT_M4="$(brew --prefix gettext)/share/aclocal"
-        SRCDIR="$(pwd)"
-        glibtoolize --force --copy
-        # Use absolute path for build/ so aclocal finds lib-link.m4 etc.
-        aclocal \
-          -I "$SRCDIR/build" \
-          -I /opt/homebrew/share/aclocal \
-          -I "$GETTEXT_M4"
-        autoheader
-        automake --add-missing --copy --force-missing
-        autoreconf -i
-        
+        ./autogen.sh
 
     - name: Configure
       run: |
