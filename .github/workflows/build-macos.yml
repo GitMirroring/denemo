@@ -89,7 +89,9 @@ jobs:
         # FluidSynth covers MIDI playback.
         ../configure --prefix=/opt/homebrew \
           --disable-portmidi \
-          --disable-jack
+          --disable-jack \
+          --disable-atril \
+          --enable-evince
 
     - name: Make
       run: |
