@@ -72,7 +72,7 @@ lock_mask (gint keyval)
   if ((keyval == GDK_Super_L) || (keyval == GDK_Super_R))
     return GDK_MOD4_MASK;
 
-  if (keyval == GDK_Alt_R || (keyval == GDK_ISO_Level3_Shift))
+  if ((keyval == GDK_Alt_R) || (keyval == GDK_ISO_Level3_Shift))
     return GDK_MOD5_MASK;
 
   return 0;
@@ -125,8 +125,7 @@ llock_mask (gint keyval)
  * sets cursor if a modifier
  */
 
-gint
-scorearea_keyrelease_event (GtkWidget * widget, GdkEventKey * event)
+gchar *process_key_event (GdkEventKey * event, gchar * (*perform_command)(const gchar *, GdkEventKey *));
 {
 	//g_print ("Scorearea key release event: keyval %d (%s), string |%s|, length %d, state %x, keycode %d, group %d, is_modifier flag %d\n", event->keyval, gdk_keyval_name(event->keyval), event->string, event->length, event->state, event->hardware_keycode, event->group, event->is_modifier);
      if(!Denemo.keyboard_state_locked)
