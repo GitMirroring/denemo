@@ -77,6 +77,8 @@ jobs:
         autoheader
         automake --add-missing --copy --force-missing
         autoconf
+        ls -l po/Makefile.in
+        intltool-update --dist --gettext-package denemo
 
     - name: Configure
       run: |
