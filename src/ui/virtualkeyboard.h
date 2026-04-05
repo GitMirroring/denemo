@@ -25,5 +25,9 @@
 #include <string.h>
 
 void create_virtual_keyboard (gint number_of_octaves);
-
+gboolean scorearea_keypress_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data);
+gboolean scorearea_keyrelease_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data);
+gboolean scorearea_mouseenter_event (GtkWidget *widget, GdkEventCrossing *event, gpointer user_data);
+gboolean scorearea_mouseleave_event (GtkWidget *widget, GdkEventCrossing *event, gpointer user_data);
+gboolean scorearea_mousemove_event (GtkWidget *widget, GdkEventMotion *event, gpointer user_data);
 #endif
