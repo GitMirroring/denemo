@@ -76,6 +76,16 @@ jobs:
         cd _build
         make install
 
+    - name: Inspect installed files
+      run: |
+        echo "=== Binary ==="
+        find /opt/homebrew/bin -name "denemo*" 2>/dev/null
+        echo "=== Share ==="
+        find /opt/homebrew/share/denemo -maxdepth 2 2>/dev/null || echo "No share/denemo"
+        echo "=== Dylib dependencies ==="
+        otool -L /opt/homebrew/bin/denemo 2>/dev/null || echo "binary not found"
+        echo "=== Icons ==="
+        find /opt/homebrew/share -name "*.icns" -o -name "denemo*.png" 2>/dev/null | head -10
     - name: Prepare Staging Directory
       run: |
         mkdir -p dmg_staging
