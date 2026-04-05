@@ -18,8 +18,8 @@
 #include "command/object.h"
 
 
-gint scorearea_keypress_event (GtkWidget * widget, GdkEventKey * event, gpointer user_data);
-gint scorearea_keyrelease_event (GtkWidget * widget, GdkEventKey * event, gpointer user_data);
+gboolean scorearea_keypress_event (GtkWidget * widget, GdkEventKey * event, gpointer user_data);
+gboolean scorearea_keyrelease_event (GtkWidget * widget, GdkEventKey * event, gpointer user_data);
 gint scorearea_button_press (GtkWidget * widget, GdkEventButton * event);
 gint scorearea_button_release (GtkWidget * widget, GdkEventButton * event);
 
