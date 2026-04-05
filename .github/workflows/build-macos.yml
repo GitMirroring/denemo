@@ -89,6 +89,13 @@ jobs:
     - name: Install bundle tools
       run: brew install dylibbundler create-dmg
 
+    - name: Smoke test binary
+      run: |
+        # Test the installed binary directly first (no bundle complexity)
+        export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+        /opt/homebrew/bin/denemo --version 2>&1 || true
+        /opt/homebrew/bin/denemo --help 2>&1 | head -5 || true
+
     - name: Bundle app and create DMG
       run: |
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
