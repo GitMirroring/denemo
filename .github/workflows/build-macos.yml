@@ -61,6 +61,7 @@ jobs:
     - name: Run autotools
       run: |
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+        chmod +x autogen.sh
         ./autogen.sh
 
     - name: Configure
