@@ -12,22 +12,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Cache Homebrew packages
-      id: cache-homebrew
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/Library/Caches/Homebrew
-          /opt/homebrew/Cellar
-          /opt/homebrew/lib
-          /opt/homebrew/include
-          /opt/homebrew/share
-        key: homebrew-${{ runner.os }}-${{ runner.arch }}-denemo-deps-v5
-        restore-keys: |
-          homebrew-${{ runner.os }}-${{ runner.arch }}-denemo-deps-
-
     - name: Install build dependencies
-      if: steps.cache-homebrew.outputs.cache-hit != 'true'
       run: |
         # Homebrew ships gtk+3 quartz-only - no variant flags needed.
         # evince 48.x has prebuilt Sequoia bottles - no compile needed.
