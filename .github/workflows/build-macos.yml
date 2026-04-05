@@ -86,22 +86,23 @@ jobs:
         otool -L /opt/homebrew/bin/denemo 2>/dev/null || echo "binary not found"
         echo "=== Icons ==="
         find /opt/homebrew/share -name "*.icns" -o -name "denemo*.png" 2>/dev/null | head -10
-    - name: Prepare Staging Directory
-      run: |
-        mkdir -p dmg_staging
-        cp -R /Applications/Denemo.app dmg_staging/ 2>/dev/null || \
-          echo "Note: no .app bundle found; DMG will contain raw binary"
-        ln -s /Applications dmg_staging/Applications
+    - name: Install bundle tools
+      run: brew install dylibbundler create-dmg
 
-    - name: Create DMG
+    - name: Bundle app and create DMG
       run: |
-        hdiutil create \
-          -volname "Denemo-macOS" \
-          -srcfolder dmg_staging \
-          -ov \
-          -format UDZO \
-          Denemo.dmg
+        export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+        export HOMEBREW_PREFIX="/opt/homebrew"
+        chmod +x packaging/bundle-macos.sh
+        ./packaging/bundle-macos.sh
 
+    - name: Upload DMG Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: denemo-macos-dmg
+        path: Denemo-*-macOS.dmg
+ 
+ 
     - name: Upload DMG Artifact
       uses: actions/upload-artifact@v4
       with:
