@@ -112,7 +112,10 @@ EOF
 cp "${BINARY}" "${APP_DIR}/Contents/MacOS/denemo"
 chmod +x "${APP_DIR}/Contents/MacOS/denemo"
 
-# -- 3.b 
+# -- 3.b
+SRCDIR="$(cd "$(dirname "$0")/.." && pwd)"
+PNG_ICON="${SRCDIR}/pixmaps/org.denemo.Denemo.png"
+if [ ! -f "${PNG_ICON}" ]; then PNG_ICON="${SRCDIR}/pixmaps/denemo128x128.png"; fi 
 
     echo "Creating .icns from ${PNG_ICON}..."
     ...
