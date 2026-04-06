@@ -118,7 +118,6 @@ PNG_ICON="${SRCDIR}/pixmaps/org.denemo.Denemo.png"
 if [ ! -f "${PNG_ICON}" ]; then PNG_ICON="${SRCDIR}/pixmaps/denemo128x128.png"; fi 
 
     echo "Creating .icns from ${PNG_ICON}..."
-    ...
     iconutil -c icns "${ICONSET_DIR}" -o "${ICNS_OUT}"
 
 # ── 4. Create icon ────────────────────────────────────────────────────────────
