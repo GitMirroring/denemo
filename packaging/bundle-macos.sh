@@ -158,22 +158,28 @@ if [ -d "${LOCALE_DIR}" ]; then
         cp "$mo" "${APP_DIR}/Contents/Resources/share/locale/${lang}/LC_MESSAGES/"
     done
 fi
-# -- 5b. Install lilypond
+
+# -- 5b. Bundle LilyPond
 echo "Bundling LilyPond..."
 LILYPOND_BIN="${HOMEBREW_PREFIX}/bin/lilypond"
 if [ -f "${LILYPOND_BIN}" ]; then
     cp "${LILYPOND_BIN}" "${APP_DIR}/Contents/MacOS/"
-    # LilyPond needs its data directory too
-    LILYPOND_SHARE=$(find "${HOMEBREW_PREFIX}/share/lilypond" -maxdepth 1 -mindepth 1 -type d | head -1)
-    if [ -d "${LILYPOND_SHARE}" ]; then
-        cp -R "$(dirname ${LILYPOND_SHARE})" \
-              "${APP_DIR}/Contents/Resources/share/"
+    if [ -d "${HOMEBREW_PREFIX}/share/lilypond" ]; then
+        mkdir -p "${APP_DIR}/Contents/Resources/share/lilypond"
+        cp -R "${HOMEBREW_PREFIX}/share/lilypond/" \
+              "${APP_DIR}/Contents/Resources/share/lilypond/"
+        echo "  LilyPond share bundled"
+    fi
+    if [ -d "${HOMEBREW_PREFIX}/lib/lilypond" ]; then
+        mkdir -p "${APP_DIR}/Contents/libs/lilypond"
+        cp -R "${HOMEBREW_PREFIX}/lib/lilypond/" \
+              "${APP_DIR}/Contents/libs/lilypond/"
+        echo "  LilyPond libs bundled"
     fi
     echo "  LilyPond bundled: ${LILYPOND_BIN}"
 else
     echo "  WARNING: lilypond not found at ${LILYPOND_BIN}"
 fi
-
 # ── 6. Set environment wrapper script ────────────────────────────────────────
 # GTK apps need XDG/GDK env vars to find their data inside the bundle.
 # We replace the binary with a launcher script and rename the real binary.
@@ -197,6 +203,8 @@ export PANGO_LIBDIR="${LIBS}"
 export FONTCONFIG_PATH="${RESOURCES}/etc/fonts"
 
 # Point denemo at its data
+export LILYPOND_DATADIR="${RESOURCES}/share/lilypond"
+export PATH="${BUNDLE}/Contents/MacOS:${PATH}"
 export DENEMO_DATADIR="${RESOURCES}/share/denemo"
 
 exec "${BUNDLE}/Contents/MacOS/denemo-bin" "$@"
