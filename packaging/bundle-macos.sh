@@ -115,27 +115,32 @@ chmod +x "${APP_DIR}/Contents/MacOS/denemo"
 # ── 4. Create icon ────────────────────────────────────────────────────────────
 # Convert the installed PNG to .icns using macOS sips + iconutil.
 # Falls back gracefully if the PNG is missing.
+# Source icon from the checked-out repo
+SRCDIR="$(cd "$(dirname "$0")/.." && pwd)"
+PNG_ICON="${SRCDIR}/pixmaps/org.denemo.Denemo.png"
 
-PNG_ICON="${SHARE_DIR}/manual/images/denemomain.png"
-ICNS_OUT="${APP_DIR}/Contents/Resources/denemo.icns"
+if [ ! -f "${PNG_ICON}" ]; then
+    PNG_ICON="${SRCDIR}/pixmaps/denemo128x128.png"
+fi
 
 if [ -f "${PNG_ICON}" ]; then
     echo "Creating .icns from ${PNG_ICON}..."
     ICONSET_DIR="$(mktemp -d)/denemo.iconset"
     mkdir -p "${ICONSET_DIR}"
-    for size in 16 32 64 128 256 512; do
+    for size in 16 32 64 128; do
         sips -z ${size} ${size} "${PNG_ICON}" \
-            --out "${ICONSET_DIR}/icon_${size}x${size}.png" > /dev/null 2>&1
+            --out "${ICONSET_DIR}/icon_${size}x${size}.png" > /dev/null
         double=$((size * 2))
         sips -z ${double} ${double} "${PNG_ICON}" \
-            --out "${ICONSET_DIR}/icon_${size}x${size}@2x.png" > /dev/null 2>&1
+            --out "${ICONSET_DIR}/icon_${size}x${size}@2x.png" > /dev/null
     done
+    # 128 is our max source size - don't upscale beyond that
     iconutil -c icns "${ICONSET_DIR}" -o "${ICNS_OUT}"
     rm -rf "$(dirname ${ICONSET_DIR})"
-    echo "  Icon created: ${ICNS_OUT}"
 else
-    echo "  WARNING: No icon PNG found at ${PNG_ICON}, skipping .icns"
+    echo "WARNING: No icon found, bundle will have no icon"
 fi
+
 
 # ── 5. Copy application data into Resources ───────────────────────────────────
 
@@ -151,6 +156,21 @@ if [ -d "${LOCALE_DIR}" ]; then
         mkdir -p "${APP_DIR}/Contents/Resources/share/locale/${lang}/LC_MESSAGES"
         cp "$mo" "${APP_DIR}/Contents/Resources/share/locale/${lang}/LC_MESSAGES/"
     done
+fi
+# -- 5b. Install lilypond
+echo "Bundling LilyPond..."
+LILYPOND_BIN="${HOMEBREW_PREFIX}/bin/lilypond"
+if [ -f "${LILYPOND_BIN}" ]; then
+    cp "${LILYPOND_BIN}" "${APP_DIR}/Contents/MacOS/"
+    # LilyPond needs its data directory too
+    LILYPOND_SHARE=$(find "${HOMEBREW_PREFIX}/share/lilypond" -maxdepth 1 -mindepth 1 -type d | head -1)
+    if [ -d "${LILYPOND_SHARE}" ]; then
+        cp -R "$(dirname ${LILYPOND_SHARE})" \
+              "${APP_DIR}/Contents/Resources/share/"
+    fi
+    echo "  LilyPond bundled: ${LILYPOND_BIN}"
+else
+    echo "  WARNING: lilypond not found at ${LILYPOND_BIN}"
 fi
 
 # ── 6. Set environment wrapper script ────────────────────────────────────────
