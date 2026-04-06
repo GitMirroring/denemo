@@ -103,6 +103,22 @@ jobs:
         chmod +x packaging/bundle-macos.sh
         ./packaging/bundle-macos.sh
 
+    - name: Inspect LilyPond install
+      run: |
+        echo "=== LilyPond binary ==="
+        find /opt/homebrew -name "lilypond" -type f
+        echo "=== LilyPond size ==="
+        du -sh /opt/homebrew/Cellar/lilypond/ 2>/dev/null || echo "not in Cellar"
+        echo "=== LilyPond share ==="
+        du -sh /opt/homebrew/share/lilypond/ 2>/dev/null || echo "no share/lilypond"
+        echo "=== LilyPond lib ==="
+        find /opt/homebrew/lib -name "*lilypond*" 2>/dev/null || echo "no libs"
+        echo "=== In bundle ==="
+        find macos_staging/Denemo.app -name "lilypond*" 2>/dev/null || echo "not in bundle"
+        echo "=== Bundle sizes ==="
+        du -sh macos_staging/Denemo.app/Contents/MacOS/ 2>/dev/null
+        du -sh macos_staging/Denemo.app/Contents/libs/ 2>/dev/null
+        du -sh macos_staging/Denemo.app/Contents/Resources/ 2>/dev/null
     - name: Upload DMG Artifact
       uses: actions/upload-artifact@v4
       with:
