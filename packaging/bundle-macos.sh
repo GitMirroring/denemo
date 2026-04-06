@@ -123,6 +123,7 @@ if [ ! -f "${PNG_ICON}" ]; then
     PNG_ICON="${SRCDIR}/pixmaps/denemo128x128.png"
 fi
 
+ICNS_OUT="${APP_DIR}/Contents/Resources/denemo.icns"
 if [ -f "${PNG_ICON}" ]; then
     echo "Creating .icns from ${PNG_ICON}..."
     ICONSET_DIR="$(mktemp -d)/denemo.iconset"
