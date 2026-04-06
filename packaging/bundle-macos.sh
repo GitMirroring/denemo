@@ -112,6 +112,17 @@ EOF
 cp "${BINARY}" "${APP_DIR}/Contents/MacOS/denemo"
 chmod +x "${APP_DIR}/Contents/MacOS/denemo"
 
+# -- 3.b 
+
+# Define this before the icon section
+ICNS_OUT="${APP_DIR}/Contents/Resources/denemo.icns"
+
+# Then the existing icon block follows...
+if [ -f "${PNG_ICON}" ]; then
+    echo "Creating .icns from ${PNG_ICON}..."
+    ...
+    iconutil -c icns "${ICONSET_DIR}" -o "${ICNS_OUT}"
+
 # ── 4. Create icon ────────────────────────────────────────────────────────────
 # Convert the installed PNG to .icns using macOS sips + iconutil.
 # Falls back gracefully if the PNG is missing.
