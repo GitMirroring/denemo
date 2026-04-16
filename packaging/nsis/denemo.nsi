@@ -81,6 +81,24 @@ RequestExecutionLevel admin
 
 !insertmacro MUI_LANGUAGE "English"
 
+
+Function .onInit
+    ReadRegStr $R0 HKLM "${INSTALL_KEY}" "Install_Dir"
+    StrCmp $R0 "" done_check
+
+    ReadRegStr $R1 HKLM "${UNINSTALL_KEY}" "DisplayVersion"
+    MessageBox MB_YESNOCANCEL|MB_ICONQUESTION \
+        "Denemo $R1 is already installed in '$R0'.$\n$\nClick Yes to upgrade, No to install alongside it, or Cancel to abort." \
+        IDYES run_uninstaller IDNO done_check
+    Abort
+
+run_uninstaller:
+    ReadRegStr $R2 HKLM "${UNINSTALL_KEY}" "UninstallString"
+    ExecWait '$R2 /S _?=$R0'   ; silent uninstall, keeping $INSTDIR
+
+done_check:
+FunctionEnd
+
 ;;; ---------------------------------------------------------------------------
 ;;; Helper: add a directory to the system PATH (no-op if already present)
 ;;; ---------------------------------------------------------------------------
@@ -246,11 +264,18 @@ Section "Uninstall"
     Delete "$SMPROGRAMS\${PRETTY_NAME}\*.*"
     RMDir  "$SMPROGRAMS\${PRETTY_NAME}"
 
-    ;; Remove remaining installer files
-    Delete "$INSTDIR\uninstall.exe"
-    Delete "$INSTDIR\Denemo.bat"
+    ;; *** ADD THIS — remove all installed content ***
+    RMDir /r "$INSTDIR\bin"
+    RMDir /r "$INSTDIR\etc"
+    RMDir /r "$INSTDIR\lib"
+    RMDir /r "$INSTDIR\libexec"
+    RMDir /r "$INSTDIR\share"
+    RMDir /r "$INSTDIR\lilypond"
+    RMDir /r "$INSTDIR\license"
+    Delete    "$INSTDIR\Denemo.bat"
+    Delete    "$INSTDIR\uninstall.exe"
 
-    ;; Remove install dir if empty
-    RMDir "$INSTDIR\bin"
+    ;; Remove install dir if now empty
     RMDir "$INSTDIR"
 SectionEnd
+
