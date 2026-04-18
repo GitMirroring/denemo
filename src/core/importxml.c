@@ -3017,6 +3017,12 @@ importXML (gchar * filename, DenemoProject * gui, ImportType type)
    */
 
   rootElem = xmlDocGetRootElement (doc);
+  if (rootElem == NULL || rootElem->ns == NULL)
+  {
+    g_warning ("Invalid or missing root element/namespace");
+    ret = -1;
+    goto cleanup;
+  }
   ns = rootElem->ns;
   if ((strcmp ((gchar *) ns->href, DENEMO_XML_NAMESPACE) != 0) &&
       /*backward compatibility */ (strcmp ((gchar *) ns->href, "http://denemo.sourceforge.net/xmlns/Denemo") != 0))
