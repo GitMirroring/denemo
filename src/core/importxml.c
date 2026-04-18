@@ -2987,6 +2987,19 @@ importXML (gchar * filename, DenemoProject * gui, ImportType type)
       g_warning ("Recursive call to importXML - ignored");
       return -1;
     }
+#ifdef G_OS_WIN32
+  /* Convert native Windows path to a URI that libxml2 can handle */
+  GError *err = NULL;
+  gchar *uri = g_filename_to_uri (filename, NULL, &err);
+  if (uri == NULL)
+    {
+      g_warning ("Could not convert filename to URI: %s", err->message);
+      g_error_free (err);
+      return -1;
+    }
+  doc = xmlReadFile (uri, NULL, XML_PARSE_NONET);
+  g_free (uri);
+#else
   /* Try to parse the file. */
 
   doc = xmlParseFile (filename);
@@ -2995,7 +3008,7 @@ importXML (gchar * filename, DenemoProject * gui, ImportType type)
       g_warning ("Could not read XML file %s", filename);
       return -1;
     }
-
+#endif
   /*
    * Do a couple of sanity checks to make sure we've actually got a Denemo
    * format XML file.
