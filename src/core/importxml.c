@@ -2988,7 +2988,6 @@ importXML (gchar * filename, DenemoProject * gui, ImportType type)
       return -1;
     }
 #ifdef G_OS_WIN32
-  /* Convert native Windows path to a URI that libxml2 can handle */
   GError *err = NULL;
   gchar *uri = g_filename_to_uri (filename, NULL, &err);
   if (uri == NULL)
@@ -2999,9 +2998,12 @@ importXML (gchar * filename, DenemoProject * gui, ImportType type)
     }
   doc = xmlReadFile (uri, NULL, XML_PARSE_NONET);
   g_free (uri);
+  if (doc == NULL)
+    {
+      g_warning ("Could not read XML file %s", filename);
+      return -1;
+    }
 #else
-  /* Try to parse the file. */
-
   doc = xmlParseFile (filename);
   if (doc == NULL)
     {
