@@ -25,7 +25,7 @@ define $(PKG)_BUILD
     cd '$(1)/' && ./configure \
         $(MXE_CONFIGURE_OPTS) \
         --disable-binreloc \
-        --disable-debug \
+        --enable-debug \
         --enable-guile_2_2 \
         --enable-portmidi \
         --disable-atril \
@@ -36,11 +36,11 @@ define $(PKG)_BUILD
         PORTMIDI_LIBS="-lportmidi -lwinmm" \
 	CPPFLAGS='-I$(PREFIX)/$(TARGET)/include' \
         LDFLAGS='-L$(PREFIX)/$(TARGET)/lib' \
-        CFLAGS="-mwindows" 
+        CFLAGS=""
     $(MAKE) -C '$(1)/' -j '$(JOBS)' AM_LDFLAGS="-mwindows"  install
 
     '$(TARGET)-gcc' \
-        -W -Wall -ansi -mwindows \
+        -W -Wall -ansi \
         '$(TOP_DIR)/src/lilypond-windows.c' -o '$(PREFIX)/$(TARGET)/bin/lilypond-windows.exe' 
 
 
