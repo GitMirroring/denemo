@@ -483,7 +483,9 @@ open_for_real (gchar * filename, DenemoProject * gui, DenemoSaveType template, I
       if (!template)
         {                       // not a template
           update_file_selection_path (filename);
-          chdir (g_path_get_dirname (filename));
+	  gchar *dir = g_path_get_dirname (filename);
+	  g_chdir (dir);
+	  g_free (dir);
           if (type == REPLACE_SCORE)
             {
               if (xml){
