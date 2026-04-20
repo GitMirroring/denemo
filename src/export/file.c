@@ -46,6 +46,7 @@
 #include "audio/midirecord.h"
 #include "audio/audiointerface.h"
 #include "printview/printview.h"
+#include <glib/gstdio.h>
 
 static gint file_open (DenemoProject * gui, DenemoSaveType template, ImportType type, gchar * filename);
 static gint file_import_lilypond (DenemoProject * gui, DenemoSaveType template, ImportType type, gchar * filename);
