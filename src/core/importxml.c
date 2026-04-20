@@ -26,7 +26,7 @@
 #include "printview/printview.h"
 #include <string.h>
 #include "core/cache.h"
-
+#include <gio/gio.h>
 /* libxml includes: for libxml2 this should be <libxml.h> */
 #include <libxml/parser.h>
 #include <libxml/tree.h>
@@ -2960,6 +2960,17 @@ parseRhythmsElem (xmlNodePtr sElem, DenemoProject * gui)
     }
 }
 
+static gboolean
+file_is_gzip (const gchar *filename)
+{
+  FILE *f = g_fopen (filename, "rb");
+  if (!f) return FALSE;
+  guchar magic[2];
+  gboolean result = (fread (magic, 1, 2, f) == 2 &&
+                     magic[0] == 0x1f && magic[1] == 0x8b);
+  fclose (f);
+  return result;
+}
 
 /**
  * Import the given (possibly zlib-compressed) Denemo "native" XML file into
@@ -2987,31 +2998,44 @@ importXML (gchar * filename, DenemoProject * gui, ImportType type)
       g_warning ("Recursive call to importXML - ignored");
       return -1;
     }
-#ifdef G_OS_WIN32
-  GError *err = NULL;
-  gchar *uri = g_filename_to_uri (filename, NULL, &err);
-  if (uri == NULL)
+
+  if (file_is_gzip (filename))
     {
-      g_warning ("Could not convert filename to URI: %s", err->message);
-      g_error_free (err);
-      return -1;
+      GFile *src = g_file_new_for_path (filename);
+      GFileInputStream *fis = g_file_read (src, NULL, NULL);
+      GZlibDecompressor *decomp = g_zlib_decompressor_new (G_ZLIB_COMPRESSOR_FORMAT_GZIP);
+      GInputStream *conv = g_converter_input_stream_new (G_INPUT_STREAM (fis), G_CONVERTER (decomp));
+      GOutputStream *mem = g_memory_output_stream_new_resizable ();
+
+      g_output_stream_splice (mem, conv,
+                              G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
+                              G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
+                              NULL, NULL);
+
+      gsize size = g_memory_output_stream_get_data_size (G_MEMORY_OUTPUT_STREAM (mem));
+      gpointer data = g_memory_output_stream_steal_data (G_MEMORY_OUTPUT_STREAM (mem));
+
+      doc = xmlReadMemory (data, size, filename, NULL, XML_PARSE_NONET);
+
+      g_free (data);
+      g_object_unref (mem);
+      g_object_unref (conv);
+      g_object_unref (decomp);
+      g_object_unref (fis);
+      g_object_unref (src);
     }
-  doc = xmlReadFile (uri, NULL, XML_PARSE_NONET);
-  g_free (uri);
+  else
+    {
+      doc = xmlReadFile (filename, NULL, XML_PARSE_NONET);
+    }
+
   if (doc == NULL)
     {
       g_warning ("Could not read XML file %s", filename);
       return -1;
     }
-#else
-  doc = xmlParseFile (filename);
-  if (doc == NULL)
-    {
-      g_warning ("Could not read XML file %s", filename);
-      return -1;
-    }
-#endif
-  /*
+
+   /*
    * Do a couple of sanity checks to make sure we've actually got a Denemo
    * format XML file.
    */
