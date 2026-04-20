@@ -179,6 +179,7 @@ confirm_save (DenemoProject * gui, gchar * primary, gchar * secondary)
 
   (void) gtk_dialog_add_button ((GtkDialog *) dialog, _("_Cancel"), GTK_RESPONSE_CANCEL);
 
+
   (void) gtk_dialog_add_button ((GtkDialog *) dialog, _("Save _As"), GTK_RESPONSE_YES);
 
   gtk_dialog_set_default_response ((GtkDialog *) dialog, GTK_RESPONSE_YES);
@@ -735,7 +736,9 @@ filesel_save (DenemoProject * gui, const gchar * file_name, gint format_id, Dene
     {
       if(!Denemo.non_interactive)
         set_project_filename (gui, file);
-      chdir (g_path_get_dirname (file));
+      gchar *dir = g_path_get_dirname (file);
+      g_chdir (dir);
+      g_free (dir);
     }    
     
     
