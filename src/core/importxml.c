@@ -27,6 +27,7 @@
 #include <string.h>
 #include "core/cache.h"
 #include <gio/gio.h>
+#include <glib/gstdio.h>
 /* libxml includes: for libxml2 this should be <libxml.h> */
 #include <libxml/parser.h>
 #include <libxml/tree.h>
