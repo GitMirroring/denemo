@@ -756,10 +756,10 @@ static void help_scroll_points (void)
     infodialog (_("This is the Playback View Window. Click on a note to play from that note to the end. \
 Click again to stop play. Drag between two notes to play from the first to the last, shift drag to create a loop. \
 Shift-Click on a note to position the Denemo cursor on that note in the Denemo Display. \
-For simple scrolling check the box. For more sophisticated control right click on a note when you have scrolled the page to the position you want it to be at when it is playing. \
-First right click at the start of the second system (this means that the music will not scroll before that); then scroll to position the end and right click the first note of the last system of the piece. \
+For simple scrolling check the box. For more sophisticated control use the right mouse button:\nright click on a note when you have scrolled the page to the position you want it to be at when it is playing. \
+In detail: First right click at the start of the second system (this means that the music will not scroll before that); then scroll to position the end and right click the first note of the last system of the piece. \
 To delete a scroll point right-click on it.\nIf there are changes of pace then set extra scroll points to control the scrolling in more detail. \
-For PlayAlong playback left click on the note you want to start playing at - it will sound immediately, but you must still play it on your MIDI keyboard for the playback to advance. \
+\nFor PlayAlong playback set the checkbox and use left clicks:\nleft click on the note you want to start playing at - it will sound immediately, but you must still play it on your MIDI keyboard for the playback to advance. \
 If you want an intro use Ctrl-left click - it will play from the bar before until it plays the note you clicked, \
 you have to play that note and then the following ones to continue the playback. \
 You can shape the part you are playing by playing staccato or using rubato to slow up the playback."));
