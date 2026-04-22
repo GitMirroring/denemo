@@ -207,12 +207,6 @@ void create_virtual_keyboard (gint octaves)
     gtk_adjustment_set_value (hadj, (upper-page - lower)/2);
 }
 
-gboolean scorearea_keyrelease_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data)
-{
-    // Implement keyboard release handling for the score area
-    return FALSE;
-}
-
 gboolean scorearea_mouseenter_event (GtkWidget *widget, GdkEventCrossing *event, gpointer user_data)
 {
     // Implement mouse enter handling

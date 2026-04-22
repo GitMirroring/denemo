@@ -79,7 +79,7 @@ struct FileFormatData
 /* WARNING this array has to match the FileFormatNames enum above which is used to index it!!!!!!!!!" */
 static struct FileFormatData supported_file_formats[] = {
   {"*.denemo*", N_("Denemo format (*.denemo *.denemo.gz)"),  ".denemo", 0},
-  {"*.denemo.gz",    N_("CompressedDenemo XML format (*.denemo.gz)"),     ".denemo", 0},
+  {"*.denemo.gz",    N_("CompressedDenemo XML format (*.denemo.gz)"),     ".denemo.gz", 0},
   {"*.ly",     N_("Lilypond (*.ly)"),               ".ly", 0},
   {"*.pdf",    N_("PDF (*.pdf)"),                   ".pdf", 1},
   {"*.png",    N_("PNG Image format (*.png)"),      ".png", 1},
@@ -491,10 +491,10 @@ open_for_real (gchar * filename, DenemoProject * gui, DenemoSaveType template, I
           if (type == REPLACE_SCORE)
             {
               if (xml){
-                 if (g_str_has_suffix (filename, ".gz"))
-                    {
-                     *(filename + strlen(filename) -3) = 0;
-                    }
+                 //~ if (g_str_has_suffix (filename, ".gz"))
+                    //~ {
+                     //~ *(filename + strlen(filename) -3) = 0;
+                    //~ }
                  set_project_filename (gui, filename);
               }
               else
@@ -1256,8 +1256,8 @@ file_dialog_response (GtkWidget * dialog, gint response_id, struct FileDialogDat
   if (response_id == GTK_RESPONSE_ACCEPT)
     {
       gchar *file_name = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-      if (g_str_has_suffix (file_name, ".gz"))
-        *(file_name + strlen (file_name) - strlen (".gz")) = 0;
+      //~ if (g_str_has_suffix (file_name, ".gz"))
+        //~ *(file_name + strlen (file_name) - strlen (".gz")) = 0;
         
         
       if (data->template && !has_extension (file_name, ".denemo"))

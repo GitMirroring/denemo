@@ -72,7 +72,7 @@ lock_mask (gint keyval)
   if ((keyval == GDK_Super_L) || (keyval == GDK_Super_R))
     return GDK_MOD4_MASK;
 
-  if ((keyval == GDK_Alt_R) || (keyval == GDK_ISO_Level3_Shift))
+ if (keyval == GDK_Alt_R || (keyval == GDK_ISO_Level3_Shift))
     return GDK_MOD5_MASK;
 
   return 0;
@@ -119,6 +119,65 @@ llock_mask (gint keyval)
 
 }
 
+/**
+ * keyrelease event callback
+ * sets cursor if a modifier
+ */
+
+gint
+scorearea_keyrelease_event (GtkWidget * widget, GdkEventKey * event, gpointer user_data)
+{
+	//g_print ("Scorearea key release event: keyval %d (%s), string |%s|, length %d, state %x, keycode %d, group %d, is_modifier flag %d\n", event->keyval, gdk_keyval_name(event->keyval), event->string, event->length, event->state, event->hardware_keycode, event->group, event->is_modifier);
+     if(!Denemo.keyboard_state_locked)
+          {
+              Denemo.keyboard_state ^= (0xf & klock_mask (event->keyval));
+              if ((event->keyval == GDK_Alt_L) || (event->keyval == GDK_Alt_R))
+                {
+                  if ((Denemo.keyboard_state & CHORD_MASK)) //At least one note has been entered in a chord
+                    next_editable_note ();
+                  Denemo.keyboard_state &= ~CHORD_MASK;
+                  set_midi_in_status ();
+                }
+               else if ((Denemo.keyboard_state == 0) && ((event->keyval == GDK_Shift_L) || (event->keyval == GDK_Shift_R)))
+				{
+				if (Denemo.project->movement->recording && (Denemo.project->movement->recording->type == DENEMO_RECORDING_MIDI))
+					toggle_midi_record ();
+				set_midi_in_status ();	
+				}
+			  else if ((Denemo.keyboard_state == 0) && ((event->keyval == GDK_Control_L) || (event->keyval == GDK_Control_R)))
+				{
+				 if (Denemo.project->movement->recording && (Denemo.project->movement->recording->type == DENEMO_RECORDING_MIDI))
+					toggle_midi_record ();
+				set_midi_in_status ();	
+				}
+              
+        }
+     else
+		{
+			if ((Denemo.keyboard_state == 0) && ((event->keyval == GDK_Shift_L) || (event->keyval == GDK_Shift_R)))
+					{
+
+						Denemo.keyboard_state = 1;
+						set_midi_in_status ();
+					}
+			else
+				if ((Denemo.keyboard_state == 0) && ((event->keyval == GDK_Control_L) || (event->keyval == GDK_Control_R)))
+						{
+														
+							Denemo.keyboard_state = 4;
+							set_midi_in_status ();
+						}
+		}
+  //g_print("release Denemo keyboard state %x keyboard+state_locked %x from event state %x\n", Denemo.keyboard_state, Denemo.keyboard_state_locked, event->state);
+  // set_cursor_for(keyrelease_modify(event->state), event->keyval);
+  gint state;
+  if ((event->keyval == GDK_Caps_Lock) || (event->keyval == GDK_Num_Lock))
+    return TRUE;
+  state = (lock_mask (event->keyval) ^ event->state);
+
+  set_cursor_for (state);
+  return TRUE;
+}
 
 /* perform the command of the given name and store the event that triggered it */
 static gchar *
