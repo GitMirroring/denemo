@@ -41,6 +41,8 @@ CHECKSUM=$(sha256sum /tmp/denemo-${VERSION}.tar.gz | cut -d' ' -f1)
 echo "Tarball checksum: ${CHECKSUM}"
 mkdir -p "${MXE_DIR}/pkg"
 cp /tmp/denemo-${VERSION}.tar.gz "${MXE_DIR}/pkg/"
+# Use our authoritative denemo.mk, then patch checksum into it
+cp "${SCRIPT_DIR}/denemo.mk" "${MXE_DIR}/src/denemo.mk"
 sed -i "s/\$(PKG)_CHECKSUM := .*/\$(PKG)_CHECKSUM := ${CHECKSUM}/" "${MXE_DIR}/src/denemo.mk"
 rm -f "${MXE_DIR}/usr/x86_64-w64-mingw32.shared/installed/denemo"
 rm -rf "${MXE_DIR}/tmp-denemo-x86_64-w64-mingw32.shared"
