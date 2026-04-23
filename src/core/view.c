@@ -3311,8 +3311,12 @@ create_window (void)
   // it accesses Denemo.window
   loadWindowState ();
 #ifdef G_OS_WIN32
-  g_message ("Denemo icon not used");
-  //not installed on windows ... data_file = g_build_filename (get_system_data_dir (), "icons","denemo.png", NULL);
+#ifdef G_OS_WIN32
+  data_file = g_build_filename (get_system_data_dir (), "..", "icons", "hicolor", "org.denemo.Denemo.png", NULL);
+  if (data_file && g_file_test (data_file, G_FILE_TEST_EXISTS))
+    gtk_window_set_default_icon_from_file (data_file, NULL);
+  else
+    g_warning ("Could not find org.denemo.Denemo.png for window icon");
 #else
   GList *icon_dirs = NULL;
   icon_dirs = g_list_append (icon_dirs, g_build_filename (PACKAGE_SOURCE_DIR, PIXMAPS_DIR, NULL));
