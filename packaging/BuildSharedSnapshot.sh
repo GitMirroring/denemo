@@ -177,7 +177,6 @@ cp Denemo.bat "${PKG}/"
 # copy the denemo.ico over #TODO get this from denemo's src
 mkdir -p "${PKG}/share/icons/hicolor/"
 cp denemo.ico "${PKG}/share/icons/hicolor/denemo.ico"
-cp "${SCRIPT_DIR}/org.denemo.Denemo.png" "${MXE_DIR}/"
 # ------------------------------------------------------------------------------
 # 13. Fix Guile .go file timestamps
 #

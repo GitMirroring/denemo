@@ -9,6 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Copy packaging files into MXE directory where script expects them
 cp "${SCRIPT_DIR}/regfont.exe" "${MXE_DIR}/"
 cp "${SCRIPT_DIR}/denemo.ico" "${MXE_DIR}/"
+cp "${SCRIPT_DIR}/org.denemo.Denemo.png" "${MXE_DIR}/"
 cp "${SCRIPT_DIR}/clean.sh" "${MXE_DIR}/"
 cp "${SCRIPT_DIR}/nsis/Denemo.bat" "${MXE_DIR}/"
 cp "${SCRIPT_DIR}/nsis/denemo.nsi" "${MXE_DIR}/"
