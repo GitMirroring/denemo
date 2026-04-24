@@ -177,7 +177,8 @@ cp Denemo.bat "${PKG}/"
 # copy the denemo.ico over #TODO get this from denemo's src
 mkdir -p "${PKG}/share/icons/hicolor/"
 cp denemo.ico "${PKG}/share/icons/hicolor/denemo.ico"
-###
+cp org.denemo.Denemo.png "${PKG}/share/icons/hicolor/org.denemo.Denemo.png" 
+##
 # 12.b # Precompile Denemo .scm files to .go
 echo "Precompiling Denemo scheme files..."
 GUILE_LOAD_COMPILED_PATH="${PKG}/lib/guile/2.2/ccache" \
