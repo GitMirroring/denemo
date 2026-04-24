@@ -177,6 +177,18 @@ cp Denemo.bat "${PKG}/"
 # copy the denemo.ico over #TODO get this from denemo's src
 mkdir -p "${PKG}/share/icons/hicolor/"
 cp denemo.ico "${PKG}/share/icons/hicolor/denemo.ico"
+###
+# 12.b # Precompile Denemo .scm files to .go
+echo "Precompiling Denemo scheme files..."
+GUILE_LOAD_COMPILED_PATH="${PKG}/lib/guile/2.2/ccache" \
+find "${PKG}/share/denemo" -name "*.scm" | while read scm; do
+    rel="${scm#${PKG}/share/denemo/}"
+    out="${PKG}/lib/guile/2.2/ccache/${rel%.scm}.go"
+    mkdir -p "$(dirname "$out")"
+    guild compile -o "$out" "$scm" 2>/dev/null || true
+done
+echo "  Done: $(find "${PKG}/lib/guile/2.2/ccache" -name '*.go' | wc -l) .go files"
+#
 # ------------------------------------------------------------------------------
 # 13. Fix Guile .go file timestamps
 #
@@ -193,6 +205,14 @@ echo "Fixing Guile .go timestamps to prevent Windows recompilation..."
 find "${PKG}" -name "*.go" -exec touch -d "2038-01-01 00:00:01" {} +
 echo "  .go timestamps fixed ($(find "${PKG}" -name '*.go' | wc -l) files)"
 
+#
+# 13.1 # Move any misplaced .go files from root into ccache
+#
+find "${PKG}" -maxdepth 1 -name "*.go" | while read go; do
+    base=$(basename "$go")
+    dest="${PKG}/lib/guile/2.2/ccache/${base}"
+    mv "$go" "$dest"
+done
 #
 # 13.5  install license
 #
