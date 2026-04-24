@@ -37,7 +37,7 @@ define $(PKG)_BUILD
 	CPPFLAGS='-I$(PREFIX)/$(TARGET)/include' \
         LDFLAGS='-L$(PREFIX)/$(TARGET)/lib' \
         CFLAGS=""
-    $(MAKE) -C '$(1)/' -j '$(JOBS)' AM_LDFLAGS="-mwindows"  install
+    $(MAKE) -C '$(1)/' -j '$(JOBS)' AM_LDFLAGS=""  install
 
     '$(TARGET)-gcc' \
         -W -Wall -ansi \
