@@ -134,7 +134,10 @@ gtk_menu_item_set_label_text (GtkMenuItem * item, gchar * text)
 {
   GtkWidget *label = (GtkWidget *) gtk_bin_get_child (GTK_BIN (item));
   if (label)
-    gtk_label_set_text (GTK_LABEL (label), text);
+    {
+      gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
+      gtk_label_set_markup (GTK_LABEL (label), text);
+    }
 }
 
 
