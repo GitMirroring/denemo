@@ -1700,7 +1700,7 @@ assign_text (GtkWidget * w, gchar * text)
 static gchar *
 get_label_text (DenemoDirective * directive, gchar * text)
 {
-  if ((directive->override & DENEMO_OVERRIDE_MARKUP) || (text && *text == '<'))
+  if ((directive->override & DENEMO_OVERRIDE_MARKUP) || (text && g_strstrip(g_strdup(text))[0] == '<'))
     return g_strdup (text);
   return g_markup_escape_text (text, -1);
 }
