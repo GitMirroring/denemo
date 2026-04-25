@@ -30,6 +30,9 @@ jobs:
           ls packaging/
           bash packaging/BuildCI.sh
 
+      - name: Print MXE log on failure
+        if: failure()
+        run: cat /opt/mxe/log/denemo_x86_64-w64-mingw32.shared || echo "No log found"
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
