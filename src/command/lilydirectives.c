@@ -2118,14 +2118,6 @@ PUT_GRAPHIC_WIDGET_INT (gy, layout, directives);
 PUT_GRAPHIC_WIDGET_INT (gy, movementcontrol, directives);
 PUT_GRAPHIC_WIDGET_INT (gy, staff, staff_directives);
 PUT_GRAPHIC_WIDGET_INT (gy, voice, voice_directives);
-PUT_GRAPHIC_WIDGET_INT (override, score, directives);
-PUT_GRAPHIC_WIDGET_INT (override, scoreheader, directives);
-PUT_GRAPHIC_WIDGET_INT (override, header, directives);
-PUT_GRAPHIC_WIDGET_INT (override, paper, directives);
-PUT_GRAPHIC_WIDGET_INT (override, layout, directives);
-PUT_GRAPHIC_WIDGET_INT (override, movementcontrol, directives);
-PUT_GRAPHIC_WIDGET_INT (override, staff, staff_directives);
-PUT_GRAPHIC_WIDGET_INT (override, voice, voice_directives);
 #undef PUT_GRAPHIC_WIDGET_STR
 #undef PUT_GRAPHIC_WIDGET_INT
 gboolean
