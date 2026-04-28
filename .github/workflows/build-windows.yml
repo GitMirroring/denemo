@@ -30,6 +30,16 @@ jobs:
           ls packaging/
           bash packaging/BuildCI.sh
 
+      - name: Show MXE pkg dir on failure
+        if: failure()
+        run: |
+          grep -n "PKG_DIR\|pkg\|PKGS" /opt/mxe/Makefile | head -20 || true
+          ls /opt/mxe/ || true
+      - name: Show MXE pkg dir on failure
+        if: failure()
+        run: |
+          grep -n "PKG_DIR\|pkg\|PKGS" /opt/mxe/Makefile | head -20 || true
+          ls /opt/mxe/ || true
       - name: Print MXE log on failure
         if: failure()
         run: cat /opt/mxe/log/denemo_x86_64-w64-mingw32.shared || echo "No log found"
