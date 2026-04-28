@@ -14,9 +14,9 @@ $(PKG)_DEPS     := gcc gtk3 gtksourceview aubio portaudio librsvg libgcrypt port
 #TODO upgrade aubio
 #z%TODO write test for aubio
 #TODO write test for evince 
-define $(PKG)_UPDATE
+define $(PKG)_UPDATE7;38m
     $(WGET) -q -O- 'https://denemo.org/~jjbenham/denemo-snapshot/' | \
-    grep 'denemo-' | \
+    grep 'denemo-' | \4;40M
    $(SED) -n 's,.*denemo-\([0-9][^>]*\)\.tar.*,\1,p' | \
 sort | \
 tail -1
@@ -37,6 +37,7 @@ define $(PKG)_BUILD
 	CPPFLAGS='-I$(PREFIX)/$(TARGET)/include' \
         LDFLAGS='-L$(PREFIX)/$(TARGET)/lib' \
         CFLAGS=""
+    find ./ -name "denemo.rc" 
     #cp '$(TOP_DIR)/src/denemo.ico' '$(1)/src/'
     '$(TARGET)-windres' '$(TOP_DIR)/src/denemo.rc' -o '$(1)/src/denemo_icon.o'
     echo 'denemo_LDADD += denemo_icon.o' >> '$(1)/src/Makefile'
