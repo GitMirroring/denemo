@@ -3,7 +3,7 @@
 PKG             := denemo
 $(PKG)_IGNORE   :=
 $(PKG)_VERSION  := 2.6.52
-$(PKG)_CHECKSUM := 1640bf3ca5ef2d72d9888f94978f4e70e34b17b6743b99da2a14f5771368f6a0
+$(PKG)_CHECKSUM := 8aa3ab601281184bcc4e75e2d312a5d32223822ebecd943a994256a9432e299b
 $(PKG)_SUBDIR   := denemo-$($(PKG)_VERSION)
 $(PKG)_FILE     := denemo-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://denemo.org/~jjbenham/denemo-snapshot/$($(PKG)_FILE)
@@ -14,9 +14,9 @@ $(PKG)_DEPS     := gcc gtk3 gtksourceview aubio portaudio librsvg libgcrypt port
 #TODO upgrade aubio
 #z%TODO write test for aubio
 #TODO write test for evince 
-define $(PKG)_UPDATE7;38m
+define $(PKG)_UPDATE
     $(WGET) -q -O- 'https://denemo.org/~jjbenham/denemo-snapshot/' | \
-    grep 'denemo-' | \4;40M
+    grep 'denemo-' | \
    $(SED) -n 's,.*denemo-\([0-9][^>]*\)\.tar.*,\1,p' | \
 sort | \
 tail -1
@@ -37,9 +37,8 @@ define $(PKG)_BUILD
 	CPPFLAGS='-I$(PREFIX)/$(TARGET)/include' \
         LDFLAGS='-L$(PREFIX)/$(TARGET)/lib' \
         CFLAGS=""
-    find ../ 
-    cp '$(TOP_DIR)/src/denemo.ico' '$(1)/src/'
-    '$(TARGET)-windres' '$(TOP_DIR)/src/denemo.rc' -o '$(1)/src/denemo_icon.o'
+    #already there i guess cp '$(TOP_DIR)/packaging/denemo.ico' '$(1)/src/'
+    '$(TARGET)-windres' '$(1)/src/denemo.rc' -o '$(1)/src/denemo_icon.o'
     echo 'denemo_LDADD += denemo_icon.o' >> '$(1)/src/Makefile'
     $(MAKE) -C '$(1)/' -j '$(JOBS)' AM_LDFLAGS="" install
 
