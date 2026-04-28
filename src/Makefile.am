@@ -1,5 +1,5 @@
 bin_PROGRAMS = denemo
-dist_pkgdata_DATA = instruments.xml lilypond.lang
+dist_pkgdata_DATA = instruments.xml lilypond.lang denemo.ico denemo.rc
 denemo_SOURCES = \
   audio/audio.h \
   audio/audiocapture.c \
