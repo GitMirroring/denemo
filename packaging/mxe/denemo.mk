@@ -37,7 +37,7 @@ define $(PKG)_BUILD
 	CPPFLAGS='-I$(PREFIX)/$(TARGET)/include' \
         LDFLAGS='-L$(PREFIX)/$(TARGET)/lib' \
         CFLAGS=""
-    cp '$(TOP_DIR)/packaging/denemo.ico' '$(1)/src/'
+    cp '$(TOP_DIR)/src/denemo.ico' '$(1)/src/'
     '$(TARGET)-windres' '$(TOP_DIR)/src/denemo.rc' -o '$(1)/src/denemo_icon.o'
     echo 'denemo_LDADD += denemo_icon.o' >> '$(1)/src/Makefile'
     $(MAKE) -C '$(1)/' -j '$(JOBS)' AM_LDFLAGS="" install
