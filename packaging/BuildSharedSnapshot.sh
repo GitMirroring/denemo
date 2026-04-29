@@ -19,7 +19,7 @@ set -euo pipefail
 
 MXE_PREFIX="usr/x86_64-w64-mingw32.shared"
 LILYPOND_SRC="lilypond-2.24.4"
-VERSION=2.6.51
+VERSION=2.6.52
 PKG="denemo"
 
 # ------------------------------------------------------------------------------
