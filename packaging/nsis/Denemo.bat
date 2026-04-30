@@ -5,9 +5,12 @@ cd /D %~dp0
 set LANG=C
 set LC_ALL=C
 
-REM Fix Guile .go file timestamps on first run
+REM Fix Guile .go file timestamps on first run (or after unzip timestamp reset).
 IF NOT EXIST "%~dp0.go_timestamps_fixed" (
     echo Fixing Guile .go timestamps, please wait...
+    FOR /R "%~dp0lib\guile" %%F IN (*.go) DO (
+        copy /b "%%F"+,, "%%F" >nul 2>&1
+    )
     FOR /R "%~dp0lilypond\lib" %%F IN (*.go) DO (
         copy /b "%%F"+,, "%%F" >nul 2>&1
     )
