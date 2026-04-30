@@ -2,6 +2,9 @@
 cd /D %~dp0
 @echo off
 
+set LANG=C
+set LC_ALL=C
+
 REM Fix Guile .go file timestamps on first run
 IF NOT EXIST "%~dp0.go_timestamps_fixed" (
     echo Fixing Guile .go timestamps, please wait...
