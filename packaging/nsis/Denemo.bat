@@ -41,6 +41,8 @@ set GUILE_AUTO_COMPILE=0
 REM GIO/GLib settings
 set GIO_USE_VFS=local
 set GSETTINGS_SCHEMA_DIR=%~dp0share\glib-2.0\schemas
+set GIO_MODULE_DIR=%~dp0lib\gio\modules
+set GIO_USE_FILE_DATABASE=0
 
 REM Font configuration
 set FONTCONFIG_PATH=%~dp0etc\fonts
