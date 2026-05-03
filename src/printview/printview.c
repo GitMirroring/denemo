@@ -2032,7 +2032,8 @@ printarea_button_press (G_GNUC_UNUSED GtkWidget * widget, GdkEventButton * event
       get_wysiwyg_info ()->curx = xx + event->x;
       get_wysiwyg_info ()->cury = yy + event->y;
     }
-  return TRUE;
+    //printf ("Returning FALSE");
+  return FALSE;
 }
 
 static gint
