@@ -335,6 +335,7 @@ get_placement_from_coordinates (struct placement_info *pi, gdouble x, gdouble y,
 void
 assign_cursor (guint state, guint cursor_num)
 {
+  if (cursor_num < 0) return;  // guard against bad parse
   guint *cursor_state = g_new (guint, 1);
   *cursor_state = state;
   //g_print("Storing cursor %d for state 0x%x in hash table %p\n", cursor_num, state, Denemo.map->cursors );
