@@ -262,7 +262,7 @@ parseCursorBinding (xmlDocPtr doc, xmlNodePtr cur)
 	    {
               g_warning("Invalid cursor_num %d for state %d, skipping", cursor_num, state);
               return;
-             }
+            }
 	  assign_cursor (state, cursor_num);
           //g_debug("type is %s\n",g_type_name(G_TYPE_FROM_INSTANCE(Denemo.window->window)));
           // set_cursor_for(state);
