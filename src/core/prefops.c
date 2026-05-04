@@ -176,8 +176,10 @@ initprefs (void)
 
  /* Read values from personal preferences file if any*/
   if (localrc && g_file_test (localrc, G_FILE_TEST_EXISTS))
-	readxmlprefsFile (localrc);
-	
+  {
+     set_default_lilypond_path ();   // ensure lilypath is non-NULL before XML parsing
+     readxmlprefsFile (localrc);
+  }	
   if(ret->lilypath && !g_file_test (ret->lilypath->str, G_FILE_TEST_EXISTS))
 	set_default_lilypond_path ();  
 	
