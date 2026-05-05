@@ -1058,10 +1058,16 @@ if (row == NULL)
   for (; h; h = h->next)
     {
       GtkWidget *widget = h->data;
+      if (!GTK_IS_BIN (widget)) {
+        g_warning("update_accel_labels: skipping non-GtkBin proxy of type %s", g_type_name(G_TYPE_FROM_INSTANCE(widget)));
+        continue;
+      }
       GtkWidget *child = (GtkWidget *) gtk_bin_get_child (GTK_BIN (widget));
       if (GTK_IS_BUTTON (child))
         {
-          child = gtk_bin_get_child (GTK_BIN (child));
+          if (!GTK_IS_BIN (child))
+            continue;
+	  child = gtk_bin_get_child (GTK_BIN (child));
         }
       //FIXME others?? toolitem ...
       if (GTK_IS_LABEL (child))
