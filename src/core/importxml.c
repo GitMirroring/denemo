@@ -1395,6 +1395,11 @@ parseLilyDir (xmlNodePtr LilyDirectiveElem)
   gchar *directive = (gchar *) xmlNodeListGetString (LilyDirectiveElem->doc,
                                                      LilyDirectiveElem->children,
                                                      1);
+  /* FIX: whitespace-only text content means this is new format with child elements */
+  if (directive && g_strstrip(directive)[0] == '\0') {
+      g_free(directive);
+      directive = NULL;
+  }
   DenemoObject *curobj = lily_directive_new (directive ? directive : " ");
   DenemoDirective *thedirective = (lilydirective *) curobj->object;
   if (directive == NULL)
