@@ -2054,8 +2054,8 @@ printarea_button_release (G_GNUC_UNUSED GtkWidget * widget, GdkEventButton * eve
 
   get_wysiwyg_info ()->last_button_release.x = xx + event->x;
   get_wysiwyg_info ()->last_button_release.y = yy + event->y;
-  if (left && get_wysiwyg_info ()->ObjectLocated   && shift_held_down ())
-    gtk_window_present (GTK_WINDOW (gtk_widget_get_toplevel (Denemo.scorearea)));
+//  if (left && get_wysiwyg_info ()->ObjectLocated   && shift_held_down ())
+//    gtk_window_present (GTK_WINDOW (gtk_widget_get_toplevel (Denemo.scorearea)));
   //g_debug("Button release %d, %d\n",(int)event->x , (int)event->y);
 
   if (get_wysiwyg_info ()->stage == Dragging1)
