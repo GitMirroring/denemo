@@ -2,8 +2,8 @@
 cd /D %~dp0
 @echo off
 
-set LANG=C
-set LC_ALL=C
+set LANG=en_US.UTF-8
+set LC_ALL=en_US.UTF-8
 
 REM Fix Guile .go file timestamps on first run (or after unzip timestamp reset).
 IF NOT EXIST "%~dp0.go_timestamps_fixed" (
