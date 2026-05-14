@@ -197,10 +197,11 @@ get_user_data_dir (gboolean create)
 
 void localization_init (void)
 {
-  if (!setlocale (LC_ALL, "C.UTF-8"))
-    if (!setlocale (LC_ALL, "en_US.UTF-8"))
-      setlocale (LC_ALL, "");
-
+  setlocale (LC_ALL, "");
+#ifdef G_OS_WIN32
+  SetConsoleOutputCP (65001);  // 65001 = UTF-8
+  SetConsoleCP (65001);
+#endif
   bindtextdomain(GETTEXT_PACKAGE, get_system_locale_dir ());
   bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
   textdomain(GETTEXT_PACKAGE);
