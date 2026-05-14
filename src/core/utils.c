@@ -30,7 +30,7 @@
 #include "command/scorelayout.h"
 #include "printview/markupview.h"
 #include <signal.h>             /*for SIGTERM */
-
+#include <locale.h>
 #include "config.h"
 #ifdef G_OS_WIN32
 #include "windows.h"
@@ -197,7 +197,10 @@ get_user_data_dir (gboolean create)
 
 void localization_init (void)
 {
-  setlocale (LC_ALL, "");
+  if (!setlocale (LC_ALL, "C.UTF-8"))
+    if (!setlocale (LC_ALL, "en_US.UTF-8"))
+      setlocale (LC_ALL, "");
+
   bindtextdomain(GETTEXT_PACKAGE, get_system_locale_dir ());
   bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
   textdomain(GETTEXT_PACKAGE);
