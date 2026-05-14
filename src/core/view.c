@@ -33,6 +33,7 @@
 #include "core/keyboard.h"
 #include "export/exportmidi.h"
 #include "audio/midi.h"
+#include <libguile.h>
 #include "audio/midirecord.h"
 #include "source/source.h"
 #include "command/commandfuncs.h"
@@ -654,6 +655,12 @@ inner_main (void *files)
       "  (lambda _ "
       "    (display \"Locale fallback to C\\n\" (current-error-port))))";
     scm_c_eval_string(prog);
+#ifdef G_OS_WIN32
+    scm_i_set_default_port_encoding("UTF-8");
+    scm_i_set_port_encoding_x(scm_current_input_port(), "UTF-8");
+    scm_i_set_port_encoding_x(scm_current_output_port(), "UTF-8");
+    scm_i_set_port_encoding_x(scm_current_error_port(), "UTF-8");
+#endif
       //scm_setlocale( scm_variable_ref(scm_c_lookup("LC_ALL")), scm_from_locale_string("") );
       create_scheme_identfiers ();
   
