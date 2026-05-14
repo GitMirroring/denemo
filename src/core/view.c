@@ -650,8 +650,7 @@ inner_main (void *files)
     const char prog[] =
       "(catch #t "
       "  (lambda () "
-      "    (or (false-if-exception (setlocale LC_ALL \".UTF-8\")) "
-      "        (setlocale LC_ALL \"\"))) "
+      "    (setlocale LC_ALL \"\")) "
       "  (lambda _ "
       "    (display \"Locale fallback to C\\n\" (current-error-port))))";
     scm_c_eval_string(prog);
