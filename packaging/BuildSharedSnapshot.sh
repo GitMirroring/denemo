@@ -70,9 +70,9 @@ cp regfont.exe "${PKG}/bin/"
 # 5. Guile pre-compiled .go files
 # ------------------------------------------------------------------------------
 echo "Copying MXE's pre-compiled Guile .go files..."
-rsync -a "${MXE_PREFIX}/lib/guile/2.2/ccache/" \
-         "${PKG}/lib/guile/2.2/ccache/"
-echo "  $(find "${PKG}/lib/guile/2.2/ccache" -name '*.go' | wc -l) .go files copied"
+rsync -a "${MXE_PREFIX}/lib/guile/3.0/ccache/" \
+         "${PKG}/lib/guile/3.0/ccache/"
+echo "  $(find "${PKG}/lib/guile/3.0/ccache" -name '*.go' | wc -l) .go files copied"
 
 # ------------------------------------------------------------------------------
 # 6. CLEANUP — delegated entirely to clean.sh
@@ -181,14 +181,14 @@ cp org.denemo.Denemo.png "${PKG}/share/icons/hicolor/org.denemo.Denemo.png"
 ##
 # 12.b # Precompile Denemo .scm files to .go
 echo "Precompiling Denemo scheme files..."
-GUILE_LOAD_COMPILED_PATH="${PKG}/lib/guile/2.2/ccache" \
+GUILE_LOAD_COMPILED_PATH="${PKG}/lib/guile/3.0/ccache" \
 find "${PKG}/share/denemo" -name "*.scm" | while read scm; do
     rel="${scm#${PKG}/share/denemo/}"
-    out="${PKG}/lib/guile/2.2/ccache/${rel%.scm}.go"
+    out="${PKG}/lib/guile/3.0/ccache/${rel%.scm}.go"
     mkdir -p "$(dirname "$out")"
     guild compile -o "$out" "$scm" 2>/dev/null || true
 done
-echo "  Done: $(find "${PKG}/lib/guile/2.2/ccache" -name '*.go' | wc -l) .go files"
+echo "  Done: $(find "${PKG}/lib/guile/3.0/ccache" -name '*.go' | wc -l) .go files"
 #
 # ------------------------------------------------------------------------------
 # 13. Fix Guile .go file timestamps
@@ -211,7 +211,7 @@ echo "  .go timestamps fixed ($(find "${PKG}" -name '*.go' | wc -l) files)"
 #
 find "${PKG}" -maxdepth 1 -name "*.go" | while read go; do
     base=$(basename "$go")
-    dest="${PKG}/lib/guile/2.2/ccache/${base}"
+    dest="${PKG}/lib/guile/3.0/ccache/${base}"
     mv "$go" "$dest"
 done
 #
