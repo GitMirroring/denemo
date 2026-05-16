@@ -5,6 +5,13 @@ cd /D %~dp0
 set LANG=en_US.UTF-8
 set LC_ALL=en_US.UTF-8
 
+REM Detect if running under Wine
+reg query "HKLM\Software\Wine" >nul 2>&1
+IF %ERRORLEVEL% EQU 0 (
+    SET GUILE_JIT_THRESHOLD=-1
+    ECHO Running under Wine - JIT disabled for compatibility
+)
+
 REM Fix Guile .go file timestamps on first run (or after unzip timestamp reset).
 IF NOT EXIST "%~dp0.go_timestamps_fixed" (
     echo Fixing Guile .go timestamps, please wait...
