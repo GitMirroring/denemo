@@ -50,7 +50,12 @@ REM Guile settings
 set GUILE_LOAD_PATH=%~dp0share\guile\3.0
 set GUILE_LOAD_COMPILED_PATH=%APPDATA%\Denemo\guile\3.0\ccache
 if not exist "%GUILE_LOAD_COMPILED_PATH%" mkdir "%GUILE_LOAD_COMPILED_PATH%"
-set GUILE_AUTO_COMPILE=0
+REM Disable Guile JIT under Wine (Wine cannot execute JIT-compiled memory pages)
+reg query "HKLM\Software\Wine" >nul 2>&1
+IF %ERRORLEVEL% EQU 0 (
+    SET GUILE_JIT_THRESHOLD=-1
+    echo Running under Wine - Guile JIT disabled for compatibility
+)
 
 REM GIO/GLib settings
 set GIO_USE_VFS=local
