@@ -170,19 +170,7 @@ cp Denemo.bat "${PKG}/"
 mkdir -p "${PKG}/share/icons/hicolor/"
 cp denemo.ico "${PKG}/share/icons/hicolor/denemo.ico"
 cp org.denemo.Denemo.png "${PKG}/share/icons/hicolor/org.denemo.Denemo.png" 
-##
-echo "Fixing Guile .go timestamps to prevent Windows recompilation..."
-find "${PKG}" -name "*.go" -exec touch -d "2038-01-01 00:00:01" {} +
-echo "  .go timestamps fixed ($(find "${PKG}" -name '*.go' | wc -l) files)"
 
-#
-# 13.1 # Move any misplaced .go files from root into ccache
-#
-find "${PKG}" -maxdepth 1 -name "*.go" | while read go; do
-    base=$(basename "$go")
-    dest="${PKG}/lib/guile/3.0/ccache/${base}"
-    mv "$go" "$dest"
-done
 #
 # 13.5  install license
 #
