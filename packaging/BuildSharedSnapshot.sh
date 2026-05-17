@@ -164,7 +164,7 @@ fi
 # ------------------------------------------------------------------------------
 # 12. Launcher scripts
 # ------------------------------------------------------------------------------
-cp Denemo.bat "${PKG}/"
+cp "${SCRIPT_DIR}/nsis/Denemo.bat" "${PKG}/"
 
 # copy the denemo.ico over #TODO get this from denemo's src
 mkdir -p "${PKG}/share/icons/hicolor/"
