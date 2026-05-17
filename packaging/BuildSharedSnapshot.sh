@@ -20,7 +20,7 @@ set -euo pipefail
 MXE_PREFIX="usr/x86_64-w64-mingw32.shared"
 LILYPOND_SRC="lilypond-2.24.4"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-VERSION=$(grep -m1 'AC_INIT' "${SCRIPT_DIR}/../configure.ac" | grep -o '[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*')
+VERSION=${VERSION:-2.6.52}
 PKG="denemo"
 
 # ------------------------------------------------------------------------------
