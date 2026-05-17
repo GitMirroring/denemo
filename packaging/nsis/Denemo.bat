@@ -51,7 +51,7 @@ set GUILE_LOAD_PATH=%~dp0share\guile\3.0
 set GUILE_LOAD_COMPILED_PATH=%APPDATA%\Denemo\guile\3.0\ccache
 if not exist "%GUILE_LOAD_COMPILED_PATH%" mkdir "%GUILE_LOAD_COMPILED_PATH%"
 REM Guile JIT disabled - MXE cross-compiled Guile JIT is incompatible with Windows DEP
-SET GUILE_JIT_THRESHOLD=-1
+REM See packaging/mxe/guile.mk
 
 REM GIO/GLib settings
 set GIO_USE_VFS=local
