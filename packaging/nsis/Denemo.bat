@@ -48,7 +48,8 @@ if not exist share\glib-2.0\schemas\gschemas.compiled (
 
 REM Guile settings
 set GUILE_LOAD_PATH=%~dp0share\guile\3.0
-set GUILE_LOAD_COMPILED_PATH=%~dp0lib\guile\3.0\ccache
+set GUILE_LOAD_COMPILED_PATH=%APPDATA%\Denemo\guile\3.0\ccache
+if not exist "%GUILE_LOAD_COMPILED_PATH%" mkdir "%GUILE_LOAD_COMPILED_PATH%"
 set GUILE_AUTO_COMPILE=0
 
 REM GIO/GLib settings
