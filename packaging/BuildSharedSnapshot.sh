@@ -17,11 +17,11 @@ set -euo pipefail
 #   Items marked "MAYBE NEEDED" are uncertain — if Denemo breaks, restore them.
 # ==============================================================================
 
-MXE_PREFIX="usr/x86_64-w64-mingw32.shared"
-LILYPOND_SRC="lilypond-2.24.4"
+MXE_PREFIX="${MXE_PREFIX:-usr/x86_64-w64-mingw32.shared}"
+LILYPOND_SRC="${LILYPOND_SRC:-lilypond-2.24.4}"
+VERSION="${VERSION:-2.6.52}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-VERSION=${VERSION:-2.6.52}
-PKG="denemo"
+PKG="${PKG:-denemo}"
 
 # ------------------------------------------------------------------------------
 # 1. Build Denemo via MXE
@@ -164,7 +164,7 @@ fi
 # ------------------------------------------------------------------------------
 # 12. Launcher scripts
 # ------------------------------------------------------------------------------
-cp "${SCRIPT_DIR}/nsis/Denemo.bat" "${PKG}/"
+cp "${SCRIPT_DIR}/nsis/Denemo.bat" "${PKG}/" 2>/dev/null || cp "Denemo.bat" "${PKG}/"
 
 # copy the denemo.ico over #TODO get this from denemo's src
 mkdir -p "${PKG}/share/icons/hicolor/"
