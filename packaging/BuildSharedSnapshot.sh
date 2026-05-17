@@ -19,7 +19,8 @@ set -euo pipefail
 
 MXE_PREFIX="usr/x86_64-w64-mingw32.shared"
 LILYPOND_SRC="lilypond-2.24.4"
-VERSION=2.6.52
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VERSION=$(grep -m1 'AC_INIT' "${SCRIPT_DIR}/../configure.ac" | grep -o '[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*')
 PKG="denemo"
 
 # ------------------------------------------------------------------------------
@@ -65,15 +66,6 @@ for font in DejaVuSans.ttf DejaVuSans-Bold.ttf DejaVuSansMono.ttf; do
 done
 cp regfont.exe "${PKG}/bin/"
 [ -f "${MXE_PREFIX}/bin/update-mime-database.exe" ] && cp "${MXE_PREFIX}/bin/update-mime-database.exe" "${PKG}/bin/" || echo "WARNING: update-mime-database.exe not found, skipping"
-
-# ------------------------------------------------------------------------------
-# 5. Guile pre-compiled .go files
-# ------------------------------------------------------------------------------
-echo "Copying MXE's pre-compiled Guile .go files..."
-rsync -a "${MXE_PREFIX}/lib/guile/3.0/ccache/" \
-         "${PKG}/lib/guile/3.0/ccache/"
-echo "  $(find "${PKG}/lib/guile/3.0/ccache" -name '*.go' | wc -l) .go files copied"
-
 # ------------------------------------------------------------------------------
 # 6. CLEANUP — delegated entirely to clean.sh
 #    All removal logic lives there so it can also be run standalone.
@@ -179,29 +171,6 @@ mkdir -p "${PKG}/share/icons/hicolor/"
 cp denemo.ico "${PKG}/share/icons/hicolor/denemo.ico"
 cp org.denemo.Denemo.png "${PKG}/share/icons/hicolor/org.denemo.Denemo.png" 
 ##
-# 12.b # Precompile Denemo .scm files to .go
-echo "Precompiling Denemo scheme files..."
-GUILE_LOAD_COMPILED_PATH="${PKG}/lib/guile/3.0/ccache" \
-find "${PKG}/share/denemo" -name "*.scm" | while read scm; do
-    rel="${scm#${PKG}/share/denemo/}"
-    out="${PKG}/lib/guile/3.0/ccache/${rel%.scm}.go"
-    mkdir -p "$(dirname "$out")"
-    guild compile -o "$out" "$scm" 2>/dev/null || true
-done
-echo "  Done: $(find "${PKG}/lib/guile/3.0/ccache" -name '*.go' | wc -l) .go files"
-#
-# ------------------------------------------------------------------------------
-# 13. Fix Guile .go file timestamps
-#
-# PROBLEM: When Windows unzips, it sets ALL file timestamps to "right now".
-#   This makes .scm source files appear NEWER than their .go compiled cache.
-#   Guile then tries to recompile the .go files at runtime, which fails with:
-#   "Wrong number of arguments to #<boot-closure>" — the crash you saw.
-#
-# FIX: Stamp every .go file to a far-future date (2038). Guile only checks
-#   whether .go is newer than .scm — it doesn't care how far in the future
-#   the .go is. This is safe, simple, and survives any unzip timestamp reset.
-# ------------------------------------------------------------------------------
 echo "Fixing Guile .go timestamps to prevent Windows recompilation..."
 find "${PKG}" -name "*.go" -exec touch -d "2038-01-01 00:00:01" {} +
 echo "  .go timestamps fixed ($(find "${PKG}" -name '*.go' | wc -l) files)"
