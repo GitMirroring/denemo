@@ -42,12 +42,14 @@ mkdir "${PKG}"
 #    Exclude build-time-only directories from rsync so they never land on disk.
 # ------------------------------------------------------------------------------
 rsync -a \
-    --exclude='qt*'        \
-    --exclude='installed'  \
-    --exclude='include'    \
-    --exclude='info'       \
-    --exclude='var'        \
-    --exclude='ssl'        \
+    --exclude='qt*'                  \
+    --exclude='installed'            \
+    --exclude='include'              \
+    --exclude='info'                 \
+    --exclude='var'                  \
+    --exclude='ssl'                  \
+    --exclude='lib/guile/2.2/ccache' \
+    --exclude='lib/guile/3.0/ccache' \
     "${MXE_PREFIX}/" "${PKG}/"
 
 # A few DLLs MXE sometimes misplaces
