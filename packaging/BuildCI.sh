@@ -16,7 +16,8 @@ cp "${SCRIPT_DIR}/nsis/denemo.nsi" "${MXE_DIR}/"
 cp "${SCRIPT_DIR}/nsis/lilypond-prepost.nsh" "${MXE_DIR}/"
 
 # Get version from our denemo.mk (before copying, use local copy)
-export VERSION=$(grep -m1 '_VERSION' "${SCRIPT_DIR}/mxe/denemo.mk" | grep -o '[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*')
+# export VERSION=$(grep -m1 '_VERSION' "${SCRIPT_DIR}/mxe/denemo.mk" | grep -o '[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*')
+VERSION=$(grep -m1 'AC_INIT' "${SCRIPT_DIR}/../configure.ac" | grep -o '[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*')
 
 # Create denemo tarball from checked-out source
 echo "Creating denemo tarball from source..."
