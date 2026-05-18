@@ -217,11 +217,26 @@ init_environment()
   gchar *denemo_modules_scm = g_build_filename (get_system_data_dir (), COMMANDS_DIR, "denemo-modules", NULL);
   if (g_file_test (guile, G_FILE_TEST_EXISTS))
     {
+      const gchar *appdata = g_getenv ("APPDATA");
+      if (appdata)
+        {
+          gchar *user_cache = g_build_filename (appdata, "Denemo", "guile", "3.0", "ccache", NULL);
+          g_mkdir_with_parents (user_cache, 0755);
+          gchar *combined = g_strconcat (user_cache, ";", guile_ccache, NULL);
+          g_setenv ("GUILE_LOAD_COMPILED_PATH", combined, TRUE);
+          g_info ("Setting GUILE_LOAD_COMPILED_PATH=%s\n", combined);
+          g_free (user_cache);
+          g_free (combined);
+        }
+      else
+        {
+          g_setenv ("GUILE_LOAD_COMPILED_PATH", guile_ccache, TRUE);
+          g_info ("Setting GUILE_LOAD_COMPILED_PATH=%s\n", guile_ccache);
+        }
+
       gchar *guile_path = g_strconcat (guile, ";", guile_3_0, ";", denemo_scm, ";", denemo_modules_scm, ";", lilypond_current_scm, NULL);
       //FIXME TRUE means we overwrite any installed version of lilyponds scm, FALSE risks not putting denemos scm in the path...
       g_setenv ("GUILE_LOAD_PATH", guile_path, TRUE);
-      g_setenv ("GUILE_LOAD_COMPILED_PATH", guile_ccache, TRUE);
-      g_info ("Setting GUILE_LOAD_COMPILED_PATH=%s\n", guile_ccache);
       g_info ("Setting GUILE_LOAD_PATH=%s\n", guile_path);
     }
   else
