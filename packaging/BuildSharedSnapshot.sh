@@ -68,12 +68,12 @@ for font in DejaVuSans.ttf DejaVuSans-Bold.ttf DejaVuSansMono.ttf; do
 done
 cp regfont.exe "${PKG}/bin/"
 [ -f "${MXE_PREFIX}/bin/update-mime-database.exe" ] && cp "${MXE_PREFIX}/bin/update-mime-database.exe" "${PKG}/bin/" || echo "WARNING: update-mime-database.exe not found, skipping"
-## 5. Guile pre-compiled .go files (compiled on Linux, bytecode is platform-independent)
-#echo "Copying pre-compiled Guile .go files..."
-#GUILE_JIT_THRESHOLD=-1 \
-#rsync -a "${MXE_PREFIX}/lib/guile/3.0/ccache/" \
-#         "${PKG}/lib/guile/3.0/ccache/"
-#echo "  $(find "${PKG}/lib/guile/3.0/ccache" -name '*.go' | wc -l) .go files copied"
+# 5. Guile pre-compiled .go files (compiled on Linux, bytecode is platform-independent)
+echo "Copying pre-compiled Guile .go files..."
+GUILE_JIT_THRESHOLD=-1 \
+rsync -a "${MXE_PREFIX}/lib/guile/3.0/ccache/" \
+         "${PKG}/lib/guile/3.0/ccache/"
+echo "  $(find "${PKG}/lib/guile/3.0/ccache" -name '*.go' | wc -l) .go files copied"
 # ------------------------------------------------------------------------------
 # 6. CLEANUP — delegated entirely to clean.sh
 #    All removal logic lives there so it can also be run standalone.
