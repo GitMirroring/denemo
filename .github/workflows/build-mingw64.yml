@@ -1,0 +1,54 @@
+name: Build Guile MinGW64 on: push: 
+    branches: [mingw64]
+  workflow_dispatch: jobs: build: 
+    runs-on: windows-latest 
+    defaults:
+      run: shell: msys2 {0} steps: 
+      - uses: actions/checkout@v4 - 
+      uses: msys2/setup-msys2@v2
+        with: msystem: MINGW64 
+          update: true install: >-
+            base-devel 
+            mingw-w64-x86_64-gcc 
+            mingw-w64-x86_64-gc 
+            mingw-w64-x86_64-pkg-config 
+            mingw-w64-x86_64-libunistring 
+            mingw-w64-x86_64-libiconv 
+            mingw-w64-x86_64-gettext 
+            mingw-w64-x86_64-libffi
+      - name: Configure run: | 
+          ./configure \
+            --prefix=/mingw64 \ 
+            --enable-mini-gmp \ 
+            --enable-shared \ 
+            --enable-static \ 
+            CFLAGS="-g -O2 
+            -Wno-incompatible-pointer-types 
+            -Wno-int-conversion" \ 
+            CPPFLAGS="-I/mingw64/include 
+            -isystem 
+            C:/msys64/mingw64/include" 
+            \ 
+            LDFLAGS="-L/mingw64/lib" 
+            \ 
+            PKG_CONFIG_PATH="/mingw64/lib/pkgconfig" 
+            \ 
+            BDW_GC_CFLAGS="-I/mingw64/include" 
+            \ 
+            BDW_GC_LIBS="-L/mingw64/lib 
+            -lgc"
+          sed -i 's/#define 
+          GUILE_USE_64_CALLS 
+          1/#define 
+          GUILE_USE_64_CALLS 0/' 
+          config.h
+      - name: Build run: make 2>&1 
+        | tee build.log
+      - name: Install run: make 
+        install
+      - name: Upload artifacts 
+        uses: 
+        actions/upload-artifact@v4 
+        with:
+          name: guile-mingw64
+          path: /mingw64/bin/libguile*.dll
