@@ -1,12 +1,12 @@
-name: Build Denemo MinGW64
+name: Build Denemo
 
 on:
   push:
-    branches: [mingw64]
+    branches: [master, mingw64]
   workflow_dispatch:
 
 jobs:
-  build:
+  build-denemo:
     runs-on: windows-latest
 
     defaults:
@@ -24,69 +24,42 @@ jobs:
             base-devel
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-pkg-config
-            mingw-w64-x86_64-gc
-            mingw-w64-x86_64-libunistring
-            mingw-w64-x86_64-libiconv
-            mingw-w64-x86_64-gettext
-            mingw-w64-x86_64-libffi
-            mingw-w64-x86_64-glib2
-            mingw-w64-x86_64-gtk3
-            mingw-w64-x86_64-libxml2
-            mingw-w64-x86_64-lilypond
-            mingw-w64-x86_64-portaudio
-            mingw-w64-x86_64-fluidsynth
-            mingw-w64-x86_64-libsndfile
-            mingw-w64-x86_64-aubio
-            mingw-w64-x86_64-evince
-            mingw-w64-x86_64-cmake
             mingw-w64-x86_64-autotools
 
-      # ── Build Guile ────────────────────────────────────────────────────────
+      # ── Download pre-built deps from denemo-mingw64-deps ─────────────────
 
-      - name: Download Guile source
+      - name: Download deps artifact
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          repo: jbenham2015/denemo-mingw64-deps
+          name: denemo-mingw64-deps
+          path: /tmp/
+
+      - name: Extract deps
         run: |
-          curl -L https://ftp.gnu.org/gnu/guile/guile-3.0.9.tar.gz -o guile.tar.gz
-          tar xzf guile.tar.gz
-          mv guile-3.0.9 guile-src
+          cd /tmp
+          tar xzf denemo-mingw64-deps.tar.gz
+          # Copy everything into the mingw64 prefix
+          cp -r /tmp/denemo-deps/include/* /mingw64/include/
+          cp -r /tmp/denemo-deps/lib/* /mingw64/lib/
+          cp -r /tmp/denemo-deps/bin/* /mingw64/bin/
+          cp -r /tmp/denemo-deps/share-guile /mingw64/share/guile
 
-      - name: Configure Guile
-        working-directory: guile-src
-        run: |
-          ./configure \
-            --prefix=/mingw64 \
-            --enable-mini-gmp \
-            --enable-shared \
-            --enable-static \
-            --disable-nls \
-            CFLAGS="-g -O2 -Wno-incompatible-pointer-types -Wno-int-conversion" \
-            CPPFLAGS="-I/mingw64/include -isystem C:/msys64/mingw64/include" \
-            LDFLAGS="-L/mingw64/lib" \
-            PKG_CONFIG_PATH="/mingw64/lib/pkgconfig" \
-            BDW_GC_CFLAGS="-I/mingw64/include" \
-            BDW_GC_LIBS="-L/mingw64/lib -lgc"
-          sed -i 's/#define GUILE_USE_64_CALLS 1/#define GUILE_USE_64_CALLS 0/' config.h
-
-      - name: Build Guile
-        working-directory: guile-src
-        run: make -j$(nproc) 2>&1 | tee ../guile-build.log
-
-      - name: Install Guile
-        working-directory: guile-src
-        run: make install
-
-      - name: Verify Guile install
+      - name: Verify Guile is available
         run: |
           /mingw64/bin/guile --version
           pkg-config --modversion guile-3.0
 
-      # ── Build Denemo ───────────────────────────────────────────────────────
+      # ── Build Denemo ──────────────────────────────────────────────────────
+
+      - name: Bootstrap Denemo
+        run: autoreconf -fi
 
       - name: Configure Denemo
         run: |
-          autoreconf -fi || true
           ./configure \
             --prefix=/mingw64 \
-            --with-guile \
             CFLAGS="-g -O2 -Wno-incompatible-pointer-types -Wno-int-conversion" \
             CPPFLAGS="-I/mingw64/include" \
             LDFLAGS="-L/mingw64/lib" \
@@ -100,15 +73,8 @@ jobs:
 
       # ── Artifacts ─────────────────────────────────────────────────────────
 
-      - name: Upload Guile DLLs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: guile-mingw64
-          path: /mingw64/bin/libguile*.dll
-
       - name: Upload Denemo binary
-        if: always()
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: denemo-mingw64
@@ -116,11 +82,9 @@ jobs:
             /mingw64/bin/denemo.exe
             /mingw64/share/denemo/
 
-      - name: Upload build logs
+      - name: Upload build log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-logs
-          path: |
-            guile-build.log
-            denemo-build.log
+          name: denemo-build-log
+          path: denemo-build.log
