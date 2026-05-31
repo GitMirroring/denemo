@@ -2,7 +2,7 @@ name: Build Denemo
 
 on:
   push:
-    branches: [master, mingw64]
+    branches: [master]
   workflow_dispatch:
 
 jobs:
@@ -26,32 +26,27 @@ jobs:
             mingw-w64-x86_64-pkg-config
             mingw-w64-x86_64-autotools
 
-      # ── Download pre-built deps from denemo-mingw64-deps ─────────────────
-
       - name: Download deps artifact
         uses: dawidd6/action-download-artifact@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           repo: jbenham2015/denemo-mingw64-deps
           name: denemo-mingw64-deps
-          path: /tmp/
+          path: /d/a/denemo/denemo/
 
       - name: Extract deps
         run: |
-          cd /tmp
+          cd /d/a/denemo/denemo
           tar xzf denemo-mingw64-deps.tar.gz
-          # Copy everything into the mingw64 prefix
-          cp -r /tmp/denemo-deps/include/* /mingw64/include/
-          cp -r /tmp/denemo-deps/lib/* /mingw64/lib/
-          cp -r /tmp/denemo-deps/bin/* /mingw64/bin/
-          cp -r /tmp/denemo-deps/share-guile /mingw64/share/guile
+          cp -r mingw64/bin/* /mingw64/bin/
+          cp -r mingw64/lib/* /mingw64/lib/
+          cp -r mingw64/include/* /mingw64/include/
+          cp -r mingw64/share/guile /mingw64/share/guile
 
-      - name: Verify Guile is available
+      - name: Verify Guile
         run: |
           /mingw64/bin/guile --version
           pkg-config --modversion guile-3.0
-
-      # ── Build Denemo ──────────────────────────────────────────────────────
 
       - name: Bootstrap Denemo
         run: autoreconf -fi
@@ -66,25 +61,18 @@ jobs:
             PKG_CONFIG_PATH="/mingw64/lib/pkgconfig"
 
       - name: Build Denemo
-        run: make -j$(nproc) 2>&1 | tee denemo-build.log
-
-      - name: Install Denemo
-        run: make install
-
-      # ── Artifacts ─────────────────────────────────────────────────────────
+        run: make -j$(nproc) 2>&1 | tee /d/a/denemo/denemo/denemo-build.log
 
       - name: Upload Denemo binary
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: denemo-mingw64
-          path: |
-            /mingw64/bin/denemo.exe
-            /mingw64/share/denemo/
+          path: /mingw64/bin/denemo.exe
 
       - name: Upload build log
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: denemo-build-log
-          path: denemo-build.log
+          path: /d/a/denemo/denemo/denemo-build.log
