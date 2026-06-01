@@ -42,7 +42,7 @@ jobs:
             mingw-w64-x86_64-rubberband
             mingw-w64-x86_64-gc
             intltool
-            nsis
+            mingw-w64-x86_64-nsis
       - name: Download deps artifact
         shell: pwsh
         run: |
