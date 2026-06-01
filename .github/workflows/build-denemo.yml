@@ -36,6 +36,10 @@ jobs:
             mingw-w64-x86_64-gperf
             mingw-w64-x86_64-gettext
             mingw-w64-x86_64-libiconv
+            mingw-w64-x86_64-gtksourceview3
+            mingw-w64-x86_64-portmidi
+            mingw-w64-x86_64-evince
+            mingw-w64-x86_64-rubberband
             intltool
       - name: Download deps artifact
         shell: pwsh
