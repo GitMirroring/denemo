@@ -40,20 +40,18 @@ jobs:
         run: |
           cd /d/a/denemo/denemo
           tar xzf denemo-mingw64-deps.tar.gz
-          cp -r mingw64/bin/* /mingw64/bin/
-          cp -r mingw64/lib/* /mingw64/lib/
-          cp -r mingw64/include/guile /mingw64/include/
-          cp -r mingw64/share/guile /mingw64/share/guile
+          cp -rf mingw64/bin/* /mingw64/bin/
+          cp -rf mingw64/lib/* /mingw64/lib/
+          cp -rf mingw64/include/* /mingw64/include/
+          cp -rf mingw64/share/guile /mingw64/share/
+          ls /mingw64/bin/guile.exe
+          /mingw64/bin/guile --version
+
       - name: Debug extracted files
         run: |
           ls /mingw64/bin/guile* || echo "no guile in /mingw64/bin"
           ls /d/a/denemo/denemo/ || echo "nothing in workspace"
           find /d/a/denemo/denemo -name "guile.exe" 2>/dev/null | head -5
-
-      - name: Verify Guile
-        run: |
-          /mingw64/bin/guile --version
-          pkg-config --modversion guile-3.0
 
       - name: Bootstrap Denemo
         run: autoreconf -fi
