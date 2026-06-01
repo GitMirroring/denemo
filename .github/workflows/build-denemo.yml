@@ -44,6 +44,11 @@ jobs:
           cp -r mingw64/lib/* /mingw64/lib/
           cp -r mingw64/include/guile /mingw64/include/
           cp -r mingw64/share/guile /mingw64/share/guile
+      - name: Debug extracted files
+        run: |
+          ls /mingw64/bin/guile* || echo "no guile in /mingw64/bin"
+          ls /d/a/denemo/denemo/ || echo "nothing in workspace"
+          find /d/a/denemo/denemo -name "guile.exe" 2>/dev/null | head -5
 
       - name: Verify Guile
         run: |
