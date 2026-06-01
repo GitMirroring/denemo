@@ -85,18 +85,18 @@ jobs:
             PKG_CONFIG_PATH="/mingw64/lib/pkgconfig"
 
       - name: Build Denemo
-        run: make -j$(nproc) 2>&1 | tee /d/a/denemo/denemo/denemo-build.log
+        run: make -j$(nproc) 2>&1 | tee /d/a/Denemo/Denemo/denemo-build.log
 
       - name: Upload Denemo binary
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: denemo-mingw64
-          path: /mingw64/bin/denemo.exe
+          path: /d/a/Denemo/Denemo/src/denemo.exe
 
       - name: Upload build log
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: denemo-build-log
-          path: /d/a/denemo/denemo/denemo-build.log
+          path: /d/a/Denemo/Denemo/denemo-build.log
