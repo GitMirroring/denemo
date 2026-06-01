@@ -67,15 +67,15 @@ CLEANFILES = \
 ACLOCAL_AMFLAGS = -I build
 
 install-data-hook:
-	cp -r $(srcdir)/actions $(DESTDIR)$(datadir)/$(PACKAGE)/
+	cp -rL $(srcdir)/actions $(DESTDIR)$(datadir)/$(PACKAGE)/
 	find $(DESTDIR)$(datadir)/$(PACKAGE)/actions -type d -exec chmod 755 '{}' \;
 	find $(DESTDIR)$(datadir)/$(PACKAGE)/examples -type f \( -name Makefile -o -name Makefile.in \
 	-o -name Makefile.am \) -print0 | xargs -0 rm -rf \;
-	cp -r $(srcdir)/examples $(DESTDIR)$(datadir)/$(PACKAGE)/
+	cp -rL $(srcdir)/examples $(DESTDIR)$(datadir)/$(PACKAGE)/
 	find $(DESTDIR)$(datadir)/$(PACKAGE)/examples -type d -exec chmod 755 '{}' \;
 	find $(DESTDIR)$(datadir)/$(PACKAGE)/examples -type f \( -name Makefile -o -name Makefile.in \
 	-o -name Makefile.am \) -print0 | xargs -0 rm -rf \;
-	cp -r $(srcdir)/templates $(DESTDIR)$(datadir)/$(PACKAGE)/
+	cp -rL $(srcdir)/templates $(DESTDIR)$(datadir)/$(PACKAGE)/
 	find $(DESTDIR)$(datadir)/$(PACKAGE)/templates -type d -exec chmod 755 '{}' \;
 	find $(DESTDIR)$(datadir)/$(PACKAGE)/templates -type f \( -name Makefile -o -name Makefile.in \
 	-o -name Makefile.am \) -print0 | xargs -0 rm -rf \;
