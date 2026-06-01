@@ -89,7 +89,9 @@ jobs:
         run: make -j$(nproc) 2>&1 | tee /d/a/Denemo/Denemo/denemo-build.log
 
       - name: Install Denemo
-        run: make install
+        run: |
+          mkdir -p /mingw64/share/denemo
+          make install
 
       - name: Stage installer files
         shell: pwsh
