@@ -3642,7 +3642,7 @@ get_executable_dir ()
       char path[1024];
       gint n;
 #ifdef G_OS_WIN32
-      GetModuleFileNameW (NULL, path, MAX_PATH);
+      GetModuleFileNameA (NULL, path, MAX_PATH);
 
 #elif defined _MACH_O_
       guint size = sizeof (path);

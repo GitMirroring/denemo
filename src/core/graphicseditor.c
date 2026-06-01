@@ -25,7 +25,11 @@
 #include <denemo/denemo.h>
 #include "utils.h"
 
+#ifdef G_OS_WIN32
+#define GPID_NONE NULL
+#else
 #define GPID_NONE (-1)
+#endif
 
 
 static gchar *get_extension (gchar *filename) {

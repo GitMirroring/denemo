@@ -7,7 +7,11 @@
 #define GREATER 2
 #define SAME 1
 #define LESSER 0
+#ifdef G_OS_WIN32
+#define GPID_NONE NULL
+#else
 #define GPID_NONE (-1)
+#endif
 #define INSTALLED_LILYPOND_VERSION "2.18.0"       /* FIXME set via gub */
 #define MANUAL _("Manual Updates")
 #define CONTINUOUS _("Continuous")

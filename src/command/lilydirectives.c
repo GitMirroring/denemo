@@ -2767,7 +2767,7 @@ static void edit_field (GtkWidget * widget, GdkEventKey * event, gint field)
 {
 	gchar *text; 
 #ifdef G_OS_WIN32
-	field = g_object_get_data (G_OBJECT (widget), "field"); 
+	field = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (widget), "field")); 
 #endif
 
 	if ((field > 8) || (field < 0))

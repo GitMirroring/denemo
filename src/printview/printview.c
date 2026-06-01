@@ -32,7 +32,7 @@ static gboolean LeftButtonPressed;
 static unsigned
 file_get_mtime (gchar * filename)
 {
-  struct stat thebuf;
+  GStatBuf thebuf;
   g_stat (filename, &thebuf);
   unsigned mtime = thebuf.st_mtime;
   // g_debug("the mt is %u %u\n", mtime, thebuf.st_mtim.tv_nsec);
@@ -933,7 +933,7 @@ create_thumbnail (gboolean async, gchar * thumbnail_path)
     }
 
   //check if thumbnail is newer than file
-  struct stat thebuf;
+  GStatBuf thebuf;
   g_stat (Denemo.project->filename->str, &thebuf);
   unsigned mtime = thebuf.st_mtime;
 
