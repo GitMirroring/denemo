@@ -91,7 +91,7 @@ jobs:
       - name: Install Denemo
         run: |
           mkdir -p /mingw64/share/denemo
-          make install
+          make install DESTDIR=""
 
       - name: Stage installer files
         shell: pwsh
