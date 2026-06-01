@@ -27,12 +27,14 @@ jobs:
             mingw-w64-x86_64-autotools
 
       - name: Download deps artifact
-        uses: dawidd6/action-download-artifact@v3
-        with:
-          github_token: ${{ secrets.DEPS_TOKEN }}
-          repo: jbenham2015/denemo-mingw64-deps
-          name: denemo-mingw64-deps
-          path: /d/a/denemo/denemo/
+        shell: pwsh
+        run: |
+          $headers = @{Authorization = "token ${{ secrets.DEPS_TOKEN }}"}
+          $artifacts = Invoke-RestMethod -Uri "https://api.github.com/repos/jbenham2015/denemo-mingw64-deps/actions/artifacts" -Headers $headers
+          $artifact = $artifacts.artifacts | Where-Object { $_.name -eq "denemo-mingw64-deps" } | Select-Object -First 1
+          $downloadUrl = $artifact.archive_download_url
+          Invoke-WebRequest -Uri $downloadUrl -Headers $headers -OutFile "D:\a\denemo\denemo\denemo-mingw64-deps.zip"
+          Expand-Archive -Path "D:\a\denemo\denemo\denemo-mingw64-deps.zip" -DestinationPath "D:\a\denemo\denemo\"
 
       - name: Extract deps
         run: |
@@ -40,7 +42,7 @@ jobs:
           tar xzf denemo-mingw64-deps.tar.gz
           cp -r mingw64/bin/* /mingw64/bin/
           cp -r mingw64/lib/* /mingw64/lib/
-          cp -r mingw64/include/* /mingw64/include/
+          cp -r mingw64/include/guile /mingw64/include/
           cp -r mingw64/share/guile /mingw64/share/guile
 
       - name: Verify Guile
