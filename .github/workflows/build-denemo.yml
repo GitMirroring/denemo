@@ -36,6 +36,7 @@ jobs:
           Invoke-WebRequest -Uri $downloadUrl -Headers $headers -OutFile "D:\a\denemo\denemo\denemo-mingw64-deps.zip"
           Expand-Archive -Path "D:\a\denemo\denemo\denemo-mingw64-deps.zip" -DestinationPath "D:\a\denemo\denemo\"
 
+
       - name: Extract deps
         run: |
           cd /d/a/denemo/denemo
@@ -44,8 +45,8 @@ jobs:
           cp -rf mingw64/lib/* /mingw64/lib/
           cp -rf mingw64/include/* /mingw64/include/
           cp -rf mingw64/share/guile /mingw64/share/
-          ls /mingw64/bin/guile.exe
-          /mingw64/bin/guile --version
+          ls /mingw64/bin/libguile*.dll || echo "no libguile dll found"
+          ldd /mingw64/bin/guile.exe || echo "ldd failed"
 
       - name: Debug extracted files
         run: |
