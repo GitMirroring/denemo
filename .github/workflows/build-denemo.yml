@@ -105,6 +105,12 @@ jobs:
           Copy-Item -Force D:\a\Denemo\Denemo\COPYING D:\staged\license\denemo
           Copy-Item -Force D:\a\Denemo\Denemo\packaging\nsis\Denemo.bat D:\staged\
           Copy-Item -Force D:\a\Denemo\Denemo\packaging\regfont.exe D:\staged\bin\
+          Copy-Item -Force D:\a\Denemo\Denemo\packaging\denemo.ico D:\staged\share\icons\hicolor\denemo.ico
+      - name: Debug staged files
+        shell: pwsh
+        run: |
+          Get-ChildItem D:\staged\share\icons -Recurse -Filter "*.ico" | Select-Object FullName
+          Get-ChildItem D:\staged\ -Recurse -Filter "*.ico" | Select-Object FullName
 
       - name: Build NSIS installer
         run: |
