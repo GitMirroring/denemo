@@ -76,6 +76,7 @@ jobs:
         run: |
           ./configure \
             --prefix=/mingw64 \
+            --enable-evince \
             CFLAGS="-g -O2 -Wno-incompatible-pointer-types -Wno-int-conversion" \
             CPPFLAGS="-I/mingw64/include" \
             LDFLAGS="-L/mingw64/lib" \
