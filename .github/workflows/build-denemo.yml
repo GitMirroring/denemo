@@ -40,6 +40,7 @@ jobs:
             mingw-w64-x86_64-portmidi
             mingw-w64-x86_64-evince
             mingw-w64-x86_64-rubberband
+            mingw-w64-x86_64-gc
             intltool
       - name: Download deps artifact
         shell: pwsh
