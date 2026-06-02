@@ -147,7 +147,7 @@ Section "${PRETTY_NAME} (required)" SecMain
 
     SetOutPath "$INSTDIR"
     File "${ROOT}\bin\denemo.exe"
-    File /nonfatal "${ROOT}\bin\Denemo.bat"
+    File /nonfatal "${ROOT}\Denemo.bat"
     File /r "${ROOT}\etc\*.*"
     File /r "${ROOT}\lib\*.*"
     File /nonfatal /r "${ROOT}\libexec\*.*"
