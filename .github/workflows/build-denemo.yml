@@ -85,6 +85,14 @@ jobs:
         run: |
           mkdir -p /mingw64/share/denemo
           make install prefix=/mingw64
+      - name: Stage built Denemo files
+        shell: msys2 {0}
+        run: |
+          mkdir -p /d/a/Denemo/Denemo/staged/bin
+          cp /mingw64/bin/denemo.exe /d/a/Denemo/Denemo/staged/bin/
+          cp /mingw64/bin/Denemo.bat /d/a/Denemo/Denemo/staged/ || true
+          mkdir -p /d/a/Denemo/Denemo/staged/share/denemo
+          cp -rf /mingw64/share/denemo/* /d/a/Denemo/Denemo/staged/share/denemo/ || true
 
       - name: Stage installer files
         shell: pwsh
