@@ -96,17 +96,25 @@ jobs:
       - name: Stage installer files
         shell: pwsh
         run: |
+          - name: Stage installer files
+        shell: pwsh
+        run: |
           New-Item -ItemType Directory -Force -Path D:\staged
           New-Item -ItemType Directory -Force -Path D:\staged\license
           New-Item -ItemType Directory -Force -Path D:\staged\share\icons\hicolor
-          Copy-Item -Recurse -Force C:\msys64\mingw64\bin D:\staged\bin
-          Copy-Item -Recurse -Force C:\msys64\mingw64\lib D:\staged\lib
-          Copy-Item -Recurse -Force C:\msys64\mingw64\share D:\staged\share
-          Copy-Item -Recurse -Force C:\msys64\mingw64\etc D:\staged\etc
+          New-Item -ItemType Directory -Force -Path D:\staged\bin
+          New-Item -ItemType Directory -Force -Path D:\staged\lib
+          New-Item -ItemType Directory -Force -Path D:\staged\share
+          New-Item -ItemType Directory -Force -Path D:\staged\etc
+          Copy-Item -Recurse -Force C:\msys64\mingw64\bin\* D:\staged\bin\
+          Copy-Item -Recurse -Force C:\msys64\mingw64\lib\* D:\staged\lib\
+          Copy-Item -Recurse -Force C:\msys64\mingw64\share\* D:\staged\share\
+          Copy-Item -Recurse -Force C:\msys64\mingw64\etc\* D:\staged\etc\
           Copy-Item -Force D:\a\Denemo\Denemo\COPYING D:\staged\license\denemo
           Copy-Item -Force D:\a\Denemo\Denemo\packaging\nsis\Denemo.bat D:\staged\
           Copy-Item -Force D:\a\Denemo\Denemo\packaging\regfont.exe D:\staged\bin\
           Copy-Item -Force D:\a\Denemo\Denemo\packaging\denemo.ico D:\staged\share\icons\hicolor\denemo.ico
+      
       - name: Debug staged files
         shell: pwsh
         run: |
