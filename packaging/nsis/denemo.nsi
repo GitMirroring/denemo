@@ -146,14 +146,14 @@ Section "${PRETTY_NAME} (required)" SecMain
     Delete "$INSTDIR\bin\denemo.exe"
 
     SetOutPath "$INSTDIR"
-    File "${ROOT}/bin/denemo.exe"
-    File /nonfatal "${ROOT}/bin/Denemo.bat"
-    File /r "${ROOT}/etc/*.*"
-    File /r "${ROOT}/lib/*.*"
-    File /nonfatal /r "${ROOT}/libexec/*.*"
-    File /r "${ROOT}/share/*.*"
-    File /nonfatal /r "${ROOT}/lilypond/*.*"
-    File /r "${ROOT}/license/*.*"
+    File "${ROOT}\bin\denemo.exe"
+    File /nonfatal "${ROOT}\bin\Denemo.bat"
+    File /r "${ROOT}\etc\*.*"
+    File /r "${ROOT}\lib\*.*"
+    File /nonfatal /r "${ROOT}\libexec\*.*"
+    File /r "${ROOT}\share\*.*"
+    File /nonfatal /r "${ROOT}\lilypond\*.*"
+    File /r "${ROOT}\license\*.*"
 
     WriteUninstaller "$INSTDIR\uninstall.exe"
 
