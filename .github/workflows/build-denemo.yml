@@ -118,6 +118,14 @@ jobs:
           Get-ChildItem D:\staged\share\icons -Recurse -Filter "*.ico" | Select-Object FullName
           Get-ChildItem D:\staged\ -Recurse -Filter "*.ico" | Select-Object FullName
 
+      - name: Debug staged directory
+        shell: pwsh
+        run: |
+          Write-Host "Contents of D:\staged:"
+          Get-ChildItem D:\staged
+          Write-Host "Contents of D:\staged\bin (first 10):"
+          Get-ChildItem D:\staged\bin | Select-Object -First 10
+
       - name: Build NSIS installer
         run: |
           cd /d/a/Denemo/Denemo/packaging/nsis

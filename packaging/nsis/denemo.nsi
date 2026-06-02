@@ -149,9 +149,9 @@ Section "${PRETTY_NAME} (required)" SecMain
     File /r "${ROOT}/bin"
     File /r "${ROOT}/etc"
     File /r "${ROOT}/lib"
-    File /r "${ROOT}/libexec"
+    File /nonfatal /r "${ROOT}/libexec"
     File /r "${ROOT}/share"
-    File /r "${ROOT}/lilypond"
+    File /nonfatal /r "${ROOT}/lilypond"
     File /r "${ROOT}/license"
     File    "${ROOT}/Denemo.bat"
 
