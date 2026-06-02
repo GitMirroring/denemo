@@ -99,10 +99,10 @@ jobs:
           if ($LASTEXITCODE -gt 7) { throw "robocopy share failed: $LASTEXITCODE" }
           robocopy D:\a\_temp\msys64\mingw64\etc D:\staged\etc /E /NFL /NDL /NJH
           if ($LASTEXITCODE -gt 7) { throw "robocopy etc failed: $LASTEXITCODE" }
-          Copy-Item -Force D:\a\Denemo\Denemo\COPYING D:\staged\license\denemo
-          Copy-Item -Force D:\a\Denemo\Denemo\packaging\nsis\Denemo.bat D:\staged\
-          Copy-Item -Force D:\a\Denemo\Denemo\packaging\regfont.exe D:\staged\bin\
-          Copy-Item -Force D:\a\Denemo\Denemo\packaging\denemo.ico D:\staged\share\icons\hicolor\denemo.ico
+          Copy-Item -Force -ErrorAction Continue D:\a\Denemo\Denemo\COPYING D:\staged\license\denemo
+          Copy-Item -Force -ErrorAction Continue D:\a\Denemo\Denemo\packaging\nsis\Denemo.bat D:\staged\
+          Copy-Item -Force -ErrorAction Continue D:\a\Denemo\Denemo\packaging\regfont.exe D:\staged\bin\
+          Copy-Item -Force -ErrorAction Continue D:\a\Denemo\Denemo\packaging\denemo.ico D:\staged\share\icons\hicolor\denemo.ico
           Write-Host "Staged bin count: $((Get-ChildItem D:\staged\bin).Count)"
 
       - name: Build NSIS installer
