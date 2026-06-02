@@ -121,6 +121,9 @@ jobs:
           $version = (Select-String -Path "D:\a\Denemo\Denemo\configure.ac" -Pattern "AC_INIT" | Select-Object -First 1).Line
           $version = [regex]::Match($version, '\d+\.\d+\.\d+').Value
           Write-Host "Building installer for version $version"
+          Write-Host "Files in D:\staged\bin:"
+          Get-ChildItem D:\staged\bin | Select-Object -First 5
+          Write-Host "Total bin files: $((Get-ChildItem D:\staged\bin -Recurse).Count)"
           Set-Location D:\a\Denemo\Denemo\packaging\nsis
           & "D:\a\_temp\msys64\mingw64\bin\makensis.exe" /DVERSION=$version /DROOT=D:\staged denemo.nsi
 
