@@ -145,13 +145,6 @@ Section "${PRETTY_NAME} (required)" SecMain
     ;; (avoids "file in use" error on reinstall)
     Delete "$INSTDIR\bin\denemo.exe"
 
-    Section "${PRETTY_NAME} (required)" SecMain
-    SectionIn RO
-    SetOverwrite on
-    AllowSkipFiles on
-
-    Delete "$INSTDIR\bin\denemo.exe"
-
     ; --- bin ---
     SetOutPath "$INSTDIR\bin"
     File /r "${ROOT}\bin\*.*"
