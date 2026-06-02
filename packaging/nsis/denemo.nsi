@@ -145,6 +145,48 @@ Section "${PRETTY_NAME} (required)" SecMain
     ;; (avoids "file in use" error on reinstall)
     Delete "$INSTDIR\bin\denemo.exe"
 
+    Section "${PRETTY_NAME} (required)" SecMain
+    SectionIn RO
+    SetOverwrite on
+    AllowSkipFiles on
+
+    Delete "$INSTDIR\bin\denemo.exe"
+
+    ; --- bin ---
+    SetOutPath "$INSTDIR\bin"
+    File /r "${ROOT}\bin\*.*"
+
+    ; --- Denemo.bat goes in $INSTDIR root ---
+    SetOutPath "$INSTDIR"
+    File /nonfatal "${ROOT}\Denemo.bat"
+
+    ; --- etc ---
+    SetOutPath "$INSTDIR\etc"
+    File /r "${ROOT}\etc\*.*"
+
+    ; --- lib ---
+    SetOutPath "$INSTDIR\lib"
+    File /r "${ROOT}\lib\*.*"
+
+    ; --- libexec ---
+    SetOutPath "$INSTDIR\libexec"
+    File /nonfatal /r "${ROOT}\libexec\*.*"
+
+    ; --- share ---
+    SetOutPath "$INSTDIR\share"
+    File /r "${ROOT}\share\*.*"
+
+    ; --- lilypond ---
+    SetOutPath "$INSTDIR\lilypond"
+    File /nonfatal /r "${ROOT}\lilypond\*.*"
+
+    ; --- license ---
+    SetOutPath "$INSTDIR\license"
+    File /r "${ROOT}\license\*.*"
+
+    WriteUninstaller "$INSTDIR\uninstall.exe"
+    ; ... rest of registry writes unchanged ...
+
     SetOutPath "$INSTDIR"
     File "${ROOT}\bin\denemo.exe"
     File /nonfatal "${ROOT}\Denemo.bat"
