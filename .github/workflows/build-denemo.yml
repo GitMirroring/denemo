@@ -122,7 +122,7 @@ jobs:
           $version = [regex]::Match($version, '\d+\.\d+\.\d+').Value
           Write-Host "Building installer for version $version"
           Set-Location D:\a\Denemo\Denemo\packaging\nsis
-          & makensis /DVERSION=$version /DROOT=D:\staged denemo.nsi
+          & "D:\a\_temp\msys64\mingw64\bin\makensis.exe" /DVERSION=$version /DROOT=D:\staged denemo.nsi
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
