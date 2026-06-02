@@ -115,6 +115,33 @@ jobs:
           Write-Host "Staged bin count: $((Get-ChildItem D:\a\Denemo\Denemo\staged\bin).Count)"
           exit 0
 
+      - name: Trim staged tree
+        shell: pwsh
+        run: |
+          $staged = "D:\a\Denemo\Denemo\staged"
+
+          # Remove all locale files - massive savings (~100MB+)
+          Remove-Item -Recurse -Force "$staged\share\locale" -ErrorAction SilentlyContinue
+
+          # Remove include headers (build-time only, not needed at runtime)
+          Remove-Item -Recurse -Force "$staged\include" -ErrorAction SilentlyContinue
+
+          # Remove static libs and .la files
+          Get-ChildItem "$staged\lib" -Recurse -Include "*.a","*.la" |
+          Remove-Item -Force -ErrorAction SilentlyContinue
+
+          # Remove pkgconfig (build-time only)
+          Remove-Item -Recurse -Force "$staged\lib\pkgconfig" -ErrorAction SilentlyContinue
+
+          # Remove unneeded share subdirs
+          @('man','doc','info','gtk-doc','aclocal','bash-completion','vala') | ForEach-Object {
+            Remove-Item -Recurse -Force "$staged\share\$_" -ErrorAction SilentlyContinue
+          }
+
+          # Report size
+          $size = (Get-ChildItem $staged -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB
+          Write-Host "Staged size after trim: $([math]::Round($size, 1)) MB"
+
       - name: Build NSIS installer
         shell: pwsh
         run: |
