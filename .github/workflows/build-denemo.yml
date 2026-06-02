@@ -121,8 +121,10 @@ jobs:
           $version = (Select-String -Path "D:\a\Denemo\Denemo\configure.ac" -Pattern "AC_INIT" | Select-Object -First 1).Line
           $version = [regex]::Match($version, '\d+\.\d+\.\d+').Value
           Write-Host "Building installer for version $version"
+          $rootPath = (Resolve-Path "D:\a\Denemo\Denemo\staged").Path
+          Write-Host "Root path: $rootPath"
           Set-Location D:\a\Denemo\Denemo\packaging\nsis
-          & "D:\a\_temp\msys64\mingw64\bin\makensis.exe" /DVERSION=$version "/DROOT=D:\a\Denemo\Denemo\staged" denemo.nsi
+          & "D:\a\_temp\msys64\mingw64\bin\makensis.exe" /DVERSION=$version "/DROOT=$rootPath" denemo.nsi
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
