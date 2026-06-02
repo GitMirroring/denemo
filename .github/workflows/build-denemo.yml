@@ -89,31 +89,23 @@ jobs:
       - name: Stage installer files
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path D:\staged\license
-          New-Item -ItemType Directory -Force -Path D:\staged\share\icons\hicolor
-          robocopy D:\a\_temp\msys64\mingw64\bin D:\staged\bin /E /NFL /NDL /NJH
+          New-Item -ItemType Directory -Force -Path D:\a\Denemo\Denemo\staged\license
+          New-Item -ItemType Directory -Force -Path D:\a\Denemo\Denemo\staged\share\icons\hicolor
+          robocopy D:\a\_temp\msys64\mingw64\bin D:\a\Denemo\Denemo\staged\bin /E /NFL /NDL /NJH
           if ($LASTEXITCODE -gt 7) { throw "robocopy bin failed: $LASTEXITCODE" }
-          robocopy D:\a\_temp\msys64\mingw64\lib D:\staged\lib /E /NFL /NDL /NJH
+          robocopy D:\a\_temp\msys64\mingw64\lib D:\a\Denemo\Denemo\staged\lib /E /NFL /NDL /NJH
           if ($LASTEXITCODE -gt 7) { throw "robocopy lib failed: $LASTEXITCODE" }
-          robocopy D:\a\_temp\msys64\mingw64\share D:\staged\share /E /NFL /NDL /NJH
+          robocopy D:\a\_temp\msys64\mingw64\share D:\a\Denemo\Denemo\staged\share /E /NFL /NDL /NJH
           if ($LASTEXITCODE -gt 7) { throw "robocopy share failed: $LASTEXITCODE" }
-          robocopy D:\a\_temp\msys64\mingw64\etc D:\staged\etc /E /NFL /NDL /NJH
+          robocopy D:\a\_temp\msys64\mingw64\etc D:\a\Denemo\Denemo\staged\etc /E /NFL /NDL /NJH
           if ($LASTEXITCODE -gt 7) { throw "robocopy etc failed: $LASTEXITCODE" }
-          robocopy D:\a\_temp\msys64\mingw64\etc D:\staged\etc /E /NFL /NDL /NJH
-          if ($LASTEXITCODE -gt 7) { throw "robocopy etc failed: $LASTEXITCODE" }
-          $LASTEXITCODE = 0
           $global:LASTEXITCODE = 0
-          Copy-Item -Force D:\a\Denemo\Denemo\COPYING D:\staged\license\denemo
-          Copy-Item -Force D:\a\Denemo\Denemo\packaging\nsis\Denemo.bat D:\staged\
-          Copy-Item -Force D:\a\Denemo\Denemo\packaging\regfont.exe D:\staged\bin\
-          Copy-Item -Force D:\a\Denemo\Denemo\packaging\denemo.ico D:\staged\share\icons\hicolor\denemo.ico
-          Write-Host "Staged bin count: $((Get-ChildItem D:\staged\bin).Count)"
+          Copy-Item -Force D:\a\Denemo\Denemo\COPYING D:\a\Denemo\Denemo\staged\license\denemo
+          Copy-Item -Force D:\a\Denemo\Denemo\packaging\nsis\Denemo.bat D:\a\Denemo\Denemo\staged\
+          Copy-Item -Force D:\a\Denemo\Denemo\packaging\regfont.exe D:\a\Denemo\Denemo\staged\bin\
+          Copy-Item -Force D:\a\Denemo\Denemo\packaging\denemo.ico D:\a\Denemo\Denemo\staged\share\icons\hicolor\denemo.ico
+          Write-Host "Staged bin count: $((Get-ChildItem D:\a\Denemo\Denemo\staged\bin).Count)"
           exit 0
-          Copy-Item -Force -ErrorAction Continue D:\a\Denemo\Denemo\COPYING D:\staged\license\denemo
-          Copy-Item -Force -ErrorAction Continue D:\a\Denemo\Denemo\packaging\nsis\Denemo.bat D:\staged\
-          Copy-Item -Force -ErrorAction Continue D:\a\Denemo\Denemo\packaging\regfont.exe D:\staged\bin\
-          Copy-Item -Force -ErrorAction Continue D:\a\Denemo\Denemo\packaging\denemo.ico D:\staged\share\icons\hicolor\denemo.ico
-          Write-Host "Staged bin count: $((Get-ChildItem D:\staged\bin).Count)"
 
       - name: Build NSIS installer
         shell: pwsh
@@ -121,11 +113,8 @@ jobs:
           $version = (Select-String -Path "D:\a\Denemo\Denemo\configure.ac" -Pattern "AC_INIT" | Select-Object -First 1).Line
           $version = [regex]::Match($version, '\d+\.\d+\.\d+').Value
           Write-Host "Building installer for version $version"
-          Write-Host "Files in D:\staged\bin:"
-          Get-ChildItem D:\staged\bin | Select-Object -First 5
-          Write-Host "Total bin files: $((Get-ChildItem D:\staged\bin -Recurse).Count)"
           Set-Location D:\a\Denemo\Denemo\packaging\nsis
-          & "D:\a\_temp\msys64\mingw64\bin\makensis.exe" /DVERSION=$version "/DROOT=D:/staged" denemo.nsi
+          & "D:\a\_temp\msys64\mingw64\bin\makensis.exe" /DVERSION=$version "/DROOT=D:\a\Denemo\Denemo\staged" denemo.nsi
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
