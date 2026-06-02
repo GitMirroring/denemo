@@ -96,9 +96,6 @@ jobs:
       - name: Stage installer files
         shell: pwsh
         run: |
-          - name: Stage installer files
-        shell: pwsh
-        run: |
           New-Item -ItemType Directory -Force -Path D:\staged
           New-Item -ItemType Directory -Force -Path D:\staged\license
           New-Item -ItemType Directory -Force -Path D:\staged\share\icons\hicolor
