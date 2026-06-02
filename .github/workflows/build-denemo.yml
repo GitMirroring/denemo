@@ -116,10 +116,13 @@ jobs:
           Write-Host "Staged bin count: $((Get-ChildItem D:\staged\bin).Count)"
 
       - name: Build NSIS installer
+        shell: pwsh
         run: |
-          cd /d/a/Denemo/Denemo/packaging/nsis
-          VERSION=$(grep -m1 'AC_INIT' /d/a/Denemo/Denemo/configure.ac | grep -o '[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*')
-          makensis -DVERSION=$VERSION -DROOT=D:/staged denemo.nsi
+          $version = (Select-String -Path "D:\a\Denemo\Denemo\configure.ac" -Pattern "AC_INIT" | Select-Object -First 1).Line
+          $version = [regex]::Match($version, '\d+\.\d+\.\d+').Value
+          Write-Host "Building installer for version $version"
+          Set-Location D:\a\Denemo\Denemo\packaging\nsis
+          & makensis /DVERSION=$version /DROOT=D:\staged denemo.nsi
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
