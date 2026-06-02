@@ -43,6 +43,7 @@ jobs:
             mingw-w64-x86_64-gc
             intltool
             mingw-w64-x86_64-nsis
+
       - name: Download deps artifact
         shell: pwsh
         run: |
@@ -50,26 +51,18 @@ jobs:
           $artifacts = Invoke-RestMethod -Uri "https://api.github.com/repos/jbenham2015/denemo-mingw64-deps/actions/artifacts" -Headers $headers
           $artifact = $artifacts.artifacts | Where-Object { $_.name -eq "denemo-mingw64-deps" } | Select-Object -First 1
           $downloadUrl = $artifact.archive_download_url
-          Invoke-WebRequest -Uri $downloadUrl -Headers $headers -OutFile "D:\a\denemo\denemo\denemo-mingw64-deps.zip"
-          Expand-Archive -Path "D:\a\denemo\denemo\denemo-mingw64-deps.zip" -DestinationPath "D:\a\denemo\denemo\"
-
+          Invoke-WebRequest -Uri $downloadUrl -Headers $headers -OutFile "D:\a\Denemo\Denemo\denemo-mingw64-deps.zip"
+          Expand-Archive -Path "D:\a\Denemo\Denemo\denemo-mingw64-deps.zip" -DestinationPath "D:\a\Denemo\Denemo\"
 
       - name: Extract deps
         run: |
-          cd /d/a/denemo/denemo
+          cd /d/a/Denemo/Denemo
           tar xzf denemo-mingw64-deps.tar.gz
           cp -rf mingw64/bin/* /mingw64/bin/
           cp -rf mingw64/lib/* /mingw64/lib/
           cp -rf mingw64/include/* /mingw64/include/
           cp -rf mingw64/share/guile /mingw64/share/
           ls /mingw64/bin/libguile*.dll || echo "no libguile dll found"
-          ldd /mingw64/bin/guile.exe || echo "ldd failed"
-
-      - name: Debug extracted files
-        run: |
-          ls /mingw64/bin/guile* || echo "no guile in /mingw64/bin"
-          ls /d/a/denemo/denemo/ || echo "nothing in workspace"
-          find /d/a/denemo/denemo -name "guile.exe" 2>/dev/null | head -5
 
       - name: Bootstrap Denemo
         run: autoreconf -fi
@@ -96,46 +89,21 @@ jobs:
       - name: Stage installer files
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path D:\staged
           New-Item -ItemType Directory -Force -Path D:\staged\license
           New-Item -ItemType Directory -Force -Path D:\staged\share\icons\hicolor
-          New-Item -ItemType Directory -Force -Path D:\staged\bin
-          New-Item -ItemType Directory -Force -Path D:\staged\lib
-          New-Item -ItemType Directory -Force -Path D:\staged\share
-          New-Item -ItemType Directory -Force -Path D:\staged\etc
-          Copy-Item -Recurse -Force C:\msys64\mingw64\bin\* D:\staged\bin\
-          Copy-Item -Recurse -Force C:\msys64\mingw64\lib\* D:\staged\lib\
-          Copy-Item -Recurse -Force C:\msys64\mingw64\share\* D:\staged\share\
-          Copy-Item -Recurse -Force C:\msys64\mingw64\etc\* D:\staged\etc\
+          robocopy D:\a\_temp\msys64\mingw64\bin D:\staged\bin /E /NFL /NDL /NJH
+          if ($LASTEXITCODE -gt 7) { throw "robocopy bin failed: $LASTEXITCODE" }
+          robocopy D:\a\_temp\msys64\mingw64\lib D:\staged\lib /E /NFL /NDL /NJH
+          if ($LASTEXITCODE -gt 7) { throw "robocopy lib failed: $LASTEXITCODE" }
+          robocopy D:\a\_temp\msys64\mingw64\share D:\staged\share /E /NFL /NDL /NJH
+          if ($LASTEXITCODE -gt 7) { throw "robocopy share failed: $LASTEXITCODE" }
+          robocopy D:\a\_temp\msys64\mingw64\etc D:\staged\etc /E /NFL /NDL /NJH
+          if ($LASTEXITCODE -gt 7) { throw "robocopy etc failed: $LASTEXITCODE" }
           Copy-Item -Force D:\a\Denemo\Denemo\COPYING D:\staged\license\denemo
           Copy-Item -Force D:\a\Denemo\Denemo\packaging\nsis\Denemo.bat D:\staged\
           Copy-Item -Force D:\a\Denemo\Denemo\packaging\regfont.exe D:\staged\bin\
           Copy-Item -Force D:\a\Denemo\Denemo\packaging\denemo.ico D:\staged\share\icons\hicolor\denemo.ico
-      
-      - name: Debug staged files
-        shell: pwsh
-        run: |
-          Get-ChildItem D:\staged\share\icons -Recurse -Filter "*.ico" | Select-Object FullName
-          Get-ChildItem D:\staged\ -Recurse -Filter "*.ico" | Select-Object FullName
-
-      - name: Stage installer files
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force -Path D:\staged\bin
-          New-Item -ItemType Directory -Force -Path D:\staged\lib
-          New-Item -ItemType Directory -Force -Path D:\staged\share\icons\hicolor
-          New-Item -ItemType Directory -Force -Path D:\staged\etc
-          New-Item -ItemType Directory -Force -Path D:\staged\license
-          Write-Host "Source bin contents:"
-          Get-ChildItem D:\a\_temp\msys64\mingw64\bin | Select-Object -First 5
-          Copy-Item -Recurse -Force D:\a\_temp\msys64\mingw64\bin\* D:\staged\bin\
-          Copy-Item -Recurse -Force D:\a\_temp\msys64\mingw64\lib\* D:\staged\lib\
-          Copy-Item -Recurse -Force D:\a\_temp\msys64\mingw64\share\* D:\staged\share\
-          Copy-Item -Recurse -Force D:\a\_temp\msys64\mingw64\etc\* D:\staged\etc\
-          Copy-Item -Force D:\a\Denemo\Denemo\COPYING D:\staged\license\denemo
-          Copy-Item -Force D:\a\Denemo\Denemo\packaging\nsis\Denemo.bat D:\staged\
-          Copy-Item -Force D:\a\Denemo\Denemo\packaging\regfont.exe D:\staged\bin\
-          Copy-Item -Force D:\a\Denemo\Denemo\packaging\denemo.ico D:\staged\share\icons\hicolor\denemo.ico
+          Write-Host "Staged bin count: $((Get-ChildItem D:\staged\bin).Count)"
 
       - name: Build NSIS installer
         run: |
