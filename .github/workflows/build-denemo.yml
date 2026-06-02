@@ -90,7 +90,7 @@ jobs:
         run: |
           mkdir -p /d/a/Denemo/Denemo/staged/bin
           cp /mingw64/bin/denemo.exe /d/a/Denemo/Denemo/staged/bin/
-          cp /mingw64/bin/Denemo.bat /d/a/Denemo/Denemo/staged/ || true
+          cp /mingw64/Denemo.bat /d/a/Denemo/Denemo/staged/ || true
           mkdir -p /d/a/Denemo/Denemo/staged/share/denemo
           cp -rf /mingw64/share/denemo/* /d/a/Denemo/Denemo/staged/share/denemo/ || true
           ls -la /d/a/Denemo/Denemo/staged/bin/
