@@ -125,7 +125,7 @@ jobs:
           Get-ChildItem D:\staged\bin | Select-Object -First 5
           Write-Host "Total bin files: $((Get-ChildItem D:\staged\bin -Recurse).Count)"
           Set-Location D:\a\Denemo\Denemo\packaging\nsis
-          & "D:\a\_temp\msys64\mingw64\bin\makensis.exe" /DVERSION=$version /DROOT=D:\staged denemo.nsi
+          & "D:\a\_temp\msys64\mingw64\bin\makensis.exe" /DVERSION=$version "/DROOT=D:/staged" denemo.nsi
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
