@@ -186,7 +186,6 @@ Section "${PRETTY_NAME} (required)" SecMain
     ; ... rest of registry writes unchanged ...
 
     SetOutPath "$INSTDIR"
-    File "${ROOT}\bin\denemo.exe"
     File /nonfatal "${ROOT}\Denemo.bat"
     File /r "${ROOT}\etc\*.*"
     File /r "${ROOT}\lib\*.*"
