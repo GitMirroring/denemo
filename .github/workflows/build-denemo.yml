@@ -86,78 +86,48 @@ jobs:
           mkdir -p /mingw64/share/denemo
           make install prefix=/mingw64
 
-      - name: Precompile Guile scheme 
-files     
-        shell: msys2 {0} - name: Stage built Denemo files
-        run: | shell: msys2 {0} run: |
-        # First check guild exists and 
-        # works mkdir -p 
-        # /d/a/Denemo/Denemo/staged/bin
-        which guild || echo "guild not 
-          found" mkdir -p 
-          /d/a/Denemo/Denemo/staged/lib/guile/3.0/ccache 
-          cp 
-          /mingw64/bin/denemo.exe 
-          /d/a/Denemo/Denemo/staged/bin/ 
-          rm -f 
-          /d/a/Denemo/Denemo/staged/bin/denemo
-        guild --version || echo "guild 
-          version failed" # Copy 
-          precompiled .go files cp 
-          -rf 
-          /mingw64/lib/guile/3.0/ccache/* 
-          \
-                /d/a/Denemo/Denemo/staged/lib/guile/3.0/ccache/ 
-          || true mkdir -p 
-          /d/a/Denemo/Denemo/staged/share/denemo 
-          cp -rf 
-          /mingw64/share/denemo/* \
-        # Check scheme files exist 
-        # /d/a/Denemo/Denemo/staged/share/denemo/ 
-        # || true
-        echo "SCM files found: $(find 
-        /mingw64/share/denemo -name 
-        '*.scm' | wc -l)" ls -la 
-        /d/a/Denemo/Denemo/staged/bin/
-    
-      - name: Stage built Denemo 
-        files shell: msys2 {0} run: 
-        |
-    # Try compiling one file with 
-    # full error output mkdir -p 
-    # /d/a/Denemo/Denemo/staged/bin
-    FIRST=$(find 
-          /mingw64/share/denemo 
-          -name '*.scm' | head -1) 
-          mkdir -p 
-          /d/a/Denemo/Denemo/staged/lib/guile/3.0/ccache 
-          cp 
-          /mingw64/bin/denemo.exe 
-          /d/a/Denemo/Denemo/staged/bin/ 
-          cp /mingw64/Denemo.bat 
-          /d/a/Denemo/Denemo/staged/ 
-          || true mkdir -p 
-          /d/a/Denemo/Denemo/staged/share/denemo 
-          cp -rf 
-          /mingw64/share/denemo/* 
-          /d/a/Denemo/Denemo/staged/share/denemo/ 
-          || true ls -la 
-          /d/a/Denemo/Denemo/staged/bin/ 
-    echo "Trying to compile: 
-    $FIRST" GUILE_JIT_THRESHOLD=-1 
-    guild compile "$FIRST" || echo 
-    "FAILED with $?"  - name: Stage 
-    installer files
-            shell: pwsh run: |
-    # Check guile itself works 
-    # $staged = 
-    # "D:\a\Denemo\Denemo\staged"
-    guile --version || echo "guile 
-    not found" $mingw = 
-    "D:\a\_temp\msys64\mingw64" ls 
-    /mingw64/bin/guild* || echo "no 
-    guild in bin"
-    ls /mingw64/bin/guile* || echo "no guile in bin"          # Only the DLLs denemo.exe actually needs
+      - name: Precompile Guile scheme files
+        run: |
+          which guild || echo "guild not found"
+          guild --version || echo "guild version failed"
+          guile --version || echo "guile not found"
+          echo "SCM files found: $(find /mingw64/share/denemo -name '*.scm' | wc -l)"
+
+          export GUILE_LOAD_PATH=/mingw64/share/guile/3.0
+          export GUILE_LOAD_COMPILED_PATH=/mingw64/lib/guile/3.0/ccache
+          mkdir -p /mingw64/lib/guile/3.0/ccache
+
+          find /mingw64/share/denemo -name "*.scm" | while read scm; do
+            rel="${scm#/mingw64/share/denemo/}"
+            out="/mingw64/lib/guile/3.0/ccache/${rel%.scm}.go"
+            mkdir -p "$(dirname "$out")"
+            GUILE_JIT_THRESHOLD=-1 guild compile -o "$out" "$scm" 2>&1 || true
+          done
+
+          echo "Compiled $(find /mingw64/lib/guile/3.0/ccache -name '*.go' | wc -l) .go files"
+
+      - name: Stage built Denemo files
+        run: |
+          mkdir -p /d/a/Denemo/Denemo/staged/bin
+          mkdir -p /d/a/Denemo/Denemo/staged/lib/guile/3.0/ccache
+          mkdir -p /d/a/Denemo/Denemo/staged/share/denemo
+
+          cp /mingw64/bin/denemo.exe /d/a/Denemo/Denemo/staged/bin/
+          rm -f /d/a/Denemo/Denemo/staged/bin/denemo
+
+          cp -rf /mingw64/lib/guile/3.0/ccache/* \
+            /d/a/Denemo/Denemo/staged/lib/guile/3.0/ccache/ || true
+          cp -rf /mingw64/share/denemo/* \
+            /d/a/Denemo/Denemo/staged/share/denemo/ || true
+
+          ls -la /d/a/Denemo/Denemo/staged/bin/
+
+      - name: Stage installer files
+        shell: pwsh
+        run: |
+          $staged = "D:\a\Denemo\Denemo\staged"
+          $mingw  = "D:\a\_temp\msys64\mingw64"
+
           New-Item -ItemType Directory -Force -Path "$staged\bin"
           New-Item -ItemType Directory -Force -Path "$staged\lib"
           New-Item -ItemType Directory -Force -Path "$staged\share"
@@ -169,16 +139,16 @@ files
           Get-ChildItem "$mingw\bin\*.dll" | Copy-Item -Destination "$staged\bin" -Force
 
           # Runtime lib subdirs Denemo needs
-            @(
-              'gdk-pixbuf-2.0',
-              'gtk-3.0',
-              'gio',
-              'girepository-1.0',
-              'guile',
-              'evince'
-            ) | ForEach-Object {
+          @(
+            'gdk-pixbuf-2.0',
+            'gtk-3.0',
+            'gio',
+            'girepository-1.0',
+            'guile',
+            'evince'
+          ) | ForEach-Object {
             if (Test-Path "$mingw\lib\$_") {
-            robocopy "$mingw\lib\$_" "$staged\lib\$_" /E /NFL /NDL /NJH
+              robocopy "$mingw\lib\$_" "$staged\lib\$_" /E /NFL /NDL /NJH
             }
           }
 
@@ -194,8 +164,8 @@ files
             'fonts',
             'themes'
           ) | ForEach-Object {
-          if (Test-Path "$mingw\share\$_") {
-          robocopy "$mingw\share\$_" "$staged\share\$_" /E /NFL /NDL /NJH
+            if (Test-Path "$mingw\share\$_") {
+              robocopy "$mingw\share\$_" "$staged\share\$_" /E /NFL /NDL /NJH
             }
           }
 
@@ -217,15 +187,15 @@ files
         run: |
           $staged = "D:\a\Denemo\Denemo\staged"
 
-          # Remove all locale files - massive savings (~100MB+)
+          # Remove locale files - massive savings
           Remove-Item -Recurse -Force "$staged\share\locale" -ErrorAction SilentlyContinue
 
-          # Remove include headers (build-time only, not needed at runtime)
+          # Remove include headers (build-time only)
           Remove-Item -Recurse -Force "$staged\include" -ErrorAction SilentlyContinue
 
           # Remove static libs and .la files
           Get-ChildItem "$staged\lib" -Recurse -Include "*.a","*.la" |
-          Remove-Item -Force -ErrorAction SilentlyContinue
+            Remove-Item -Force -ErrorAction SilentlyContinue
 
           # Remove pkgconfig (build-time only)
           Remove-Item -Recurse -Force "$staged\lib\pkgconfig" -ErrorAction SilentlyContinue
@@ -235,9 +205,8 @@ files
             Remove-Item -Recurse -Force "$staged\share\$_" -ErrorAction SilentlyContinue
           }
 
-          # Report size
           $size = (Get-ChildItem $staged -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB
-          Write-Host "Staged size after trim: $([math]::Round($size, 1)) MB"
+          Write-Host "Staged size after trim: $([math]::Round($size,1)) MB"
 
       - name: Build NSIS installer
         shell: pwsh
