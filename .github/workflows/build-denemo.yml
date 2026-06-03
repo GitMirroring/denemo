@@ -94,25 +94,66 @@ jobs:
           mkdir -p /d/a/Denemo/Denemo/staged/share/denemo
           cp -rf /mingw64/share/denemo/* /d/a/Denemo/Denemo/staged/share/denemo/ || true
           ls -la /d/a/Denemo/Denemo/staged/bin/
+
       - name: Stage installer files
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path D:\a\Denemo\Denemo\staged\license
-          New-Item -ItemType Directory -Force -Path D:\a\Denemo\Denemo\staged\share\icons\hicolor
-          robocopy D:\a\_temp\msys64\mingw64\bin D:\a\Denemo\Denemo\staged\bin /E /NFL /NDL /NJH
-          if ($LASTEXITCODE -gt 7) { throw "robocopy bin failed: $LASTEXITCODE" }
-          robocopy D:\a\_temp\msys64\mingw64\lib D:\a\Denemo\Denemo\staged\lib /E /NFL /NDL /NJH
-          if ($LASTEXITCODE -gt 7) { throw "robocopy lib failed: $LASTEXITCODE" }
-          robocopy D:\a\_temp\msys64\mingw64\share D:\a\Denemo\Denemo\staged\share /E /NFL /NDL /NJH
-          if ($LASTEXITCODE -gt 7) { throw "robocopy share failed: $LASTEXITCODE" }
-          robocopy D:\a\_temp\msys64\mingw64\etc D:\a\Denemo\Denemo\staged\etc /E /NFL /NDL /NJH
-          if ($LASTEXITCODE -gt 7) { throw "robocopy etc failed: $LASTEXITCODE" }
-          $global:LASTEXITCODE = 0
-          Copy-Item -Force D:\a\Denemo\Denemo\COPYING D:\a\Denemo\Denemo\staged\license\denemo
-          Copy-Item -Force D:\a\Denemo\Denemo\packaging\nsis\Denemo.bat D:\a\Denemo\Denemo\staged\
-          Copy-Item -Force D:\a\Denemo\Denemo\packaging\regfont.exe D:\a\Denemo\Denemo\staged\bin\
-          Copy-Item -Force D:\a\Denemo\Denemo\packaging\denemo.ico D:\a\Denemo\Denemo\staged\share\icons\hicolor\denemo.ico
-          Write-Host "Staged bin count: $((Get-ChildItem D:\a\Denemo\Denemo\staged\bin).Count)"
+          $staged = "D:\a\Denemo\Denemo\staged"
+          $mingw  = "D:\a\_temp\msys64\mingw64"
+
+          # Only the DLLs denemo.exe actually needs
+          New-Item -ItemType Directory -Force -Path "$staged\bin"
+          New-Item -ItemType Directory -Force -Path "$staged\lib"
+          New-Item -ItemType Directory -Force -Path "$staged\share"
+          New-Item -ItemType Directory -Force -Path "$staged\etc"
+          New-Item -ItemType Directory -Force -Path "$staged\license"
+          New-Item -ItemType Directory -Force -Path "$staged\share\icons\hicolor"
+
+          # Copy only DLLs from bin (not .exe tools)
+          Get-ChildItem "$mingw\bin\*.dll" | Copy-Item -Destination "$staged\bin" -Force
+
+          # Runtime lib subdirs Denemo needs
+            @(
+              'gdk-pixbuf-2.0',
+              'gtk-3.0',
+              'gio',
+              'girepository-1.0',
+              'guile',
+              'evince'
+            ) | ForEach-Object {
+            if (Test-Path "$mingw\lib\$_") {
+            robocopy "$mingw\lib\$_" "$staged\lib\$_" /E /NFL /NDL /NJH
+            }
+          }
+
+          # Share subdirs Denemo needs
+          @(
+            'denemo',
+            'glib-2.0',
+            'gtk-3.0',
+            'gtksourceview-3',
+            'icons',
+            'mime',
+            'guile',
+            'fonts',
+            'themes'
+          ) | ForEach-Object {
+          if (Test-Path "$mingw\share\$_") {
+          robocopy "$mingw\share\$_" "$staged\share\$_" /E /NFL /NDL /NJH
+            }
+          }
+
+          # etc
+          robocopy "$mingw\etc" "$staged\etc" /E /NFL /NDL /NJH
+
+          # Packaging files
+          Copy-Item -Force "D:\a\Denemo\Denemo\COPYING" "$staged\license\denemo"
+          Copy-Item -Force "D:\a\Denemo\Denemo\packaging\nsis\Denemo.bat" "$staged\"
+          Copy-Item -Force "D:\a\Denemo\Denemo\packaging\regfont.exe" "$staged\bin\"
+          Copy-Item -Force "D:\a\Denemo\Denemo\packaging\denemo.ico" "$staged\share\icons\hicolor\denemo.ico"
+
+          $size = (Get-ChildItem $staged -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB
+          Write-Host "Staged size: $([math]::Round($size,1)) MB"
           exit 0
 
       - name: Trim staged tree
