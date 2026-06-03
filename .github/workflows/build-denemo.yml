@@ -178,6 +178,7 @@ jobs:
           Copy-Item -Force "D:\a\Denemo\Denemo\packaging\regfont.exe" "$staged\bin\"
           Copy-Item -Force "D:\a\Denemo\Denemo\packaging\denemo.ico" "$staged\share\icons\hicolor\denemo.ico"
           Copy-Item -Force "D:\a\Denemo\Denemo\pixmaps\denemo.png" "$staged\share\icons\hicolor\denemo.png"
+          Copy-Item -Force "D:\a\Denemo\Denemo\pixmaps\org.denemo.Denemo.png" "$staged\share\icons\hicolor\org.denemo.Denemo.png"
           $size = (Get-ChildItem $staged -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB
           Write-Host "Staged size: $([math]::Round($size,1)) MB"
           exit 0
