@@ -141,6 +141,11 @@ Section "${PRETTY_NAME} (required)" SecMain
     SetOverwrite on
     AllowSkipFiles on
 
+    ; Kill any running Denemo instance before installing
+    nsExec::ExecToLog 'taskkill /F /IM denemo.exe'
+    Sleep 1000
+
+    Delete "$INSTDIR\bin\denemo.exe"
     ;; Delete the exe first in case a previous install is present
     ;; (avoids "file in use" error on reinstall)
     Delete "$INSTDIR\bin\denemo.exe"
