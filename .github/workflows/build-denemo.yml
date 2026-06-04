@@ -95,9 +95,8 @@ jobs:
 
       - name: Precompile Guile scheme files
         run: |
-          which guild || echo "guild not found"
-          guild --version || echo "guild version failed"
-          guile --version || echo "guile not found"
+          which guild || { echo "guild not found"; exit 1; }
+          guild --version
           echo "SCM files found: $(find /mingw64/share/denemo -name '*.scm' | wc -l)"
 
           export GUILE_LOAD_PATH=/mingw64/share/guile/3.0
@@ -108,7 +107,8 @@ jobs:
             rel="${scm#/mingw64/share/denemo/}"
             out="/mingw64/lib/guile/3.0/ccache/${rel%.scm}.go"
             mkdir -p "$(dirname "$out")"
-            GUILE_JIT_THRESHOLD=-1 guild compile -o "$out" "$scm" 2>&1 || true
+            echo "Compiling: $rel"
+            timeout 30 guild compile -o "$out" "$scm" 2>&1 || echo "SKIP: $rel"
           done
 
           echo "Compiled $(find /mingw64/lib/guile/3.0/ccache -name '*.go' | wc -l) .go files"
