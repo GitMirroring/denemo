@@ -101,6 +101,7 @@ jobs:
 
           export GUILE_LOAD_PATH=/mingw64/share/guile/3.0
           export GUILE_LOAD_COMPILED_PATH=/mingw64/lib/guile/3.0/ccache
+          export GUILE_AUTO_COMPILE=0
           mkdir -p /mingw64/lib/guile/3.0/ccache
 
           find /mingw64/share/denemo -name "*.scm" | while read scm; do
