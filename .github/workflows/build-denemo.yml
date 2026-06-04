@@ -92,16 +92,13 @@ jobs:
         run: |
           mkdir -p /mingw64/share/denemo
           make install prefix=/mingw64
-
+      
       - name: Precompile Guile scheme files
         run: |
           which guild || { echo "guild not found"; exit 1; }
           guild --version
           echo "SCM files found: $(find /mingw64/share/denemo -name '*.scm' | wc -l)"
 
-          export GUILE_LOAD_PATH=/mingw64/share/guile/3.0
-          export GUILE_LOAD_COMPILED_PATH=/mingw64/lib/guile/3.0/ccache
-          export GUILE_AUTO_COMPILE=0
           mkdir -p /mingw64/lib/guile/3.0/ccache
 
           find /mingw64/share/denemo -name "*.scm" | while read scm; do
@@ -109,11 +106,14 @@ jobs:
             out="/mingw64/lib/guile/3.0/ccache/${rel%.scm}.go"
             mkdir -p "$(dirname "$out")"
             echo "Compiling: $rel"
-            timeout 30 guild compile -o "$out" "$scm" 2>&1 || echo "SKIP: $rel"
+            GUILE_AUTO_COMPILE=0 GUILE_LOAD_PATH=/mingw64/share/guile/3.0 \
+            GUILE_LOAD_COMPILED_PATH=/mingw64/lib/guile/3.0/ccache \
+            GUILE_JIT_THRESHOLD=-1 \
+            timeout 30 guild compile --no-auto-compile -o "$out" "$scm" 2>&1 || echo "SKIP: $rel"
           done
 
           echo "Compiled $(find /mingw64/lib/guile/3.0/ccache -name '*.go' | wc -l) .go files"
-
+          
       - name: Stage built Denemo files
         run: |
           mkdir -p /d/a/Denemo/Denemo/staged/bin
