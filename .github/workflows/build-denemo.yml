@@ -53,7 +53,6 @@ jobs:
           $downloadUrl = $artifact.archive_download_url
           Invoke-WebRequest -Uri $downloadUrl -Headers $headers -OutFile "D:\a\Denemo\Denemo\denemo-mingw64-deps.zip"
           Expand-Archive -Path "D:\a\Denemo\Denemo\denemo-mingw64-deps.zip" -DestinationPath "D:\a\Denemo\Denemo\"
-
       - name: Extract deps
         run: |
           cd /d/a/Denemo/Denemo
@@ -63,7 +62,11 @@ jobs:
           cp -rf mingw64/include/* /mingw64/include/
           cp -rf mingw64/share/guile /mingw64/share/
           ls /mingw64/bin/libguile*.dll || echo "no libguile dll found"
-
+          # Debug: check compiler modules exist
+          ls /mingw64/share/guile/3.0/language/tree-il || echo "tree-il missing"
+          ls /mingw64/share/guile/3.0/language/ || echo "no language dir"
+          guild --version
+          guile --version
       - name: Bootstrap Denemo
         run: autoreconf -fi
 
