@@ -43,6 +43,10 @@ jobs:
             mingw-w64-x86_64-gc
             intltool
             mingw-w64-x86_64-nsis
+ 
+      - name: Remove MSYS2 Guile to avoid conflict with custom build
+        run: |
+          pacman -R --noconfirm mingw-w64-x86_64-guile || echo "guile not installed by pacman, skipping"
 
       - name: Download deps artifact
         shell: pwsh
