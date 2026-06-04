@@ -113,14 +113,18 @@ jobs:
           done
 
           echo "Compiled $(find /mingw64/lib/guile/3.0/ccache -name '*.go' | wc -l) .go files"
-          
+      
       - name: Stage built Denemo files
         run: |
+          echo "Checking if denemo.exe was installed:"
+          ls -lh /mingw64/bin/denemo.exe || echo "denemo.exe NOT in /mingw64/bin"
+          ls -lh /mingw64/bin/denemo || echo "no extensionless denemo either"
+
           mkdir -p /d/a/Denemo/Denemo/staged/bin
           mkdir -p /d/a/Denemo/Denemo/staged/lib/guile/3.0/ccache
           mkdir -p /d/a/Denemo/Denemo/staged/share/denemo
 
-          cp /mingw64/bin/denemo.exe /d/a/Denemo/Denemo/staged/bin/
+          cp /mingw64/bin/denemo.exe /d/a/Denemo/Denemo/staged/bin/ || echo "FAILED to copy denemo.exe"
           rm -f /d/a/Denemo/Denemo/staged/bin/denemo
 
           cp -rf /mingw64/lib/guile/3.0/ccache/* \
@@ -129,7 +133,7 @@ jobs:
             /d/a/Denemo/Denemo/staged/share/denemo/ || true
 
           ls -la /d/a/Denemo/Denemo/staged/bin/
-
+          
       - name: Stage installer files
         shell: pwsh
         run: |
