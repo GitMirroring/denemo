@@ -257,4 +257,13 @@ noinst_HEADERS = \
   audio/parseinstruments.h \
   core/keyboard.h
 
+# Only trigger if the target environment is windows
+if PLATFORM_WINDOWS
+
+bin_PROGRAMS += lilypond-windows
+lilypond_windows_SOURCES = source/lilypond-windows.c
+lilypond_windows_CFLAGS = -W -Wall -ansi
+
+endif
+
 DISTCLEANFILES: pathconfig.h
