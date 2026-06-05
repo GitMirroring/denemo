@@ -99,11 +99,7 @@ jobs:
           mkdir -p /d/a/Denemo/Denemo/staged/lib/guile/3.0/ccache
           mkdir -p /d/a/Denemo/Denemo/staged/share/denemo
 
-          # Copy denemo.exe from mingw64
-          Copy-Item -Force "$mingw\bin\denemo.exe" "$staged\bin\denemo.exe"
-          # Remove libtool wrapper if present
-          Remove-Item -Force "$staged\bin\denemo" -ErrorAction SilentlyContinue
-          Write-Host "denemo.exe in staged/bin: $(Test-Path "$staged\bin\denemo.exe")"
+          cp -v /mingw64/bin/denemo.exe /d/a/Denemo/Denemo/staged/bin/
           rm -f /mingw64/bin/denemo
           rm -f /d/a/Denemo/Denemo/staged/bin/denemo
           sync
@@ -132,7 +128,10 @@ jobs:
 
           # Copy only DLLs from bin (not .exe tools)
           Get-ChildItem "$mingw\bin\*.dll" | Copy-Item -Destination "$staged\bin" -Force
-
+          # Copy denemo.exe explicitly
+          Copy-Item -Force "$mingw\bin\denemo.exe" "$staged\bin\denemo.exe"
+          Remove-Item -Force "$staged\bin\denemo" -ErrorAction SilentlyContinue
+          Write-Host "denemo.exe present: $(Test-Path "$staged\bin\denemo.exe")"
           # Runtime lib subdirs Denemo needs
           @(
             'gdk-pixbuf-2.0',
