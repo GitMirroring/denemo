@@ -273,8 +273,13 @@ jobs:
           rm -f  $P/bin/libboost_wave-mt-x64.dll
 
           # Report final size
-          du -sh $P
-          du -sh /d/a/Denemo/Denemo/staged/lilypond/*/
+          echo "=== Size breakdown ==="
+          du -sh $P/*/
+          echo "=== LilyPond breakdown ==="
+          du -sh $P/lilypond/*/
+          echo "=== bin DLL count and size ==="
+          ls $P/bin/*.dll | wc -l
+          du -sh $P/bin/
 
       - name: Build NSIS installer
         shell: pwsh
