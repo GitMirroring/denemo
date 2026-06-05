@@ -263,7 +263,7 @@ init_environment()
 
   g_setenv ("PATH", path, TRUE);
   g_info ("PATH set to %s\n", path);
-  gchar *lilypond_data_path = g_build_filename (prefix, "lilypond", "share", "lilypond", "2.24.4", NULL);
+  gchar *lilypond_data_path = g_build_filename (prefix, "lilypond", "share", "lilypond", "2.26.0", NULL);
   g_setenv ("LILYPOND_DATA_PATH", lilypond_data_path, FALSE);
   g_info ("LILYPOND_DATA_PATH will be %s if not already set", lilypond_data_path);
 
