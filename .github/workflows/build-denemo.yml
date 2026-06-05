@@ -149,7 +149,6 @@ jobs:
           # Copy only DLLs from bin (not .exe tools)
           Get-ChildItem "$mingw\bin\*.dll" | Copy-Item -Destination "$staged\bin" -Force
           # Copy denemo.exe explicitly
-          Copy-Item -Force "$mingw\bin\denemo.exe" "$staged\bin\denemo.exe"
           Remove-Item -Force "$staged\bin\denemo" -ErrorAction SilentlyContinue
           Write-Host "denemo.exe present: $(Test-Path "$staged\bin\denemo.exe")"
           # Runtime lib subdirs Denemo needs
