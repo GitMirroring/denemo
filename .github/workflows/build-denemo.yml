@@ -199,6 +199,10 @@ jobs:
 
           $size = (Get-ChildItem $staged -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB
           Write-Host "Staged size after trim: $([math]::Round($size,1)) MB"
+          Write-Host "staged root contents:"  
+          Get-ChildItem "D:\a\Denemo\Denemo\staged" -Name 
+          Write-Host "staged lib contents:"
+          Get-ChildItem "D:\a\Denemo\Denemo\staged\lib" -Name
 
       - name: Build NSIS installer
         shell: pwsh
