@@ -274,6 +274,7 @@ jobs:
 
           # Report final size
           du -sh $P
+          du -sh /d/a/Denemo/Denemo/staged/lilypond/*/
 
       - name: Build NSIS installer
         shell: pwsh
