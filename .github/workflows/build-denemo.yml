@@ -79,11 +79,12 @@ jobs:
           ./configure \
             --prefix=/mingw64 \
             --enable-evince \
-            --disable-portmidi \
+            --enable-portmidi \
             CFLAGS="-g -O2 -Wno-incompatible-pointer-types -Wno-int-conversion" \
             CPPFLAGS="-I/mingw64/include" \
             LDFLAGS="-L/mingw64/lib" \
             PKG_CONFIG_PATH="/mingw64/lib/pkgconfig"
+            grep -i portmidi /d/a/Denemo/Denemo/denemo-build.log | head -20
 
       - name: Build Denemo
         run: make -j$(nproc) 2>&1 | tee /d/a/Denemo/Denemo/denemo-build.log
