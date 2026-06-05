@@ -110,6 +110,10 @@ jobs:
 
           echo "staged/bin contents:"
           ls -la /d/a/Denemo/Denemo/staged/bin/
+
+          # Copy lilypond-windows.exe into lilypond/bin
+          cp -v /mingw64/bin/lilypond-windows.exe \
+            /d/a/Denemo/Denemo/staged/lilypond/bin/ || echo "WARNING: lilypond-windows.exe not found"
       
       - name: Download and stage LilyPond
         shell: pwsh
