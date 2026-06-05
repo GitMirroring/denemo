@@ -35,3 +35,4 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
     return (int)exitcode;
+}
