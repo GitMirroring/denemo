@@ -33,6 +33,21 @@ AM_PROG_LEX
 GUILE_FLAGS
 
 LT_INIT
+# Check if the target build host is Windows/MinGW
+AC_MSG_CHECKING([for a Windows host operating system])
+AS_CASE([$host_os],
+  [mingw* | pw32* | cygwin*], [
+    is_windows=yes
+    AC_MSG_RESULT([yes])
+  ],
+  [*], [
+    is_windows=no
+    AC_MSG_RESULT([no])
+  ]
+)
+
+# Export the platform check to Automake
+AM_CONDITIONAL([PLATFORM_WINDOWS], [test "x$is_windows" = "xyes"])
 
 dnl Options for configuration
 build_debug=no
