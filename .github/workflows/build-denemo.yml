@@ -135,6 +135,7 @@ jobs:
           # Copy into staged/lilypond
           robocopy $lilyDir.FullName "$staged\lilypond" /E /NFL /NDL /NJH
           if ($LASTEXITCODE -gt 7) { throw "robocopy lilypond failed: $LASTEXITCODE" }
+          $global:LASTEXITCODE = 0
 
           $size = (Get-ChildItem "$staged\lilypond" -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB
           Write-Host "LilyPond staged: $([math]::Round($size,1)) MB"
@@ -248,6 +249,9 @@ jobs:
           Get-ChildItem "D:\a\Denemo\Denemo\staged" -Name 
           Write-Host "staged lib contents:"
           Get-ChildItem "D:\a\Denemo\Denemo\staged\lib" -Name
+
+          # Trim LilyPond locales
+          Remove-Item -Recurse -Force "$staged\lilypond\share\locale" -ErrorAction SilentlyContinue
 
       - name: Build NSIS installer
         shell: pwsh
