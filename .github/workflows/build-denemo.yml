@@ -110,6 +110,34 @@ jobs:
 
           echo "staged/bin contents:"
           ls -la /d/a/Denemo/Denemo/staged/bin/
+      
+      - name: Download and stage LilyPond
+        shell: pwsh
+        run: |
+          $staged = "D:\a\Denemo\Denemo\staged"
+          $lilyUrl = "https://gitlab.com/lilypond/lilypond/-/releases/v2.26.0/downloads/lilypond-2.26.0-mingw-x86_64.zip"
+          $lilyZip = "D:\a\Denemo\Denemo\lilypond.zip"
+          $lilyExtract = "D:\a\Denemo\Denemo\lilypond-extract"
+
+          Write-Host "Downloading LilyPond..."
+          Invoke-WebRequest -Uri $lilyUrl -OutFile $lilyZip
+
+          Write-Host "Extracting LilyPond..."
+          Expand-Archive -Path $lilyZip -DestinationPath $lilyExtract -Force
+
+          Write-Host "LilyPond extracted contents:"
+          Get-ChildItem $lilyExtract | Select-Object Name
+
+          # Find the top-level lilypond directory inside the zip
+          $lilyDir = Get-ChildItem $lilyExtract -Directory | Select-Object -First 1
+          Write-Host "LilyPond dir: $($lilyDir.FullName)"
+
+          # Copy into staged/lilypond
+          robocopy $lilyDir.FullName "$staged\lilypond" /E /NFL /NDL /NJH
+          if ($LASTEXITCODE -gt 7) { throw "robocopy lilypond failed: $LASTEXITCODE" }
+
+          $size = (Get-ChildItem "$staged\lilypond" -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB
+          Write-Host "LilyPond staged: $([math]::Round($size,1)) MB"
 
       - name: Stage installer files
         shell: pwsh
