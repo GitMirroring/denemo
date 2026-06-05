@@ -226,37 +226,54 @@ jobs:
           exit 0
 
       - name: Trim staged tree
-        shell: pwsh
         run: |
-          $staged = "D:\a\Denemo\Denemo\staged"
+          P=/d/a/Denemo/Denemo/staged
+          rm -rf $P/share/doc
+          rm -rf $P/include
+          rm -rf $P/lib/*.a
+          rm -rf $P/share/texmf-texlive
+          rm -rf $P/share/s*
+          rm -rf $P/share/x*
+          rm -rf $P/share/y*
+          rm -rf $P/share/X*
+          rm -rf $P/share/v*
+          rm -rf $P/share/ma*
+          rm -rf $P/share/j*
+          rm -rf $P/share/a*
+          rm -rf $P/share/b*
+          rm -rf $P/share/c*
+          rm -rf $P/share/h*
+          rm -rf $P/share/p*
+          rm -rf $P/share/nls
+          rm -rf $P/share/info
+          rm -rf $P/share/icons/HighContrast
+          rm -rf $P/share/locale
+          rm -rf $P/share/examples
+          rm -rf $P/share/emacs
+          rm -rf $P/lib/per*
+          rm -rf $P/var
+          rm -rf $P/share/Im*
+          rm -f  $P/bin/icudt74.dll
+          rm -f  $P/bin/x265.exe
+          rm -f  $P/bin/libx265.dll
+          rm -f  $P/bin/avcodec-61.dll
+          rm -f  $P/bin/SDL2.dll
+          rm -f  $P/bin/libnettle-8.dll
+          rm -f  $P/bin/libhogweed-6.dll
+          rm -f  $P/bin/libgcr*.dll
+          rm -f  $P/bin/x264*
+          rm -f  $P/bin/libx264*
+          rm -rf $P/lib/cmake
+          rm -rf $P/lib/pkgconfig
+          rm -rf $P/lib/ldscripts
+          rm -rf $P/share/gtk-doc
+          rm -rf $P/share/gettext
+          rm -rf $P/share/meson
+          rm -f  $P/bin/libgfortran-5.dll
+          rm -f  $P/bin/libboost_wave-mt-x64.dll
 
-          # Remove locale files - massive savings
-          Remove-Item -Recurse -Force "$staged\share\locale" -ErrorAction SilentlyContinue
-
-          # Remove include headers (build-time only)
-          Remove-Item -Recurse -Force "$staged\include" -ErrorAction SilentlyContinue
-
-          # Remove static libs and .la files
-          Get-ChildItem "$staged\lib" -Recurse -Include "*.a","*.la" |
-            Remove-Item -Force -ErrorAction SilentlyContinue
-
-          # Remove pkgconfig (build-time only)
-          Remove-Item -Recurse -Force "$staged\lib\pkgconfig" -ErrorAction SilentlyContinue
-
-          # Remove unneeded share subdirs
-          @('man','doc','info','gtk-doc','aclocal','bash-completion','vala') | ForEach-Object {
-            Remove-Item -Recurse -Force "$staged\share\$_" -ErrorAction SilentlyContinue
-          }
-
-          $size = (Get-ChildItem $staged -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB
-          Write-Host "Staged size after trim: $([math]::Round($size,1)) MB"
-          Write-Host "staged root contents:"  
-          Get-ChildItem "D:\a\Denemo\Denemo\staged" -Name 
-          Write-Host "staged lib contents:"
-          Get-ChildItem "D:\a\Denemo\Denemo\staged\lib" -Name
-
-          # Trim LilyPond locales
-          Remove-Item -Recurse -Force "$staged\lilypond\share\locale" -ErrorAction SilentlyContinue
+          # Report final size
+          du -sh $P
 
       - name: Build NSIS installer
         shell: pwsh
