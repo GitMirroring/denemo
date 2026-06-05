@@ -1,8 +1,9 @@
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
-{   
+{
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
     char cmdline[4096];
@@ -13,15 +14,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     (void)nCmdShow;
     GetModuleFileNameA(NULL, exepath, MAX_PATH);
     char *last = strrchr(exepath, '\\');
-    if (last) { 
-	*last = '\0';
-
-	last = strrchr(exepath, '\\');
-	if (last) {
-		last[1] = '\0';
-	}
-    }
-    strncat(exepath, "lilypond\\bin\\lilypond.exe", MAX_PATH - strlen(exepath) - 1);
+    if (last) last[1] = '\0';
+    strncat(exepath, "lilypond.exe", MAX_PATH - strlen(exepath) - 1);
     if (lpCmdLine && lpCmdLine[0] != '\0')
         snprintf(cmdline, sizeof(cmdline), "\"%s\" %s", exepath, lpCmdLine);
     else
@@ -41,4 +35,3 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
     return (int)exitcode;
-}
