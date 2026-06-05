@@ -92,17 +92,16 @@ jobs:
         run: |
           mkdir -p /mingw64/share/denemo
           make install prefix=/mingw64
-     
+      
       - name: Stage built Denemo files
         run: |
           mkdir -p /d/a/Denemo/Denemo/staged/bin
           mkdir -p /d/a/Denemo/Denemo/staged/lib/guile/3.0/ccache
           mkdir -p /d/a/Denemo/Denemo/staged/share/denemo
 
-          cp -v /mingw64/bin/denemo.exe /d/a/Denemo/Denemo/staged/bin/
+          # Copy denemo.exe to Windows-native path
+          cp -v /mingw64/bin/denemo.exe /d/a/Denemo/Denemo/staged/bin/denemo.exe
           rm -f /mingw64/bin/denemo
-          rm -f /d/a/Denemo/Denemo/staged/bin/denemo
-          sync
 
           cp -rf /mingw64/lib/guile/3.0/ccache/* \
             /d/a/Denemo/Denemo/staged/lib/guile/3.0/ccache/ || true
@@ -111,8 +110,7 @@ jobs:
 
           echo "staged/bin contents:"
           ls -la /d/a/Denemo/Denemo/staged/bin/
-          find /d/a/Denemo/Denemo/staged -name "denemo.exe" || echo "denemo.exe not found anywhere in staged"
-          
+
       - name: Stage installer files
         shell: pwsh
         run: |
