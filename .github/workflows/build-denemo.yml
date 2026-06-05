@@ -131,13 +131,8 @@ jobs:
           # Copy only DLLs from bin (not .exe tools)
           Get-ChildItem "$mingw\bin\*.dll" | Copy-Item -Destination "$staged\bin" -Force
 
-          # Copy denemo.exe explicitly
-          Copy-Item -Force "$mingw\bin\denemo.exe" "$staged\bin\denemo.exe"
           Remove-Item -Force "$staged\bin\denemo" -ErrorAction SilentlyContinue
-          Write-Host "denemo.exe present after copy: $(Test-Path "$staged\bin\denemo.exe")"
-
-
-
+          Write-Host "denemo.exe present after DLL copy: $(Test-Path "$staged\bin\denemo.exe")"
 
           Write-Host "staged/bin before PowerShell touches it:"
           Get-ChildItem "$staged\bin" | Select-Object Name
