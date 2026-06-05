@@ -99,7 +99,11 @@ jobs:
           mkdir -p /d/a/Denemo/Denemo/staged/lib/guile/3.0/ccache
           mkdir -p /d/a/Denemo/Denemo/staged/share/denemo
 
-          cp -v /mingw64/bin/denemo.exe /d/a/Denemo/Denemo/staged/bin/
+          # Copy denemo.exe from mingw64
+          Copy-Item -Force "$mingw\bin\denemo.exe" "$staged\bin\denemo.exe"
+          # Remove libtool wrapper if present
+          Remove-Item -Force "$staged\bin\denemo" -ErrorAction SilentlyContinue
+          Write-Host "denemo.exe in staged/bin: $(Test-Path "$staged\bin\denemo.exe")"
           rm -f /mingw64/bin/denemo
           rm -f /d/a/Denemo/Denemo/staged/bin/denemo
           sync
