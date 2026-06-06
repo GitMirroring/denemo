@@ -195,7 +195,12 @@ jobs:
           # Add runtime-loaded plugin dependencies ntldd missed
           @(
             'libpoppler-glib-8.dll',
-            'libpoppler-cpp-0.dll'
+            'libpoppler-cpp-0.dll',
+            'libcurl-4.dll',
+            'libnspr4.dll',
+            'nss3.dll',
+            'libplc4.dll',
+            'smime3.dll'
           ) | ForEach-Object {
             $dll = "$mingw\bin\$_"
             if (Test-Path $dll) {
