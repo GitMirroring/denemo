@@ -144,27 +144,15 @@ jobs:
 
           $size = (Get-ChildItem "$staged\lilypond" -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB
           Write-Host "LilyPond staged: $([math]::Round($size,1)) MB"
-      
+     
       - name: Collect required DLLs
         run: |
-          # Use ntldd to find actual dependencies of denemo.exe
           pacman -S --noconfirm mingw-w64-x86_64-ntldd || true
           ntldd -R /d/a/Denemo/Denemo/staged/bin/denemo.exe 2>/dev/null \
             | grep -i mingw64 \
             | awk '{print $3}' \
             | sort -u > /d/a/Denemo/Denemo/required-dlls.txt
-          echo "Required DLLs:"
-          cat /d/a/Denemo/Denemo/required-dlls.txt
-          wc -l /d/a/Denemo/Denemo/required-dlls.txt
-          # Also scan evince backend plugins for their dependencies
-          find /d/a/Denemo/Denemo/staged/lib/evince -name "*.dll" | while read dll; do
-            ntldd -R "$dll" 2>/dev/null \
-              | grep -i mingw64 \
-              | awk '{print $3}'
-          done | sort -u >> /d/a/Denemo/Denemo/required-dlls.txt
-          sort -u /d/a/Denemo/Denemo/required-dlls.txt -o /d/a/Denemo/Denemo/required-dlls.txt
-          echo "Total required DLLs after evince scan:"
-          wc -l /d/a/Denemo/Denemo/required-dlls.txt
+          echo "Required DLLs: $(wc -l < /d/a/Denemo/Denemo/required-dlls.txt)"
 
       - name: Stage installer files
         shell: pwsh
