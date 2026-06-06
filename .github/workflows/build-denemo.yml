@@ -144,15 +144,29 @@ jobs:
 
           $size = (Get-ChildItem "$staged\lilypond" -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB
           Write-Host "LilyPond staged: $([math]::Round($size,1)) MB"
-     
-      - name: Collect required DLLs
+    
+      - name: Collect plugin DLL dependencies
         run: |
-          pacman -S --noconfirm mingw-w64-x86_64-ntldd || true
-          ntldd -R /d/a/Denemo/Denemo/staged/bin/denemo.exe 2>/dev/null \
-            | grep -i mingw64 \
-            | awk '{print $3}' \
-            | sort -u > /d/a/Denemo/Denemo/required-dlls.txt
-          echo "Required DLLs: $(wc -l < /d/a/Denemo/Denemo/required-dlls.txt)"
+          # Scan runtime-loaded plugins for dependencies ntldd missed
+          find /d/a/Denemo/Denemo/staged/lib -name "*.dll" | while read dll; do
+            ntldd -R "$dll" 2>/dev/null \
+              | grep -i mingw64 \
+              | awk '{print $3}'
+          done | sort -u > /d/a/Denemo/Denemo/plugin-dlls.txt
+
+          echo "Plugin deps found: $(wc -l < /d/a/Denemo/Denemo/plugin-dlls.txt)"
+          cat /d/a/Denemo/Denemo/plugin-dlls.txt
+
+          # Copy any missing ones into staged/bin
+          while read dll; do
+            base=$(basename "$dll")
+            if [ ! -f "/d/a/Denemo/Denemo/staged/bin/$base" ]; then
+              echo "Adding missing: $base"
+              cp -v "$dll" /d/a/Denemo/Denemo/staged/bin/ || true
+            fi
+          done < /d/a/Denemo/Denemo/plugin-dlls.txt
+
+          echo "Final DLL count: $(ls /d/a/Denemo/Denemo/staged/bin/*.dll | wc -l)"
 
       - name: Stage installer files
         shell: pwsh
