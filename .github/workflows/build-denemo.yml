@@ -273,19 +273,20 @@ jobs:
           done | sort -u > /d/a/Denemo/Denemo/plugin-dlls.txt
 
           echo "Plugin deps found: $(wc -l < /d/a/Denemo/Denemo/plugin-dlls.txt)"
-          cat /d/a/Denemo/Denemo/plugin-dlls.txt
 
-          # Copy any missing ones into staged/bin
-          while read dll; do
-            base=$(basename "$dll")
+          # Convert Windows paths to MSYS2 paths and copy missing DLLs
+          while read winpath; do
+            # Convert D:\a\_temp\msys64\mingw64\bin\foo.dll to /d/a/_temp/msys64/mingw64/bin/foo.dll
+            msyspath=$(echo "$winpath" | sed 's|\\|/|g' | sed 's|^\([A-Za-z]\):|/\L\1|')
+            base=$(basename "$msyspath")
             if [ ! -f "/d/a/Denemo/Denemo/staged/bin/$base" ]; then
               echo "Adding missing: $base"
-              cp -v "$dll" /d/a/Denemo/Denemo/staged/bin/ || true
+              cp -v "$msyspath" /d/a/Denemo/Denemo/staged/bin/ || true
             fi
           done < /d/a/Denemo/Denemo/plugin-dlls.txt
 
           echo "Final DLL count: $(ls /d/a/Denemo/Denemo/staged/bin/*.dll | wc -l)"
-
+          
       - name: Trim staged tree
         run: |
           P=/d/a/Denemo/Denemo/staged
