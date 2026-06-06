@@ -170,28 +170,19 @@ jobs:
           New-Item -ItemType Directory -Force -Path "$staged\license"
           New-Item -ItemType Directory -Force -Path "$staged\share\icons\hicolor"
 
-          Write-Host "staged/bin before DLL copy:"
-          Get-ChildItem "$staged\bin" | Select-Object Name
-          Write-Host "denemo.exe in mingw64: $(Test-Path "$mingw\bin\denemo.exe")"
-
-          # Copy only DLLs from bin (not .exe tools)
-          Get-ChildItem "$mingw\bin\*.dll" | Copy-Item -Destination "$staged\bin" -Force
-
+          # Copy only required DLLs based on ntldd analysis
+          Get-Content "D:\a\Denemo\Denemo\required-dlls.txt" | ForEach-Object {
+            $dll = $_.Trim()
+            if (Test-Path $dll) {
+              Copy-Item -Force $dll "$staged\bin\"
+            } else {
+              Write-Host "WARNING: not found: $dll"
+            }
+          }
           Remove-Item -Force "$staged\bin\denemo" -ErrorAction SilentlyContinue
-          Write-Host "denemo.exe present after DLL copy: $(Test-Path "$staged\bin\denemo.exe")"
-
-          Write-Host "staged/bin before PowerShell touches it:"
-          Get-ChildItem "$staged\bin" | Select-Object Name
-
-          Write-Host "Contents of mingw64 bin (exe files):"
-          Get-ChildItem "$mingw\bin\*.exe" | Select-Object Name | Select-Object -First 20
-          Write-Host "denemo.exe exists: $(Test-Path "$mingw\bin\denemo.exe")"
-
-          # Copy only DLLs from bin (not .exe tools)
-          Get-ChildItem "$mingw\bin\*.dll" | Copy-Item -Destination "$staged\bin" -Force
-          # Copy denemo.exe explicitly
-          Remove-Item -Force "$staged\bin\denemo" -ErrorAction SilentlyContinue
+          Write-Host "Copied $(Get-ChildItem "$staged\bin\*.dll" | Measure-Object | Select-Object -ExpandProperty Count) DLLs"
           Write-Host "denemo.exe present: $(Test-Path "$staged\bin\denemo.exe")"
+
           # Runtime lib subdirs Denemo needs
           @(
             'gdk-pixbuf-2.0',
