@@ -310,6 +310,8 @@ jobs:
           rm -f  $P/bin/libboost_wave-mt-x64.dll
           # Remove man pages - not useful on Windows
           rm -rf $P/share/man
+          rm -rf $P/lilypond/share/locale
+          rm -rf $P/lilypond/share/doc
 
           # Report final size
           echo "=== Size breakdown ==="
