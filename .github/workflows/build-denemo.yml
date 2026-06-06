@@ -256,16 +256,6 @@ jobs:
           rm -rf $P/lib/per*
           rm -rf $P/var
           rm -rf $P/share/Im*
-          rm -f  $P/bin/icudt74.dll
-          rm -f  $P/bin/x265.exe
-          rm -f  $P/bin/libx265.dll
-          rm -f  $P/bin/avcodec-61.dll
-          rm -f  $P/bin/SDL2.dll
-          rm -f  $P/bin/libnettle-8.dll
-          rm -f  $P/bin/libhogweed-6.dll
-          rm -f  $P/bin/libgcr*.dll
-          rm -f  $P/bin/x264*
-          rm -f  $P/bin/libx264*
           rm -rf $P/lib/cmake
           rm -rf $P/lib/pkgconfig
           rm -rf $P/lib/ldscripts
