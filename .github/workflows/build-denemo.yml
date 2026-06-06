@@ -145,29 +145,6 @@ jobs:
           $size = (Get-ChildItem "$staged\lilypond" -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB
           Write-Host "LilyPond staged: $([math]::Round($size,1)) MB"
 
-      - name: Collect plugin DLL dependencies
-        run: |
-          # Scan runtime-loaded plugins for dependencies ntldd missed
-          find /d/a/Denemo/Denemo/staged/lib -name "*.dll" | while read dll; do
-            ntldd -R "$dll" 2>/dev/null \
-              | grep -i mingw64 \
-              | awk '{print $3}'
-          done | sort -u > /d/a/Denemo/Denemo/plugin-dlls.txt
-
-          echo "Plugin deps found: $(wc -l < /d/a/Denemo/Denemo/plugin-dlls.txt)"
-
-          # Convert Windows paths to MSYS2 paths and copy missing DLLs
-          while read winpath; do
-            # Convert D:\a\_temp\msys64\mingw64\bin\foo.dll to /d/a/_temp/msys64/mingw64/bin/foo.dll
-            msyspath=$(echo "$winpath" | sed 's|\\|/|g' | sed 's|^\([A-Za-z]\):|/\L\1|')
-            base=$(basename "$msyspath")
-            if [ ! -f "/d/a/Denemo/Denemo/staged/bin/$base" ]; then
-              echo "Adding missing: $base"
-              cp -v "$msyspath" /d/a/Denemo/Denemo/staged/bin/ || true
-            fi
-          done < /d/a/Denemo/Denemo/plugin-dlls.txt
-
-          echo "Final DLL count: $(ls /d/a/Denemo/Denemo/staged/bin/*.dll | wc -l)"
           `
       - name: Stage installer files
         shell: pwsh
@@ -265,8 +242,8 @@ jobs:
 
       - name: Collect plugin DLL dependencies
         run: |
-          # Scan runtime-loaded plugins for dependencies ntldd missed
-          find /d/a/Denemo/Denemo/staged/lib -name "*.dll" | while read dll; do
+          echo "Scanning staged lib for plugin DLLs..."
+          find /d/a/Denemo/Denemo/staged/lib -name "*.dll" 2>/dev/null | while read dll; do
             ntldd -R "$dll" 2>/dev/null \
               | grep -i mingw64 \
               | awk '{print $3}'
@@ -274,19 +251,19 @@ jobs:
 
           echo "Plugin deps found: $(wc -l < /d/a/Denemo/Denemo/plugin-dlls.txt)"
 
-          # Convert Windows paths to MSYS2 paths and copy missing DLLs
-          while read winpath; do
-            # Convert D:\a\_temp\msys64\mingw64\bin\foo.dll to /d/a/_temp/msys64/mingw64/bin/foo.dll
-            msyspath=$(echo "$winpath" | sed 's|\\|/|g' | sed 's|^\([A-Za-z]\):|/\L\1|')
+          while IFS= read -r winpath; do
+            drive=$(echo "$winpath" | cut -c1 | tr 'A-Z' 'a-z')
+            rest=$(echo "$winpath" | cut -c3- | sed 's|\\|/|g')
+            msyspath="/${drive}${rest}"
             base=$(basename "$msyspath")
             if [ ! -f "/d/a/Denemo/Denemo/staged/bin/$base" ]; then
               echo "Adding missing: $base"
-              cp -v "$msyspath" /d/a/Denemo/Denemo/staged/bin/ || true
+              cp "$msyspath" /d/a/Denemo/Denemo/staged/bin/ || true
             fi
           done < /d/a/Denemo/Denemo/plugin-dlls.txt
 
-          echo "Final DLL count: $(ls /d/a/Denemo/Denemo/staged/bin/*.dll | wc -l)"
-          
+          echo "Final DLL count: $(find /d/a/Denemo/Denemo/staged/bin -name '*.dll' | wc -l)"
+
       - name: Trim staged tree
         run: |
           P=/d/a/Denemo/Denemo/staged
