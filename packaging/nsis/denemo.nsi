@@ -166,9 +166,6 @@ Section "${PRETTY_NAME} (required)" SecMain
     SetOutPath "$INSTDIR\lib"
     File /r "${ROOT}\lib\*.*"
 
-    ; --- libexec ---
-    SetOutPath "$INSTDIR\libexec"
-    File /nonfatal /r "${ROOT}\libexec\*.*"
 
     ; --- share ---
     SetOutPath "$INSTDIR\share"
@@ -189,7 +186,6 @@ Section "${PRETTY_NAME} (required)" SecMain
     File /nonfatal "${ROOT}\Denemo.bat"
     File /r "${ROOT}\etc\*.*"
     File /r "${ROOT}\lib\*.*"
-    File /nonfatal /r "${ROOT}\libexec\*.*"
     File /r "${ROOT}\share\*.*"
     File /nonfatal /r "${ROOT}\lilypond\*.*"
     File /r "${ROOT}\license\*.*"
@@ -307,7 +303,6 @@ Section "Uninstall"
     RMDir /r "$INSTDIR\bin"
     RMDir /r "$INSTDIR\etc"
     RMDir /r "$INSTDIR\lib"
-    RMDir /r "$INSTDIR\libexec"
     RMDir /r "$INSTDIR\share"
     RMDir /r "$INSTDIR\lilypond"
     RMDir /r "$INSTDIR\license"
