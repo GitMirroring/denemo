@@ -182,7 +182,25 @@ jobs:
           Remove-Item -Force "$staged\bin\denemo" -ErrorAction SilentlyContinue
           Write-Host "Copied $(Get-ChildItem "$staged\bin\*.dll" | Measure-Object | Select-Object -ExpandProperty Count) DLLs"
           Write-Host "denemo.exe present: $(Test-Path "$staged\bin\denemo.exe")"
-
+          
+          # Add runtime-loaded plugin dependencies ntldd missed
+          @(
+            'libpoppler-glib-8.dll',
+            'libpoppler-cpp-0.dll'
+          ) | ForEach-Object {
+            $dll = "$mingw\bin\$_"
+            if (Test-Path $dll) {
+              Copy-Item -Force $dll "$staged\bin\"
+              Write-Host "Added: $_"
+            } else {
+              Write-Host "WARNING: not found: $_"
+            }
+          }
+          # libpoppler main dll has version number - find it dynamically
+          Get-ChildItem "$mingw\bin\libpoppler-[0-9]*.dll" | ForEach-Object {
+            Copy-Item -Force $_.FullName "$staged\bin\"
+            Write-Host "Added: $($_.Name)"
+          }
           # Runtime lib subdirs Denemo needs
           @(
             'gdk-pixbuf-2.0',
