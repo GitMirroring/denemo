@@ -145,7 +145,15 @@ jobs:
           $size = (Get-ChildItem "$staged\lilypond" -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB
           Write-Host "LilyPond staged: $([math]::Round($size,1)) MB"
 
-          `
+      - name: Collect required DLLs
+        run: |
+          pacman -S --noconfirm mingw-w64-x86_64-ntldd || true
+          ntldd -R /d/a/Denemo/Denemo/staged/bin/denemo.exe 2>/dev/null \
+            | grep -i mingw64 \
+            | awk '{print $3}' \
+            | sort -u > /d/a/Denemo/Denemo/required-dlls.txt
+          echo "Required DLLs: $(wc -l < /d/a/Denemo/Denemo/required-dlls.txt)"
+
       - name: Stage installer files
         shell: pwsh
         run: |
