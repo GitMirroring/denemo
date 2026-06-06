@@ -308,6 +308,8 @@ jobs:
           rm -rf $P/share/meson
           rm -f  $P/bin/libgfortran-5.dll
           rm -f  $P/bin/libboost_wave-mt-x64.dll
+          # Remove man pages - not useful on Windows
+          rm -rf $P/share/man
 
           # Report final size
           echo "=== Size breakdown ==="
