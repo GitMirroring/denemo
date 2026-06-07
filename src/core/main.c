@@ -209,6 +209,15 @@ init_environment()
 {
 #ifdef G_OS_WIN32
   gchar *prefix = g_win32_get_package_installation_directory_of_module (NULL);
+  /* Strip trailing \bin to get the actual install root */
+  gchar *bin_suffix = g_build_filename ("bin", NULL);
+  if (g_str_has_suffix (prefix, bin_suffix) || g_str_has_suffix (prefix, "bin"))
+    {
+      gchar *parent = g_path_get_dirname (prefix);
+      g_free (prefix);
+      prefix = parent;
+    }
+  g_free (bin_suffix);
   gchar *guile = g_build_filename (prefix, "share", "guile", NULL);
   gchar *guile_3_0 = g_build_filename (guile, "3.0", NULL);
   gchar *guile_ccache = g_build_filename (prefix, "lib", "guile", "3.0", "ccache", NULL);
