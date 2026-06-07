@@ -312,7 +312,8 @@ jobs:
           rm -rf $P/share/man
           rm -rf $P/lilypond/share/locale
           rm -rf $P/lilypond/share/doc
-
+          rm -rf $P/lilypond/share/man
+          rm -rf $P/lilypond/share/vim
           # Report final size
           echo "=== Size breakdown ==="
           du -sh $P/*/

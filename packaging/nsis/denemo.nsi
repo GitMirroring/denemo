@@ -182,16 +182,6 @@ Section "${PRETTY_NAME} (required)" SecMain
     WriteUninstaller "$INSTDIR\uninstall.exe"
     ; ... rest of registry writes unchanged ...
 
-    SetOutPath "$INSTDIR"
-    File /nonfatal "${ROOT}\Denemo.bat"
-    File /r "${ROOT}\etc\*.*"
-    File /r "${ROOT}\lib\*.*"
-    File /r "${ROOT}\share\*.*"
-    File /nonfatal /r "${ROOT}\lilypond\*.*"
-    File /r "${ROOT}\license\*.*"
-
-    WriteUninstaller "$INSTDIR\uninstall.exe"
-
     ;; Registry: install location + Add/Remove Programs entry
     WriteRegStr   HKLM "${INSTALL_KEY}"   "Install_Dir"      "$INSTDIR"
     WriteRegStr   HKLM "${UNINSTALL_KEY}" "DisplayIcon"      "$INSTDIR\share\icons\hicolor\denemo.ico"
