@@ -208,7 +208,7 @@ static void
 init_environment()
 {
 #ifdef G_OS_WIN32
-  gchar *prefix = g_win32_get_package_installation_directory (NULL, NULL);
+  gchar *prefix = g_win32_get_package_installation_directory_of_module (NULL);
   gchar *guile = g_build_filename (prefix, "share", "guile", NULL);
   gchar *guile_3_0 = g_build_filename (guile, "3.0", NULL);
   gchar *guile_ccache = g_build_filename (prefix, "lib", "guile", "3.0", "ccache", NULL);
