@@ -14,10 +14,6 @@ jobs:
 
     - name: Install build dependencies
       run: |
-        # Homebrew ships gtk+3 quartz-only - no variant flags needed.
-        # evince 48.x has prebuilt Sequoia bottles - no compile needed.
-        # libsmf is vendored in libs/libsmf/ - no install needed.
-        # portmidi is disabled via --disable-portmidi in configure.
         brew install \
           autoconf \
           automake \
@@ -42,40 +38,137 @@ jobs:
           gettext \
           lilypond
 
+    # ── Rosetta x86_64 Homebrew ──────────────────────────────────────────────
+    # macos-15 runners are ARM64. To produce a universal binary we need an
+    # x86_64 Homebrew prefix (/usr/local) populated via Rosetta so that we can
+    # compile a thin x86_64 slice and then lipo the two slices together.
+    - name: Install Rosetta 2
+      run: softwareupdate --install-rosetta --agree-to-license
 
+    - name: Bootstrap x86_64 Homebrew under Rosetta
+      run: |
+        # Install Homebrew into the legacy Intel prefix if it isn't there yet.
+        if [ ! -f /usr/local/bin/brew ]; then
+          arch -x86_64 /bin/bash -c \
+            "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        fi
+
+    - name: Install x86_64 build dependencies via Rosetta
+      run: |
+        arch -x86_64 /usr/local/bin/brew install \
+          autoconf \
+          automake \
+          libtool \
+          intltool \
+          pkg-config \
+          gtk+3 \
+          librsvg \
+          gtk-doc \
+          gtksourceview3 \
+          evince \
+          expat \
+          guile \
+          aubio \
+          perl-xml-parser \
+          portaudio \
+          fftw \
+          libxml2 \
+          fluid-synth \
+          rubberband \
+          libsndfile \
+          gettext \
+          lilypond
+
+    # ── autotools (only needs to run once) ───────────────────────────────────
     - name: Run autotools
       run: |
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
         chmod +x autogen.sh
         ./autogen.sh
 
-    - name: Configure
+    # ── ARM64 (native) build ─────────────────────────────────────────────────
+    - name: Configure (ARM64)
       run: |
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
         export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig:/opt/homebrew/share/pkgconfig"
-        mkdir -p _build
-        cd _build
-        # --disable-portmidi: portmidi is not in Homebrew and handles live
-        # hardware MIDI input only - not needed for a CI/distribution build.
-        # FluidSynth covers MIDI playback.
+        mkdir -p _build_arm64
+        cd _build_arm64
         ../configure --prefix=/opt/homebrew \
           --disable-portmidi \
           --disable-jack \
           --disable-atril \
-          --enable-evince
+          --enable-evince \
+          CFLAGS="-arch arm64" \
+          CXXFLAGS="-arch arm64" \
+          LDFLAGS="-arch arm64"
 
-    - name: Make
+    - name: Make (ARM64)
       run: |
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
-        cd _build
+        cd _build_arm64
         make -j$(sysctl -n hw.logicalcpu)
 
-    - name: Make install
+    # ── x86_64 (Rosetta) build ───────────────────────────────────────────────
+    - name: Configure (x86_64)
+      run: |
+        export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
+        export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig"
+        mkdir -p _build_x86_64
+        cd _build_x86_64
+        arch -x86_64 ../configure --prefix=/usr/local \
+          --disable-portmidi \
+          --disable-jack \
+          --disable-atril \
+          --enable-evince \
+          CC="clang -arch x86_64" \
+          CXX="clang++ -arch x86_64" \
+          CFLAGS="-arch x86_64" \
+          CXXFLAGS="-arch x86_64" \
+          LDFLAGS="-arch x86_64" \
+          PKG_CONFIG=/usr/local/bin/pkg-config
+
+    - name: Make (x86_64)
+      run: |
+        export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
+        cd _build_x86_64
+        arch -x86_64 make -j$(sysctl -n hw.logicalcpu)
+
+    # ── Combine into universal binary with lipo ───────────────────────────────
+    - name: Create universal binary with lipo
       run: |
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
-        cd _build
+
+        ARM_BIN="_build_arm64/src/denemo"
+        X86_BIN="_build_x86_64/src/denemo"
+        UNIVERSAL_BIN="_build_universal/denemo"
+
+        mkdir -p _build_universal
+
+        echo "=== ARM64 binary archs ==="
+        lipo -info "$ARM_BIN"
+        echo "=== x86_64 binary archs ==="
+        lipo -info "$X86_BIN"
+
+        lipo -create "$ARM_BIN" "$X86_BIN" -output "$UNIVERSAL_BIN"
+
+        echo "=== Universal binary archs ==="
+        lipo -info "$UNIVERSAL_BIN"
+
+    # ── Install (use ARM64 build for make install, then swap in universal) ───
+    - name: Make install (ARM64 tree)
+      run: |
+        export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+        cd _build_arm64
         make install
 
+    - name: Replace installed binary with universal binary
+      run: |
+        export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+        cp _build_universal/denemo /opt/homebrew/bin/denemo
+        echo "=== Installed binary archs ==="
+        lipo -info /opt/homebrew/bin/denemo
+
+    # ── Inspect & smoke test ─────────────────────────────────────────────────
     - name: Inspect installed files
       run: |
         echo "=== Binary ==="
@@ -86,16 +179,17 @@ jobs:
         otool -L /opt/homebrew/bin/denemo 2>/dev/null || echo "binary not found"
         echo "=== Icons ==="
         find /opt/homebrew/share -name "*.icns" -o -name "denemo*.png" 2>/dev/null | head -10
+
     - name: Install bundle tools
       run: brew install dylibbundler create-dmg
 
     - name: Smoke test binary
       run: |
-        # Test the installed binary directly first (no bundle complexity)
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
         /opt/homebrew/bin/denemo --version 2>&1 || true
         /opt/homebrew/bin/denemo --help 2>&1 | head -5 || true
 
+    # ── Bundle and DMG ───────────────────────────────────────────────────────
     - name: Bundle app and create DMG
       run: |
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
@@ -111,27 +205,20 @@ jobs:
         du -sh /opt/homebrew/Cellar/lilypond/ 2>/dev/null || echo "not in Cellar"
         echo "=== LilyPond share ==="
         du -sh /opt/homebrew/share/lilypond/ 2>/dev/null || echo "no share/lilypond"
-        echo "=== LilyPond lib contents ==="
-        ls -la /opt/homebrew/lib/lilypond/ 2>/dev/null || echo "no lib/lilypond"
         echo "=== In bundle - LilyPond share dirs ==="
         find macos_staging/Denemo.app/Contents/Resources/share/lilypond -maxdepth 2 -type d 2>/dev/null
-        echo "=== In bundle - LilyPond libs ==="
-        find macos_staging/Denemo.app/Contents/libs/lilypond -maxdepth 2 2>/dev/null || echo "no libs/lilypond in bundle"
         echo "=== Bundle sizes ==="
         du -sh macos_staging/Denemo.app/Contents/MacOS/ 2>/dev/null
         du -sh macos_staging/Denemo.app/Contents/libs/ 2>/dev/null
         du -sh macos_staging/Denemo.app/Contents/Resources/ 2>/dev/null
         du -sh macos_staging/Denemo.app/ 2>/dev/null
 
+    # ── Upload artifact (one step, wildcard covers either naming convention) ─
     - name: Upload DMG Artifact
       uses: actions/upload-artifact@v4
       with:
         name: denemo-macos-dmg
-        path: Denemo-*-macOS.dmg
- 
- 
-    - name: Upload DMG Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: denemo-macos-dmg
-        path: Denemo.dmg
+        path: |
+          Denemo-*-macOS.dmg
+          Denemo.dmg
+        if-no-files-found: warn
