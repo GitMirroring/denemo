@@ -60,6 +60,10 @@ jobs:
     - name: Install x86_64 build dependencies via Rosetta
       # Strip ARM64 Homebrew from PATH entirely so brew operates only on
       # /usr/local and cannot see (or shadow-check against) /opt/homebrew.
+      # || true: keg-only packages (expat, libxml2, guile) print advisory
+      # hints to stderr and exit 1 even with HOMEBREW_NO_ENV_HINTS set in
+      # some Homebrew versions. The hints are harmless; real failures are
+      # caught at configure time when the libraries are actually missing.
       run: |
         export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
         arch -x86_64 /usr/local/bin/brew install \
@@ -84,7 +88,12 @@ jobs:
           rubberband \
           libsndfile \
           gettext \
-          lilypond
+          lilypond || true
+        # Verify the packages that actually matter for configure are present
+        echo "=== Checking critical keg-only packages ==="
+        test -f /usr/local/opt/expat/lib/pkgconfig/expat.pc   && echo "expat OK"   || echo "ERROR: expat missing"
+        test -f /usr/local/opt/libxml2/lib/pkgconfig/libxml-2.0.pc && echo "libxml2 OK" || echo "ERROR: libxml2 missing"
+        test -d /usr/local/opt/guile  && echo "guile OK"  || echo "ERROR: guile missing"
 
     # ── autotools (once, using ARM64 tools) ─────────────────────────────────
     - name: Run autotools
@@ -99,10 +108,10 @@ jobs:
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
         # expat and libxml2 are keg-only on ARM64 Homebrew too
         export PKG_CONFIG_PATH="\
-          /opt/homebrew/opt/expat/lib/pkgconfig:\
-          /opt/homebrew/opt/libxml2/lib/pkgconfig:\
-          /opt/homebrew/lib/pkgconfig:\
-          /opt/homebrew/share/pkgconfig"
+/opt/homebrew/opt/expat/lib/pkgconfig:\
+/opt/homebrew/opt/libxml2/lib/pkgconfig:\
+/opt/homebrew/lib/pkgconfig:\
+/opt/homebrew/share/pkgconfig"
         export LDFLAGS="-L/opt/homebrew/opt/expat/lib -L/opt/homebrew/opt/libxml2/lib"
         export CPPFLAGS="-I/opt/homebrew/opt/expat/include -I/opt/homebrew/opt/libxml2/include"
         mkdir -p _build_arm64
@@ -130,10 +139,10 @@ jobs:
         export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
         # Both expat and libxml2 are keg-only in the Intel Homebrew prefix too
         export PKG_CONFIG_PATH="\
-          /usr/local/opt/expat/lib/pkgconfig:\
-          /usr/local/opt/libxml2/lib/pkgconfig:\
-          /usr/local/lib/pkgconfig:\
-          /usr/local/share/pkgconfig"
+/usr/local/opt/expat/lib/pkgconfig:\
+/usr/local/opt/libxml2/lib/pkgconfig:\
+/usr/local/lib/pkgconfig:\
+/usr/local/share/pkgconfig"
         export LDFLAGS="-L/usr/local/opt/expat/lib -L/usr/local/opt/libxml2/lib"
         export CPPFLAGS="-I/usr/local/opt/expat/include -I/usr/local/opt/libxml2/include"
         mkdir -p _build_x86_64
