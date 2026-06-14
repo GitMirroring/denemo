@@ -8,13 +8,19 @@ on:
 jobs:
   build:
     runs-on: macos-15
+    # ── Job-level env: silence Homebrew hints globally ───────────────────────
+    # Without these, keg-only packages (expat, libxml2, guile, …) print
+    # advisory messages that cause brew to exit 1 in GitHub Actions.
+    env:
+      HOMEBREW_NO_ENV_HINTS: "1"
+      HOMEBREW_NO_PATH_SHADOW_CHECK: "1"
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install build dependencies
-      env:
-        HOMEBREW_NO_ENV_HINTS: "1"
+    # ── ARM64 dependencies (native /opt/homebrew) ────────────────────────────
+    - name: Install ARM64 build dependencies
       run: |
         brew install \
           autoconf \
@@ -40,30 +46,22 @@ jobs:
           gettext \
           lilypond
 
-    # ── Rosetta x86_64 Homebrew ──────────────────────────────────────────────
-    # macos-15 runners are ARM64. To produce a universal binary we need an
-    # x86_64 Homebrew prefix (/usr/local) populated via Rosetta so that we can
-    # compile a thin x86_64 slice and then lipo the two slices together.
+    # ── Rosetta / x86_64 Homebrew setup ─────────────────────────────────────
     - name: Install Rosetta 2
       run: softwareupdate --install-rosetta --agree-to-license
 
     - name: Bootstrap x86_64 Homebrew under Rosetta
       run: |
-        # Install Homebrew into the legacy Intel prefix if it isn't there yet.
         if [ ! -f /usr/local/bin/brew ]; then
           arch -x86_64 /bin/bash -c \
             "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         fi
 
     - name: Install x86_64 build dependencies via Rosetta
-      env:
-        # Suppress the "shadowed by /opt/homebrew/bin/..." hint that exits 1
-        HOMEBREW_NO_ENV_HINTS: "1"
-        HOMEBREW_NO_PATH_SHADOW_CHECK: "1"
-        # Keep ARM64 Homebrew entirely out of this step's PATH so brew itself
-        # doesn't get confused about which prefix it's operating on.
-        PATH: "/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
+      # Strip ARM64 Homebrew from PATH entirely so brew operates only on
+      # /usr/local and cannot see (or shadow-check against) /opt/homebrew.
       run: |
+        export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
         arch -x86_64 /usr/local/bin/brew install \
           autoconf \
           automake \
@@ -88,18 +86,25 @@ jobs:
           gettext \
           lilypond
 
-    # ── autotools (only needs to run once) ───────────────────────────────────
+    # ── autotools (once, using ARM64 tools) ─────────────────────────────────
     - name: Run autotools
       run: |
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
         chmod +x autogen.sh
         ./autogen.sh
 
-    # ── ARM64 (native) build ─────────────────────────────────────────────────
+    # ── ARM64 build ──────────────────────────────────────────────────────────
     - name: Configure (ARM64)
       run: |
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
-        export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig:/opt/homebrew/share/pkgconfig"
+        # expat and libxml2 are keg-only on ARM64 Homebrew too
+        export PKG_CONFIG_PATH="\
+/opt/homebrew/opt/expat/lib/pkgconfig:\
+/opt/homebrew/opt/libxml2/lib/pkgconfig:\
+/opt/homebrew/lib/pkgconfig:\
+/opt/homebrew/share/pkgconfig"
+        export LDFLAGS="-L/opt/homebrew/opt/expat/lib -L/opt/homebrew/opt/libxml2/lib"
+        export CPPFLAGS="-I/opt/homebrew/opt/expat/include -I/opt/homebrew/opt/libxml2/include"
         mkdir -p _build_arm64
         cd _build_arm64
         ../configure --prefix=/opt/homebrew \
@@ -109,7 +114,8 @@ jobs:
           --enable-evince \
           CFLAGS="-arch arm64" \
           CXXFLAGS="-arch arm64" \
-          LDFLAGS="-arch arm64"
+          LDFLAGS="-arch arm64 -L/opt/homebrew/opt/expat/lib -L/opt/homebrew/opt/libxml2/lib" \
+          CPPFLAGS="-I/opt/homebrew/opt/expat/include -I/opt/homebrew/opt/libxml2/include"
 
     - name: Make (ARM64)
       run: |
@@ -117,20 +123,19 @@ jobs:
         cd _build_arm64
         make -j$(sysctl -n hw.logicalcpu)
 
-    # ── x86_64 (Rosetta) build ───────────────────────────────────────────────
+    # ── x86_64 build (Rosetta) ───────────────────────────────────────────────
     - name: Configure (x86_64)
-      env:
-        HOMEBREW_NO_ENV_HINTS: "1"
-        HOMEBREW_NO_PATH_SHADOW_CHECK: "1"
       run: |
-        # libxml2 is keg-only in Intel Homebrew - its .pc file lives under opt/
+        # Keep ARM64 Homebrew off the PATH completely
         export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
+        # Both expat and libxml2 are keg-only in the Intel Homebrew prefix too
         export PKG_CONFIG_PATH="\
-          /usr/local/opt/libxml2/lib/pkgconfig:\
-          /usr/local/lib/pkgconfig:\
-          /usr/local/share/pkgconfig"
-        export LDFLAGS="-L/usr/local/opt/libxml2/lib"
-        export CPPFLAGS="-I/usr/local/opt/libxml2/include"
+/usr/local/opt/expat/lib/pkgconfig:\
+/usr/local/opt/libxml2/lib/pkgconfig:\
+/usr/local/lib/pkgconfig:\
+/usr/local/share/pkgconfig"
+        export LDFLAGS="-L/usr/local/opt/expat/lib -L/usr/local/opt/libxml2/lib"
+        export CPPFLAGS="-I/usr/local/opt/expat/include -I/usr/local/opt/libxml2/include"
         mkdir -p _build_x86_64
         cd _build_x86_64
         arch -x86_64 ../configure --prefix=/usr/local \
@@ -142,65 +147,47 @@ jobs:
           CXX="clang++ -arch x86_64" \
           CFLAGS="-arch x86_64" \
           CXXFLAGS="-arch x86_64" \
-          LDFLAGS="-arch x86_64 -L/usr/local/opt/libxml2/lib" \
-          CPPFLAGS="-I/usr/local/opt/libxml2/include" \
+          LDFLAGS="-arch x86_64 -L/usr/local/opt/expat/lib -L/usr/local/opt/libxml2/lib" \
+          CPPFLAGS="-I/usr/local/opt/expat/include -I/usr/local/opt/libxml2/include" \
           PKG_CONFIG=/usr/local/bin/pkg-config
 
     - name: Make (x86_64)
-      env:
-        HOMEBREW_NO_ENV_HINTS: "1"
-        HOMEBREW_NO_PATH_SHADOW_CHECK: "1"
       run: |
         export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
         cd _build_x86_64
         arch -x86_64 make -j$(sysctl -n hw.logicalcpu)
 
-    # ── Combine into universal binary with lipo ───────────────────────────────
+    # ── Combine slices into a universal binary ───────────────────────────────
     - name: Create universal binary with lipo
       run: |
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
-
+        mkdir -p _build_universal
         ARM_BIN="_build_arm64/src/denemo"
         X86_BIN="_build_x86_64/src/denemo"
         UNIVERSAL_BIN="_build_universal/denemo"
-
-        mkdir -p _build_universal
-
-        echo "=== ARM64 binary archs ==="
-        lipo -info "$ARM_BIN"
-        echo "=== x86_64 binary archs ==="
-        lipo -info "$X86_BIN"
-
+        echo "=== ARM64 archs ===" && lipo -info "$ARM_BIN"
+        echo "=== x86_64 archs ===" && lipo -info "$X86_BIN"
         lipo -create "$ARM_BIN" "$X86_BIN" -output "$UNIVERSAL_BIN"
+        echo "=== Universal archs ===" && lipo -info "$UNIVERSAL_BIN"
 
-        echo "=== Universal binary archs ==="
-        lipo -info "$UNIVERSAL_BIN"
-
-    # ── Install (use ARM64 build for make install, then swap in universal) ───
+    # ── Install ARM64 tree then replace binary with universal ────────────────
     - name: Make install (ARM64 tree)
       run: |
         export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
-        cd _build_arm64
-        make install
+        cd _build_arm64 && make install
 
     - name: Replace installed binary with universal binary
       run: |
-        export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
         cp _build_universal/denemo /opt/homebrew/bin/denemo
-        echo "=== Installed binary archs ==="
-        lipo -info /opt/homebrew/bin/denemo
+        echo "=== Installed binary archs ===" && lipo -info /opt/homebrew/bin/denemo
 
     # ── Inspect & smoke test ─────────────────────────────────────────────────
     - name: Inspect installed files
       run: |
-        echo "=== Binary ==="
-        find /opt/homebrew/bin -name "denemo*" 2>/dev/null
-        echo "=== Share ==="
-        find /opt/homebrew/share/denemo -maxdepth 2 2>/dev/null || echo "No share/denemo"
-        echo "=== Dylib dependencies ==="
-        otool -L /opt/homebrew/bin/denemo 2>/dev/null || echo "binary not found"
-        echo "=== Icons ==="
-        find /opt/homebrew/share -name "*.icns" -o -name "denemo*.png" 2>/dev/null | head -10
+        echo "=== Binary ===" && find /opt/homebrew/bin -name "denemo*" 2>/dev/null
+        echo "=== Share ===" && find /opt/homebrew/share/denemo -maxdepth 2 2>/dev/null || echo "No share/denemo"
+        echo "=== Dylib dependencies ===" && otool -L /opt/homebrew/bin/denemo 2>/dev/null || echo "binary not found"
+        echo "=== Icons ===" && find /opt/homebrew/share -name "*.icns" -o -name "denemo*.png" 2>/dev/null | head -10
 
     - name: Install bundle tools
       run: brew install dylibbundler create-dmg
@@ -221,13 +208,9 @@ jobs:
 
     - name: Inspect LilyPond install
       run: |
-        echo "=== LilyPond binary ==="
-        find /opt/homebrew -name "lilypond" -type f
-        echo "=== LilyPond size ==="
+        echo "=== LilyPond binary ===" && find /opt/homebrew -name "lilypond" -type f
         du -sh /opt/homebrew/Cellar/lilypond/ 2>/dev/null || echo "not in Cellar"
-        echo "=== LilyPond share ==="
         du -sh /opt/homebrew/share/lilypond/ 2>/dev/null || echo "no share/lilypond"
-        echo "=== In bundle - LilyPond share dirs ==="
         find macos_staging/Denemo.app/Contents/Resources/share/lilypond -maxdepth 2 -type d 2>/dev/null
         echo "=== Bundle sizes ==="
         du -sh macos_staging/Denemo.app/Contents/MacOS/ 2>/dev/null
@@ -235,7 +218,7 @@ jobs:
         du -sh macos_staging/Denemo.app/Contents/Resources/ 2>/dev/null
         du -sh macos_staging/Denemo.app/ 2>/dev/null
 
-    # ── Upload artifact (one step, wildcard covers either naming convention) ─
+    # ── Upload artifact ──────────────────────────────────────────────────────
     - name: Upload DMG Artifact
       uses: actions/upload-artifact@v4
       with:
