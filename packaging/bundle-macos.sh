@@ -159,7 +159,19 @@ if [ -d "${LOCALE_DIR}" ]; then
         cp "$mo" "${APP_DIR}/Contents/Resources/share/locale/${lang}/LC_MESSAGES/"
     done
 fi
+# Make LilyPond universal by combining ARM64 (from /opt/homebrew) 
+# with x86_64 (from /usr/local via Rosetta build)
+X86_LILYPOND="/usr/local/bin/lilypond"
+ARM_LILYPOND="${APP_DIR}/Contents/MacOS/lilypond"
 
+if [ -f "${X86_LILYPOND}" ]; then
+    echo "  Creating universal LilyPond binary..."
+    lipo -create "${ARM_LILYPOND}" "${X86_LILYPOND}" \
+         -output "${APP_DIR}/Contents/MacOS/lilypond"
+    lipo -info "${APP_DIR}/Contents/MacOS/lilypond"
+else
+    echo "  WARNING: No x86_64 LilyPond found at ${X86_LILYPOND}, bundle will be ARM64 only"
+fi
 # -- 5b. Bundle LilyPond
 echo "Bundling LilyPond..."
 LILYPOND_BIN="${HOMEBREW_PREFIX}/bin/lilypond"
