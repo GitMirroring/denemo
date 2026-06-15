@@ -30,4 +30,7 @@ export PATH="${BUNDLE}/Contents/MacOS:${PATH}"
 export FONTCONFIG_PATH="${RESOURCES}/etc/fonts"
 export FONTCONFIG_FILE="${RESOURCES}/etc/fonts/fonts.conf"
 export FC_DEBUG=0
+export FONTCONFIG_FILE="${RESOURCES}/etc/fonts/fonts.conf"
+export GDK_PIXBUF_MODULE_FILE="${RESOURCES}/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache"
+export XDG_DATA_DIRS="${RESOURCES}/share:/usr/local/share:/usr/share"
 exec "${BUNDLE}/Contents/MacOS/denemo-bin" "$@"
