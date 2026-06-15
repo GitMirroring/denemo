@@ -163,24 +163,28 @@ fi
 echo "Bundling LilyPond..."
 LILYPOND_BIN="${HOMEBREW_PREFIX}/bin/lilypond"
 if [ -f "${LILYPOND_BIN}" ]; then
-    cp "${LILYPOND_BIN}" "${APP_DIR}/Contents/MacOS/"
-    # Make LilyPond universal by combining ARM64 (from /opt/homebrew)
-    # with x86_64 (from /usr/local via Rosetta build)
-    X86_LILYPOND="/usr/local/bin/lilypond"
-    ARM_LILYPOND="${APP_DIR}/Contents/MacOS/lilypond"
+    # 1. Copy ARM64 lilypond temporarily aside
+    cp "${HOMEBREW_PREFIX}/bin/lilypond" "${APP_DIR}/Contents/MacOS/lilypond"
 
+    # 2. Run dylibbundler on the thin ARM64 binary first
+    dylibbundler -of -cd -b \
+      -x "${APP_DIR}/Contents/MacOS/lilypond" \
+      -d "${APP_DIR}/Contents/libs/" \
+      -p "@executable_path/../libs/"
+
+    # 3. NOW make it universal with lipo
+    X86_LILYPOND="/usr/local/bin/lilypond"
     if [ -f "${X86_LILYPOND}" ]; then
-	echo "  Creating universal LilyPond binary..."
-	lipo -create "${ARM_LILYPOND}" "${X86_LILYPOND}" \
-		-output "${APP_DIR}/Contents/MacOS/lilypond"
-	lipo -info "${APP_DIR}/Contents/MacOS/lilypond"
-	# Bundle LilyPond's dylib dependencies
-        dylibbundler -of -cd -b \
-    	-x "${APP_DIR}/Contents/MacOS/lilypond" \
-    	-d "${APP_DIR}/Contents/libs/" \
-    	-p "@executable_path/../libs/"
+      echo "  Creating universal LilyPond binary..."
+      lipo -create "${APP_DIR}/Contents/MacOS/lilypond" "${X86_LILYPOND}" \
+         -output "${APP_DIR}/Contents/MacOS/lilypond.universal"
+      mv "${APP_DIR}/Contents/MacOS/lilypond.universal" \
+         "${APP_DIR}/Contents/MacOS/lilypond"
+      # Re-sign the universal binary with ad-hoc signature
+      codesign --force --sign - "${APP_DIR}/Contents/MacOS/lilypond"
+      echo "  LilyPond archs: $(lipo -info ${APP_DIR}/Contents/MacOS/lilypond)"
     else
-	echo "  WARNING: No x86_64 LilyPond found at ${X86_LILYPOND}, bundle will be ARM64 only"
+      echo "  WARNING: No x86_64 LilyPond found, bundle will be ARM64 only"
     fi
 
     if [ -d "${HOMEBREW_PREFIX}/share/lilypond" ]; then
