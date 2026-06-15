@@ -184,16 +184,13 @@ fi
 
 # Copy Guile's Scheme source and compiled boot files into the bundle.
 # Without ice-9/boot-9 (and friends) Guile aborts before main() even runs.
-
-HOMEBREW_PREFIX="${HOMEBREW_PREFIX:-/opt/homebrew}"
-RESOURCES="${APP}/Contents/Resources"   # APP should already be set in your script
+RESOURCES="${APP_DIR}/Contents/Resources"
 
 # Detect installed Guile version (handles 3.0, future 3.2, etc.)
 GUILE_VER=$(ls "${HOMEBREW_PREFIX}/share/guile/" | grep -E '^[0-9]+\.[0-9]+$' | sort -V | tail -1)
 echo "=== Bundling Guile ${GUILE_VER} ==="
 
 # 1. Scheme source tree (ice-9/, srfi/, system/, …)
-#    This is what GUILE_LOAD_PATH must point at.
 mkdir -p "${RESOURCES}/share/guile/${GUILE_VER}"
 cp -R "${HOMEBREW_PREFIX}/share/guile/${GUILE_VER}/" \
       "${RESOURCES}/share/guile/${GUILE_VER}/"
@@ -205,7 +202,7 @@ if [ -d "${HOMEBREW_PREFIX}/share/guile/site/${GUILE_VER}" ]; then
         "${RESOURCES}/share/guile/site/${GUILE_VER}/"
 fi
 
-# 3. Pre-compiled .go cache (speeds startup; launcher points GUILE_LOAD_COMPILED_PATH here)
+# 3. Pre-compiled .go cache (speeds startup)
 mkdir -p "${RESOURCES}/lib/guile/${GUILE_VER}/ccache"
 if [ -d "${HOMEBREW_PREFIX}/lib/guile/${GUILE_VER}/ccache" ]; then
   cp -R "${HOMEBREW_PREFIX}/lib/guile/${GUILE_VER}/ccache/" \
@@ -230,13 +227,12 @@ echo "=== Guile bundle contents ==="
 du -sh "${RESOURCES}/share/guile/" 2>/dev/null
 du -sh "${RESOURCES}/lib/guile/"   2>/dev/null
 
-    # ── 6. Install launcher ──────────────────────────────────────────────────
-    # Move the real binary aside, then write the launcher in its place.
-    # DELETE the "cp macos-launcher.sh" line if you had it — use only this.
-    mv "${APP}/Contents/MacOS/denemo" \
-       "${APP}/Contents/MacOS/denemo-bin"
+# ── Install launcher ─────────────────────────────────────────────────────────
+mv "${APP_DIR}/Contents/MacOS/denemo" \
+   "${APP_DIR}/Contents/MacOS/denemo-bin"
 
-    cat > "${APP}/Contents/MacOS/denemo" << 'LAUNCHER'
+cat > "${APP_DIR}/Contents/MacOS/denemo" << 'LAUNCHER'
+
 #!/bin/bash
 BUNDLE="$(cd "$(dirname "$0")/../.."; pwd)"
 RESOURCES="${BUNDLE}/Contents/Resources"
@@ -264,7 +260,8 @@ export PATH="${BUNDLE}/Contents/MacOS:${PATH}"
 exec "${BUNDLE}/Contents/MacOS/denemo-bin" "$@"
 LAUNCHER
 
-chmod +x "${APP}/Contents/MacOS/denemo"
+chmod +x "${APP_DIR}/Contents/MacOS/denemo"
+
 # ── 7. Bundle dylibs ──────────────────────────────────────────────────────────
 # dylibbundler copies all non-system Homebrew dylibs into Contents/libs/
 # and rewrites the binary's load paths to @executable_path/../libs/
