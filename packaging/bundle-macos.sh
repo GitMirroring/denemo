@@ -254,7 +254,7 @@ export GUILE_LOAD_COMPILED_PATH="${RESOURCES}/lib/guile/${GUILE_VER}/ccache:${RE
 export GUILE_SYSTEM_EXTENSIONS_PATH="${RESOURCES}/lib/guile/${GUILE_VER}/extensions"
 
 export LILYPOND_DATADIR="${RESOURCES}/share/lilypond"
-export DENEMO_DATADIR="${RESOURCES}/share/denemo"
+export DENEMO_DATA_DIR="${RESOURCES}/share"
 export PATH="${BUNDLE}/Contents/MacOS:${PATH}"
 
 exec "${BUNDLE}/Contents/MacOS/denemo-bin" "$@"
