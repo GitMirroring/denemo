@@ -302,7 +302,24 @@ if [ -d "${SCHEMAS_DIR}" ]; then
     cp -R "${SCHEMAS_DIR}" "${APP_DIR}/Contents/Resources/share/glib-2.0/"
 fi
 
-# ── 10. Create DMG ────────────────────────────────────────────────────────────
+# ── 10. Bundle Fonts ──────────────────────────────────────────────────────────
+# Bundle fontconfig
+if [ -d "${HOMEBREW_PREFIX}/etc/fonts" ]; then
+    mkdir -p "${APP_DIR}/Contents/Resources/etc/fonts"
+    cp -R "${HOMEBREW_PREFIX}/etc/fonts/" \
+          "${APP_DIR}/Contents/Resources/etc/fonts/"
+    echo "  Fontconfig bundled"
+fi
+
+# Bundle fonts
+if [ -d "${HOMEBREW_PREFIX}/share/fonts" ]; then
+    mkdir -p "${APP_DIR}/Contents/Resources/share/fonts"
+    cp -R "${HOMEBREW_PREFIX}/share/fonts/" \
+          "${APP_DIR}/Contents/Resources/share/fonts/"
+    echo "  Fonts bundled"
+fi
+
+# ── 11. Create DMG ────────────────────────────────────────────────────────────
 
 echo "Creating DMG: ${DMG_NAME}..."
 rm -f "${DMG_NAME}"
