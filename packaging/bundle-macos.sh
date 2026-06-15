@@ -174,6 +174,11 @@ if [ -f "${LILYPOND_BIN}" ]; then
 	lipo -create "${ARM_LILYPOND}" "${X86_LILYPOND}" \
 		-output "${APP_DIR}/Contents/MacOS/lilypond"
 	lipo -info "${APP_DIR}/Contents/MacOS/lilypond"
+	# Bundle LilyPond's dylib dependencies
+        dylibbundler -of -cd -b \
+    	-x "${APP_DIR}/Contents/MacOS/lilypond" \
+    	-d "${APP_DIR}/Contents/libs/" \
+    	-p "@executable_path/../libs/"
     else
 	echo "  WARNING: No x86_64 LilyPond found at ${X86_LILYPOND}, bundle will be ARM64 only"
     fi
@@ -331,7 +336,59 @@ if [ -d "${HOMEBREW_PREFIX}/share/fonts" ]; then
           "${APP_DIR}/Contents/Resources/share/fonts/"
     echo "  Fonts bundled"
 fi
+# Bundle hicolor icon theme
+if [ -d "${HOMEBREW_PREFIX}/share/icons/hicolor" ]; then
+    mkdir -p "${APP_DIR}/Contents/Resources/share/icons/hicolor"
+    cp -R "${HOMEBREW_PREFIX}/share/icons/hicolor/" \
+          "${APP_DIR}/Contents/Resources/share/icons/hicolor/"
+fi
 
+# Bundle Adwaita theme (provides check-symbolic.svg and other assets)
+if [ -d "${HOMEBREW_PREFIX}/share/icons/Adwaita" ]; then
+    mkdir -p "${APP_DIR}/Contents/Resources/share/icons/Adwaita"
+    cp -R "${HOMEBREW_PREFIX}/share/icons/Adwaita/" \
+          "${APP_DIR}/Contents/Resources/share/icons/Adwaita/"
+fi
+
+# Bundle GDK pixbuf loaders
+GDK_PIXBUF_DIR="${HOMEBREW_PREFIX}/lib/gdk-pixbuf-2.0"
+if [ -d "${GDK_PIXBUF_DIR}" ]; then
+    mkdir -p "${APP_DIR}/Contents/Resources/lib/gdk-pixbuf-2.0"
+    cp -R "${GDK_PIXBUF_DIR}/" \
+          "${APP_DIR}/Contents/Resources/lib/gdk-pixbuf-2.0/"
+    # Update the loaders.cache paths to point inside the bundle
+    GDK_PIXBUF_CACHE="${APP_DIR}/Contents/Resources/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache"
+    if [ -f "${GDK_PIXBUF_CACHE}" ]; then
+        sed -i '' "s|${HOMEBREW_PREFIX}/lib/gdk-pixbuf-2.0|@executable_path/../Resources/lib/gdk-pixbuf-2.0|g" \
+            "${GDK_PIXBUF_CACHE}"
+    fi
+fi
+
+# Bundle Pango
+if [ -d "${HOMEBREW_PREFIX}/lib/pango" ]; then
+    mkdir -p "${APP_DIR}/Contents/libs/pango"
+    cp -R "${HOMEBREW_PREFIX}/lib/pango/" \
+          "${APP_DIR}/Contents/libs/pango/"
+fi
+
+# Bundle fontconfig
+mkdir -p "${APP_DIR}/Contents/Resources/etc/fonts"
+if [ -d "${HOMEBREW_PREFIX}/etc/fonts" ]; then
+    cp -R "${HOMEBREW_PREFIX}/etc/fonts/" \
+          "${APP_DIR}/Contents/Resources/etc/fonts/"
+fi
+# Add system font fallback to fontconfig
+cat >> "${APP_DIR}/Contents/Resources/etc/fonts/fonts.conf" << 'FONTCONF'
+<dir>/Library/Fonts</dir>
+<dir>/System/Library/Fonts</dir>
+FONTCONF
+
+# Bundle Denemo's own fonts (denemo.ttf etc)
+if [ -d "${HOMEBREW_PREFIX}/share/fonts" ]; then
+    mkdir -p "${APP_DIR}/Contents/Resources/share/fonts"
+    cp -R "${HOMEBREW_PREFIX}/share/fonts/" \
+          "${APP_DIR}/Contents/Resources/share/fonts/"
+fi
 # ── 11. Create DMG ────────────────────────────────────────────────────────────
 
 echo "Creating DMG: ${DMG_NAME}..."
