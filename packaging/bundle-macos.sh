@@ -163,73 +163,59 @@ fi
 echo "Bundling LilyPond..."
 LILYPOND_BIN="${HOMEBREW_PREFIX}/bin/lilypond"
 if [ -f "${LILYPOND_BIN}" ]; then
-    # 1. Copy ARM64 lilypond temporarily aside
-    cp "${HOMEBREW_PREFIX}/bin/lilypond" "${APP_DIR}/Contents/MacOS/lilypond"
+    # 1. Copy ARM64 lilypond into bundle
+    cp "${LILYPOND_BIN}" "${APP_DIR}/Contents/MacOS/lilypond"
 
-    # 2. Run dylibbundler on the thin ARM64 binary first
+    # 2. Run dylibbundler on thin ARM64 binary
     dylibbundler -of -cd -b \
-      -x "${APP_DIR}/Contents/MacOS/lilypond" \
-      -d "${APP_DIR}/Contents/libs/" \
-      -p "@executable_path/../libs/"
+        -x "${APP_DIR}/Contents/MacOS/lilypond" \
+        -d "${APP_DIR}/Contents/libs/" \
+        -p "@executable_path/../libs/"
 
-    # 3. NOW make it universal with lipo
+    # 3. Lipo into universal
     X86_LILYPOND="/usr/local/bin/lilypond"
     if [ -f "${X86_LILYPOND}" ]; then
-      echo "  Creating universal LilyPond binary..."
-      lipo -create "${APP_DIR}/Contents/MacOS/lilypond" "${X86_LILYPOND}" \
-         -output "${APP_DIR}/Contents/MacOS/lilypond.universal"
-      mv "${APP_DIR}/Contents/MacOS/lilypond.universal" \
-         "${APP_DIR}/Contents/MacOS/lilypond"
-      # Re-sign the universal binary with ad-hoc signature
-      codesign --force --sign - "${APP_DIR}/Contents/MacOS/lilypond"
-      # Fix /usr/local/opt/ rpaths that dylibbundler misses in the x86_64 slice
-      echo "  Patching remaining x86_64 rpaths in LilyPond..."
-      for dep in $(otool -L "${APP_DIR}/Contents/MacOS/lilypond" | \
-             grep '/usr/local/opt/' | awk '{print $1}'); do
-      libname=$(basename "$dep")
-      if [ -f "${APP_DIR}/Contents/libs/${libname}" ]; then
-        install_name_tool -change "$dep" \
-            "@executable_path/../libs/${libname}" \
-            "${APP_DIR}/Contents/MacOS/lilypond"
-        echo "    patched: $dep"
-      else
-        echo "    MISSING: ${libname} not in bundle - may need to be added"
-      fi
-    done
+        echo "  Creating universal LilyPond binary..."
+        lipo -create "${APP_DIR}/Contents/MacOS/lilypond" "${X86_LILYPOND}" \
+             -output "${APP_DIR}/Contents/MacOS/lilypond.universal"
+        mv "${APP_DIR}/Contents/MacOS/lilypond.universal" \
+           "${APP_DIR}/Contents/MacOS/lilypond"
 
-    # Also create short symlinks for any versioned libs the x86_64 slice needs
-    for lib in "${APP_DIR}/Contents/libs/"*.dylib; do
-      base=$(basename "$lib")
-      short=$(echo "$base" | sed -E 's/([a-zA-Z_-]+\.[0-9]+)\.[0-9]+\.[0-9]+\.dylib/\1.dylib/')
-      if [ "$short" != "$base" ] && [ ! -f "${APP_DIR}/Contents/libs/${short}" ]; then
-        ln -sf "$base" "${APP_DIR}/Contents/libs/${short}"
-        echo "    symlink: ${short} -> ${base}"
-      fi
-    done
+        # 4. Patch /usr/local/opt/ rpaths from x86_64 slice
+        # Use a temp file to avoid infinite loop from otool re-reading patched binary
+        echo "  Patching x86_64 rpaths..."
+        otool -L "${APP_DIR}/Contents/MacOS/lilypond" \
+            | grep '/usr/local/opt/' \
+            | awk '{print $1}' > /tmp/lily_deps.txt
+        while IFS= read -r dep; do
+            libname=$(basename "$dep")
+            if [ -f "${APP_DIR}/Contents/libs/${libname}" ]; then
+                install_name_tool -change "$dep" \
+                    "@executable_path/../libs/${libname}" \
+                    "${APP_DIR}/Contents/MacOS/lilypond"
+                echo "    patched: $dep"
+            else
+                echo "    MISSING: ${libname}"
+            fi
+        done < /tmp/lily_deps.txt
+        rm -f /tmp/lily_deps.txt
 
-    # Re-sign after all patches
-    codesign --force --sign - "${APP_DIR}/Contents/MacOS/lilypond"
-    echo "  LilyPond archs: $(lipo -info ${APP_DIR}/Contents/MacOS/lilypond)"
+        # 5. Create symlinks for versioned libs
+        for lib in "${APP_DIR}/Contents/libs/"*.dylib; do
+            base=$(basename "$lib")
+            short=$(echo "$base" | sed -E 's/([a-zA-Z_-]+\.[0-9]+)\.[0-9]+\.[0-9]+\.dylib/\1.dylib/')
+            if [ "$short" != "$base" ] && [ ! -f "${APP_DIR}/Contents/libs/${short}" ]; then
+                ln -sf "$base" "${APP_DIR}/Contents/libs/${short}"
+                echo "    symlink: ${short} -> ${base}"
+            fi
+        done
+
+        # 6. Re-sign
+        codesign --force --sign - "${APP_DIR}/Contents/MacOS/lilypond"
+        echo "  LilyPond archs: $(lipo -info ${APP_DIR}/Contents/MacOS/lilypond)"
     else
-      echo "  WARNING: No x86_64 LilyPond found, bundle will be ARM64 only"
-    fi  # ← ADD THIS
-    if [ -d "${HOMEBREW_PREFIX}/share/lilypond" ]; then
-        mkdir -p "${APP_DIR}/Contents/Resources/share/lilypond"
-        cp -R "${HOMEBREW_PREFIX}/share/lilypond/" \
-              "${APP_DIR}/Contents/Resources/share/lilypond/"
-        echo "  LilyPond share bundled"
+        echo "  WARNING: No x86_64 LilyPond found, bundle will be ARM64 only"
     fi
-    if [ -d "${HOMEBREW_PREFIX}/lib/lilypond" ]; then
-        mkdir -p "${APP_DIR}/Contents/libs/lilypond"
-        cp -R "${HOMEBREW_PREFIX}/lib/lilypond/" \
-              "${APP_DIR}/Contents/libs/lilypond/"
-        echo "  LilyPond libs bundled"
-    fi
-        echo "  LilyPond bundled: ${LILYPOND_BIN}"
-    else
-        echo "  WARNING: lilypond not found at ${LILYPOND_BIN}"
-    fi
-
 # Copy Guile's Scheme source and compiled boot files into the bundle.
 # Without ice-9/boot-9 (and friends) Guile aborts before main() even runs.
 RESOURCES="${APP_DIR}/Contents/Resources"
