@@ -110,7 +110,7 @@ EOF
 
 # ── 3. Copy binary ────────────────────────────────────────────────────────────
 
-cp "${BINARY}" "${APP_DIR}/Contents/MacOS/denemo"
+cp "${SCRIPT_DIR}/macos-launcher.sh" "${APP_DIR}/Contents/MacOS/denemo"
 chmod +x "${APP_DIR}/Contents/MacOS/denemo"
 
 # ── 4. Create icon ────────────────────────────────────────────────────────────
