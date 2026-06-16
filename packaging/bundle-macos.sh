@@ -210,7 +210,9 @@ if [ -f "${LILYPOND_BIN}" ]; then
     # Re-sign after all patches
     codesign --force --sign - "${APP_DIR}/Contents/MacOS/lilypond"
     echo "  LilyPond archs: $(lipo -info ${APP_DIR}/Contents/MacOS/lilypond)"
-
+    else
+      echo "  WARNING: No x86_64 LilyPond found, bundle will be ARM64 only"
+    fi  # ← ADD THIS
     if [ -d "${HOMEBREW_PREFIX}/share/lilypond" ]; then
         mkdir -p "${APP_DIR}/Contents/Resources/share/lilypond"
         cp -R "${HOMEBREW_PREFIX}/share/lilypond/" \
