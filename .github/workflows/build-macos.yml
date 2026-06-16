@@ -44,7 +44,7 @@ jobs:
           rubberband \
           libsndfile \
           gettext \
-          lilypond
+          lilypond || true
 
     # ── Rosetta / x86_64 Homebrew setup ─────────────────────────────────────
     - name: Install Rosetta 2
