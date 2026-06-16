@@ -182,10 +182,34 @@ if [ -f "${LILYPOND_BIN}" ]; then
          "${APP_DIR}/Contents/MacOS/lilypond"
       # Re-sign the universal binary with ad-hoc signature
       codesign --force --sign - "${APP_DIR}/Contents/MacOS/lilypond"
-      echo "  LilyPond archs: $(lipo -info ${APP_DIR}/Contents/MacOS/lilypond)"
-    else
-      echo "  WARNING: No x86_64 LilyPond found, bundle will be ARM64 only"
-    fi
+      # Fix /usr/local/opt/ rpaths that dylibbundler misses in the x86_64 slice
+      echo "  Patching remaining x86_64 rpaths in LilyPond..."
+      for dep in $(otool -L "${APP_DIR}/Contents/MacOS/lilypond" | \
+             grep '/usr/local/opt/' | awk '{print $1}'); do
+      libname=$(basename "$dep")
+      if [ -f "${APP_DIR}/Contents/libs/${libname}" ]; then
+        install_name_tool -change "$dep" \
+            "@executable_path/../libs/${libname}" \
+            "${APP_DIR}/Contents/MacOS/lilypond"
+        echo "    patched: $dep"
+      else
+        echo "    MISSING: ${libname} not in bundle - may need to be added"
+      fi
+    done
+
+    # Also create short symlinks for any versioned libs the x86_64 slice needs
+    for lib in "${APP_DIR}/Contents/libs/"*.dylib; do
+      base=$(basename "$lib")
+      short=$(echo "$base" | sed -E 's/([a-zA-Z_-]+\.[0-9]+)\.[0-9]+\.[0-9]+\.dylib/\1.dylib/')
+      if [ "$short" != "$base" ] && [ ! -f "${APP_DIR}/Contents/libs/${short}" ]; then
+        ln -sf "$base" "${APP_DIR}/Contents/libs/${short}"
+        echo "    symlink: ${short} -> ${base}"
+      fi
+    done
+
+    # Re-sign after all patches
+    codesign --force --sign - "${APP_DIR}/Contents/MacOS/lilypond"
+    echo "  LilyPond archs: $(lipo -info ${APP_DIR}/Contents/MacOS/lilypond)"
 
     if [ -d "${HOMEBREW_PREFIX}/share/lilypond" ]; then
         mkdir -p "${APP_DIR}/Contents/Resources/share/lilypond"
