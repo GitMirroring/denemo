@@ -171,7 +171,7 @@ if [ -f "${LILYPOND_BIN}" ]; then
         -x "${APP_DIR}/Contents/MacOS/lilypond" \
         -d "${APP_DIR}/Contents/libs/" \
         -p "@executable_path/../libs/"
-fi
+
     # 3. Lipo into universal
     X86_LILYPOND="/usr/local/bin/lilypond"
     if [ -f "${X86_LILYPOND}" ]; then
@@ -182,7 +182,6 @@ fi
            "${APP_DIR}/Contents/MacOS/lilypond"
 
         # 4. Patch /usr/local/opt/ rpaths from x86_64 slice
-        # Use a temp file to avoid infinite loop from otool re-reading patched binary
         echo "  Patching x86_64 rpaths..."
         otool -L "${APP_DIR}/Contents/MacOS/lilypond" \
             | grep '/usr/local/opt/' \
@@ -216,6 +215,23 @@ fi
     else
         echo "  WARNING: No x86_64 LilyPond found, bundle will be ARM64 only"
     fi
+
+    if [ -d "${HOMEBREW_PREFIX}/share/lilypond" ]; then
+        mkdir -p "${APP_DIR}/Contents/Resources/share/lilypond"
+        cp -R "${HOMEBREW_PREFIX}/share/lilypond/" \
+              "${APP_DIR}/Contents/Resources/share/lilypond/"
+        echo "  LilyPond share bundled"
+    fi
+    if [ -d "${HOMEBREW_PREFIX}/lib/lilypond" ]; then
+        mkdir -p "${APP_DIR}/Contents/libs/lilypond"
+        cp -R "${HOMEBREW_PREFIX}/lib/lilypond/" \
+              "${APP_DIR}/Contents/libs/lilypond/"
+        echo "  LilyPond libs bundled"
+    fi
+    echo "  LilyPond bundled: ${LILYPOND_BIN}"
+else
+    echo "  WARNING: lilypond not found at ${LILYPOND_BIN}"
+fi
 # Copy Guile's Scheme source and compiled boot files into the bundle.
 # Without ice-9/boot-9 (and friends) Guile aborts before main() even runs.
 RESOURCES="${APP_DIR}/Contents/Resources"
