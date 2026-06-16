@@ -274,11 +274,11 @@ du -sh "${RESOURCES}/share/guile/" 2>/dev/null
 du -sh "${RESOURCES}/lib/guile/"   2>/dev/null
 
 # ── Install launcher ─────────────────────────────────────────────────────────
+# ── Install launcher ─────────────────────────────────────────────────────────
 mv "${APP_DIR}/Contents/MacOS/denemo" \
    "${APP_DIR}/Contents/MacOS/denemo-bin"
-
-
-
+cp "${SCRIPT_DIR}/macos-launcher.sh" "${APP_DIR}/Contents/MacOS/denemo"
+chmod +x "${APP_DIR}/Contents/MacOS/denemo"
 # ── 7. Bundle dylibs ──────────────────────────────────────────────────────────
 # dylibbundler copies all non-system Homebrew dylibs into Contents/libs/
 # and rewrites the binary's load paths to @executable_path/../libs/
