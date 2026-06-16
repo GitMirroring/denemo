@@ -1,8 +1,17 @@
 #!/bin/bash
-BUNDLE="$(cd "$(dirname "$0")/../.."; pwd)"
+# Resolve the bundle path robustly even if cwd doesn't exist
+SCRIPT="$0"
+# Resolve symlinks
+while [ -L "$SCRIPT" ]; do
+    SCRIPT="$(readlink "$SCRIPT")"
+done
+BUNDLE="$(cd "$(dirname "$SCRIPT")/../.." 2>/dev/null && pwd)"
+if [ -z "$BUNDLE" ]; then
+    # Fallback: derive from script path directly
+    BUNDLE="${0%/Contents/MacOS/*}"
+fi
 RESOURCES="${BUNDLE}/Contents/Resources"
 LIBS="${BUNDLE}/Contents/libs"
-
 # ── Dylibs ────────────────────────────────────────────────────────────────────
 export DYLD_LIBRARY_PATH="${LIBS}:${DYLD_LIBRARY_PATH:-}"
 
