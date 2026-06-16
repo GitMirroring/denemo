@@ -171,7 +171,7 @@ if [ -f "${LILYPOND_BIN}" ]; then
         -x "${APP_DIR}/Contents/MacOS/lilypond" \
         -d "${APP_DIR}/Contents/libs/" \
         -p "@executable_path/../libs/"
-
+fi
     # 3. Lipo into universal
     X86_LILYPOND="/usr/local/bin/lilypond"
     if [ -f "${X86_LILYPOND}" ]; then
