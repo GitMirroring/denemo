@@ -204,6 +204,11 @@ jobs:
         /opt/homebrew/bin/denemo --version 2>&1 || true
         /opt/homebrew/bin/denemo --help 2>&1 | head -5 || true
 
+    - name: Debug x86_64 fontconfig
+      run: |
+        find /usr/local -name "libfontconfig*" 2>/dev/null
+        find /usr/local/Cellar -name "libfontconfig*" 2>/dev/null
+
     # ── Bundle and DMG ───────────────────────────────────────────────────────
     - name: Bundle app and create DMG
       run: |
