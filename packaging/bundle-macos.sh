@@ -303,6 +303,8 @@ dylibbundler \
     2>&1 | grep -v "^$" || true
 
 # ── Make bundled dylibs universal ────────────────────────────────────────────
+echo "=== Checking x86_64 fontconfig ==="
+find /usr/local -name "libfontconfig*" 2>/dev/null
 echo "Making bundled dylibs universal..."
 for lib in "${APP_DIR}/Contents/libs/"*.dylib; do
     libname=$(basename "$lib")
