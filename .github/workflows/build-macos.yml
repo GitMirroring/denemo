@@ -56,12 +56,12 @@ jobs:
           arch -x86_64 /bin/bash -c \
             "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         fi
-
+    
     - name: Install x86_64 build dependencies via Rosetta
       run: |
         export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
-        # Unlink conflicting Python packages before installing
-        arch -x86_64 /usr/local/bin/brew unlink python@3.14 2>/dev/null || true
+        # Fix conflicting Python symlinks before installing
+        arch -x86_64 /usr/local/bin/brew link --overwrite python@3.14 2>/dev/null || true
         arch -x86_64 /usr/local/bin/brew install \
           autoconf \
           automake \
