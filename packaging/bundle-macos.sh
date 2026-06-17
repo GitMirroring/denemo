@@ -300,7 +300,7 @@ dylibbundler \
     --search-path "${HOMEBREW_PREFIX}/opt/pango/lib" \
     --search-path "${HOMEBREW_PREFIX}/opt/cairo/lib" \
     --search-path "${HOMEBREW_PREFIX}/opt/evince/lib" \
-    2>&1 | grep -v "^$" || true
+    || true
 
 # ── Make bundled dylibs universal ────────────────────────────────────────────
 echo "=== Checking x86_64 fontconfig ==="
