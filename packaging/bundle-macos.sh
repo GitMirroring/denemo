@@ -314,10 +314,36 @@ for lib in "${APP_DIR}/Contents/libs/"*.dylib; do
     fi
     x86lib=""
     for searchdir in \
+        #... (all the paths) ...
         /usr/local/lib \
         /usr/local/opt/fontconfig/lib \
         /usr/local/opt/cairo/lib \
-        #... (all the paths) ...
+        /usr/local/opt/pango/lib \
+        /usr/local/opt/glib/lib \
+        /usr/local/opt/harfbuzz/lib \
+        /usr/local/opt/freetype/lib \
+        /usr/local/opt/libpng/lib \
+        /usr/local/opt/pixman/lib \
+        /usr/local/opt/gettext/lib \
+        /usr/local/opt/pcre2/lib \
+        /usr/local/opt/graphite2/lib \
+        /usr/local/opt/bdw-gc/lib \
+        /usr/local/opt/guile/lib \
+        /usr/local/opt/gmp/lib \
+        /usr/local/opt/libunistring/lib \
+        /usr/local/opt/libffi/lib \
+        /usr/local/opt/libtasn1/lib \
+        /usr/local/opt/p11-kit/lib \
+        /usr/local/opt/libxau/lib \
+        /usr/local/opt/libxdmcp/lib \
+        /usr/local/opt/libxcb/lib \
+        /usr/local/opt/libx11/lib \
+        /usr/local/opt/libxext/lib \
+        /usr/local/opt/libxrender/lib \
+        /usr/local/opt/lzo/lib \
+        /usr/local/opt/xz/lib \
+        /usr/local/opt/zstd/lib \
+        /usr/local/opt/brotli/lib \
         /usr/local/Cellar; do
         if [ -f "${searchdir}/${libname}" ]; then
             x86lib="${searchdir}/${libname}"
