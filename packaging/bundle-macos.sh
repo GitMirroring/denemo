@@ -107,7 +107,9 @@ cat > "${APP_DIR}/Contents/Info.plist" << EOF
 </dict>
 </plist>
 EOF
-
+# ── 3. Copy binary ────────────────────────────────────────────────────────────
+cp "${BINARY}" "${APP_DIR}/Contents/MacOS/denemo"
+chmod +x "${APP_DIR}/Contents/MacOS/denemo"
 # ── 4. Create icon ────────────────────────────────────────────────────────────
 # Convert the installed PNG to .icns using macOS sips + iconutil.
 # Falls back gracefully if the PNG is missing.
