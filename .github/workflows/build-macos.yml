@@ -84,6 +84,7 @@ jobs:
           rubberband \
           libsndfile \
           gettext \
+          fontconfig \
           lilypond || true
         # Verify the packages that actually matter for configure are present
         echo "=== Checking critical keg-only packages ==="
