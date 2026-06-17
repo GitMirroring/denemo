@@ -355,14 +355,20 @@ for lib in "${APP_DIR}/Contents/libs/"*.dylib; do
                  -path "*/lib/*" 2>/dev/null | head -1)
     fi
     if [ -n "${x86lib}" ]; then
-        lipo -create "${lib}" "${x86lib}" -output "${lib}.universal" && \
-        mv "${lib}.universal" "${lib}" && \
-        codesign --force --sign - "${lib}" && \
-        echo "  universal: ${libname}" || \
-        echo "  lipo failed: ${libname}"
+    # Strip signature from ARM64 lib before lipo (signed libs can't be combined)
+    codesign --remove-signature "${lib}" 2>/dev/null || true
+    if lipo -create "${lib}" "${x86lib}" \
+            -output "${lib}.universal" 2>&1; then
+        mv "${lib}.universal" "${lib}"
+        codesign --force --sign - "${lib}"
+        echo "  universal: ${libname}"
     else
-        echo "  ARM64 only (no x86_64 found): ${libname}"
+        echo "  lipo failed: ${libname}"
     fi
+else
+    echo "  ARM64 only (no x86_64 found): ${libname}"
+fi
+
 done
 # ── 8. Bundle GDK pixbuf loaders ─────────────────────────────────────────────
 # GTK needs pixbuf loaders to render images; copy and update the cache.
