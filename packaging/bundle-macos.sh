@@ -314,7 +314,6 @@ for lib in "${APP_DIR}/Contents/libs/"*.dylib; do
     fi
     x86lib=""
     for searchdir in \
-        #... (all the paths) ...
         /usr/local/lib \
         /usr/local/opt/fontconfig/lib \
         /usr/local/opt/cairo/lib \
