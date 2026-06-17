@@ -293,6 +293,7 @@ dylibbundler \
     --install-path "@executable_path/../libs/" \
     --overwrite-dir \
     --search-path "${HOMEBREW_PREFIX}/lib" \
+    --search-path "/usr/local/lib" \
     --search-path "${HOMEBREW_PREFIX}/opt/guile/lib" \
     --search-path "${HOMEBREW_PREFIX}/opt/gtk+3/lib" \
     --search-path "${HOMEBREW_PREFIX}/opt/glib/lib" \
@@ -301,6 +302,41 @@ dylibbundler \
     --search-path "${HOMEBREW_PREFIX}/opt/evince/lib" \
     2>&1 | grep -v "^$" || true
 
+# ── Make bundled dylibs universal ────────────────────────────────────────────
+echo "Making bundled dylibs universal..."
+for lib in "${APP_DIR}/Contents/libs/"*.dylib; do
+    libname=$(basename "$lib")
+    # Check if already universal
+    if lipo -info "$lib" 2>/dev/null | grep -q "x86_64"; then
+        echo "  already universal: ${libname}"
+        continue
+    fi
+    # Find x86_64 counterpart in /usr/local
+    x86lib=""
+    for searchdir in /usr/local/lib /usr/local/opt/*/lib; do
+        if [ -f "${searchdir}/${libname}" ]; then
+            x86lib="${searchdir}/${libname}"
+            break
+        fi
+    done
+    # Also search Cellar
+    if [ -z "${x86lib}" ]; then
+        x86lib=$(find /usr/local/Cellar -name "${libname}" \
+                 -path "*/lib/*" 2>/dev/null | head -1)
+    fi
+    if [ -n "${x86lib}" ]; then
+        if lipo -create "${lib}" "${x86lib}" \
+                -output "${lib}.universal" 2>/dev/null; then
+            mv "${lib}.universal" "${lib}"
+            codesign --force --sign - "${lib}"
+            echo "  universal: ${libname}"
+        else
+            echo "  lipo failed: ${libname}"
+        fi
+    else
+        echo "  ARM64 only (no x86_64 found): ${libname}"
+    fi
+done
 # ── 8. Bundle GDK pixbuf loaders ─────────────────────────────────────────────
 # GTK needs pixbuf loaders to render images; copy and update the cache.
 
