@@ -317,7 +317,7 @@ for lib in "${APP_DIR}/Contents/libs/"*.dylib; do
         /usr/local/lib \
         /usr/local/opt/fontconfig/lib \
         /usr/local/opt/cairo/lib \
-        ... (all the paths) ...
+        #... (all the paths) ...
         /usr/local/Cellar; do
         if [ -f "${searchdir}/${libname}" ]; then
             x86lib="${searchdir}/${libname}"
