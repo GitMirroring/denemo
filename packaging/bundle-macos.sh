@@ -308,33 +308,33 @@ find /usr/local -name "libfontconfig*" 2>/dev/null
 echo "Making bundled dylibs universal..."
 for lib in "${APP_DIR}/Contents/libs/"*.dylib; do
     libname=$(basename "$lib")
-    # Check if already universal
     if lipo -info "$lib" 2>/dev/null | grep -q "x86_64"; then
         echo "  already universal: ${libname}"
         continue
     fi
-    # Find x86_64 counterpart in /usr/local
     x86lib=""
-    for searchdir in /usr/local/lib /usr/local/opt/*/lib; do
+    for searchdir in \
+        /usr/local/lib \
+        /usr/local/opt/fontconfig/lib \
+        /usr/local/opt/cairo/lib \
+        ... (all the paths) ...
+        /usr/local/Cellar; do
         if [ -f "${searchdir}/${libname}" ]; then
             x86lib="${searchdir}/${libname}"
             break
         fi
     done
-    # Also search Cellar
+    # Also search Cellar recursively as last resort
     if [ -z "${x86lib}" ]; then
         x86lib=$(find /usr/local/Cellar -name "${libname}" \
                  -path "*/lib/*" 2>/dev/null | head -1)
     fi
     if [ -n "${x86lib}" ]; then
-        if lipo -create "${lib}" "${x86lib}" \
-                -output "${lib}.universal" 2>/dev/null; then
-            mv "${lib}.universal" "${lib}"
-            codesign --force --sign - "${lib}"
-            echo "  universal: ${libname}"
-        else
-            echo "  lipo failed: ${libname}"
-        fi
+        lipo -create "${lib}" "${x86lib}" -output "${lib}.universal" && \
+        mv "${lib}.universal" "${lib}" && \
+        codesign --force --sign - "${lib}" && \
+        echo "  universal: ${libname}" || \
+        echo "  lipo failed: ${libname}"
     else
         echo "  ARM64 only (no x86_64 found): ${libname}"
     fi
