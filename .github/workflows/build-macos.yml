@@ -59,9 +59,13 @@ jobs:
 
     - name: Fix x86_64 Python symlink conflicts
       run: |
-        export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
-        arch -x86_64 /usr/local/bin/brew link --overwrite python@3.14 2>/dev/null || true
-        arch -x86_64 /usr/local/bin/brew link --overwrite python@3.13 2>/dev/null || true
+        # Remove conflicting Python symlinks that block brew link
+        rm -f /usr/local/bin/idle3 /usr/local/bin/idle3.14
+        rm -f /usr/local/bin/pip3 /usr/local/bin/pip3.14
+        rm -f /usr/local/bin/python3 /usr/local/bin/python3.14
+        rm -f /usr/local/bin/python3-config /usr/local/bin/python3.14-config
+        rm -f /usr/local/bin/pydoc3 /usr/local/bin/pydoc3.14
+        rm -f /usr/local/bin/2to3 /usr/local/bin/2to3-3.14
 
     - name: Install x86_64 build dependencies via Rosetta
       run: |
