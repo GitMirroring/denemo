@@ -31,7 +31,7 @@ set_default_lilypond_path (void)
 {
 #ifdef G_OS_WIN32
   ret->lilypath = g_string_new (g_build_filename (get_system_bin_dir (), "..", "lilypond", "bin", "lilypond-windows.exe", NULL));
-#elif defined _MACH_O_
+#elif defined __MACH__
   {
     const gchar *bindir = get_system_bin_dir();
     if (bindir)
@@ -161,7 +161,7 @@ initprefs (void)
   ret->console_pane = FALSE;
   ret->lyrics_pane = TRUE;
   ret->visible_directive_buttons = TRUE;
-#ifdef _MACH_O_
+#ifdef __MACH__
   ret->hide_windows = TRUE;
 #else
   ret->hide_windows = FALSE;
