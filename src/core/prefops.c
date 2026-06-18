@@ -33,12 +33,11 @@ set_default_lilypond_path (void)
   ret->lilypath = g_string_new (g_build_filename (get_system_bin_dir (), "..", "lilypond", "bin", "lilypond-windows.exe", NULL));
 #elif defined _MACH_O_
   {
-    gchar *bindir = denemo_get_bindir ();
+    const gchar *bindir = get_system_bin_dir();
     if (bindir)
       {
         ret->lilypath = g_string_new (g_build_filename (bindir, "..", "Resources", "lilypond", "bin", "lilypond", NULL));
         g_message ("OSX set lilypond path to %s", ret->lilypath->str);
-        g_free (bindir);
       }
     else
       ret->lilypath = g_string_new ("lilypond");
