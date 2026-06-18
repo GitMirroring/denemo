@@ -38,6 +38,7 @@ jobs:
           aubio \
           perl-xml-parser \
           portaudio \
+          portmidi \
           fftw \
           libxml2 \
           fluid-synth \
@@ -86,6 +87,7 @@ jobs:
         aubio \
         perl-xml-parser \
         portaudio \
+        portmidi \
         fftw \
         libxml2 \
         fluid-synth \
