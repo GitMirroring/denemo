@@ -1496,37 +1496,18 @@ get_system_data_dir ()
   return DENEMO_datadir;
 }
 
-const gchar *
+gchar *
 get_prefix_dir (void)
 {
   gchar *prefix;
 #ifdef G_OS_WIN32
   prefix = g_win32_get_package_installation_directory (NULL, NULL);
-#else /* not G_OS_WIN32 */
-#ifdef __MACH__
-  {
-    char path[1024];
-    guint size = sizeof (path);
-    _NSGetExecutablePath (path, &size);
-    gchar *bindir = (gchar *) g_malloc (size);
-    if (_NSGetExecutablePath (bindir, &size) == 0)
-      {
-        prefix = g_build_filename (bindir, "..", "..", NULL);
-        g_message ("OSX set data prefix to %s", prefix);
-      }
-    else
-      g_critical ("Cannot get bin dir");
-  }
-#else
-
-#ifndef ENABLE_BINRELOC
-  prefix = g_strdup (PREFIX);
+#elif defined __MACH__
+  prefix = g_build_filename (get_system_bin_dir (), "..", "Resources", NULL);
+  g_message ("OSX set data prefix to %s", prefix);
 #else
   prefix = gbr_find_prefix (PREFIX);
-#endif //ENABLE_BINRELOC
-
-#endif //__MACH__
-#endif //G_OS_WIN32
+#endif
   return prefix;
 }
 
