@@ -1601,17 +1601,8 @@ get_system_locale_dir ()
       g_free (rootdir);
 #else /* not G_OS_WIN32 */
 #ifdef __MACH__
-
       {
-        char path[1024];
-        guint size = sizeof (path);
-        _NSGetExecutablePath (path, &size);
-        gchar *bindir = (gchar *) g_malloc (size);
-        if (_NSGetExecutablePath (bindir, &size) == 0)
-          g_message ("Using bin path %s", bindir);
-        else
-          g_critical ("Cannot get bin dir");
-        localedir = g_build_filename (g_path_get_dirname (bindir), "..", "share", "locale", NULL);
+        localedir = g_build_filename (get_prefix_dir (), "share", "locale", NULL);
         g_message ("OSX set locale dir to %s", localedir);
       }
 #else
