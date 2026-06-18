@@ -47,7 +47,7 @@ ${RESOURCES}/lib/guile/${GUILE_VER}/site-ccache"
 export GUILE_SYSTEM_EXTENSIONS_PATH="${RESOURCES}/lib/guile/${GUILE_VER}/extensions"
 
 # ── Denemo ────────────────────────────────────────────────────────────────────
-export DENEMO_DATA_DIR="${RESOURCES}/share/denemo"
+export DENEMO_DATA_DIR="${RESOURCES}/share"
 
 # ── LilyPond ──────────────────────────────────────────────────────────────────
 # LilyPond needs its own datadir for fonts and ly includes
