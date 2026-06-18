@@ -302,6 +302,19 @@ dylibbundler \
     --search-path "${HOMEBREW_PREFIX}/opt/evince/lib" \
     || true
 
+# Bundle Ghostscript (required by LilyPond for PDF output)
+GS_BIN=$(which gs || echo "${HOMEBREW_PREFIX}/bin/gs")
+if [ -f "${GS_BIN}" ]; then
+    cp "${GS_BIN}" "${APP_DIR}/Contents/MacOS/gs"
+    dylibbundler -of -cd -b \
+        -x "${APP_DIR}/Contents/MacOS/gs" \
+        -d "${APP_DIR}/Contents/libs/" \
+        -p "@executable_path/../libs/"
+    echo "  Ghostscript bundled"
+else
+    echo "  WARNING: gs not found - LilyPond PDF output will fail"
+fi
+
 # ── Make bundled dylibs universal ────────────────────────────────────────────
 echo "=== Checking x86_64 fontconfig ==="
 find /usr/local -name "libfontconfig*" 2>/dev/null
@@ -459,18 +472,6 @@ if [ -d "${HOMEBREW_PREFIX}/share/fonts" ]; then
           "${APP_DIR}/Contents/Resources/share/fonts/"
 fi
 
-# Bundle Ghostscript (required by LilyPond for PDF output)
-GS_BIN=$(which gs || echo "${HOMEBREW_PREFIX}/bin/gs")
-if [ -f "${GS_BIN}" ]; then
-    cp "${GS_BIN}" "${APP_DIR}/Contents/MacOS/gs"
-    dylibbundler -of -cd -b \
-        -x "${APP_DIR}/Contents/MacOS/gs" \
-        -d "${APP_DIR}/Contents/libs/" \
-        -p "@executable_path/../libs/"
-    echo "  Ghostscript bundled"
-else
-    echo "  WARNING: gs not found - LilyPond PDF output will fail"
-fi
 
 # ── 11. Create DMG ────────────────────────────────────────────────────────────
 
