@@ -26,21 +26,26 @@ static gint readxmlprefsFile (gchar * filename);
 
 
 #define ret (&Denemo.prefs)
-static void set_default_lilypond_path (void)
+static void
+set_default_lilypond_path (void)
 {
 #ifdef G_OS_WIN32
-  ret->lilypath = g_string_new (g_build_filename (get_system_bin_dir (), "..", "lilypond", "bin", "lilypond-windows.exe", NULL));       //We don't assume the file assoc works - we are installing this anyway to a known place,the option  neither lilypond-windows.exe nor the -dgui option are used. There is no more lilypond-windows in 2.24.4. I created a wrapper lilypond-windows.exe to hide the console. 
-#else /* !G_OS_WIN32 */
- #ifdef _GUB_BUILD_
-   #ifdef _MACH_O_
-     ret->lilypath = g_string_new (getenv("LILYPOND_PATH"));
-   #else
-     ret->lilypath = g_string_new (g_build_filename (get_system_bin_dir (), "lilypond", NULL));
-   #endif
- #else
+  ret->lilypath = g_string_new (g_build_filename (get_system_bin_dir (), "..", "lilypond", "bin", "lilypond-windows.exe", NULL));
+#elif defined _MACH_O_
+  {
+    gchar *bindir = denemo_get_bindir ();
+    if (bindir)
+      {
+        ret->lilypath = g_string_new (g_build_filename (bindir, "..", "Resources", "lilypond", "bin", "lilypond", NULL));
+        g_message ("OSX set lilypond path to %s", ret->lilypath->str);
+        g_free (bindir);
+      }
+    else
+      ret->lilypath = g_string_new ("lilypond");
+  }
+#else
   ret->lilypath = g_string_new ("lilypond");
- #endif
-#endif /* !G_OS_WIN32 */
+#endif
 }
 /**
  * Initialise user preferences to reasonable defaults
