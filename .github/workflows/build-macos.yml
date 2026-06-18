@@ -44,6 +44,7 @@ jobs:
           rubberband \
           libsndfile \
           gettext \
+          ghostscript \
           lilypond || true
 
     # ── Rosetta / x86_64 Homebrew setup ─────────────────────────────────────
@@ -92,6 +93,7 @@ jobs:
         libsndfile \
         gettext \
         fontconfig \
+        ghostscript \
         lilypond || true
 
         # Verify the packages that actually matter for configure are present
