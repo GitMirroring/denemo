@@ -303,16 +303,11 @@ dylibbundler \
     || true
 
 # Bundle Ghostscript (required by LilyPond for PDF output)
-GS_BIN=$(which gs 2>/dev/null || echo "${HOMEBREW_PREFIX}/bin/gs")
-if [ -f "${GS_BIN}" ]; then
-    cp "${GS_BIN}" "${APP_DIR}/Contents/MacOS/gs"
-    dylibbundler -of -cd -b \
-        -x "${APP_DIR}/Contents/MacOS/gs" \
-        -d "${APP_DIR}/Contents/libs/" \
-        -p "@executable_path/../libs/"
-    echo "  Ghostscript bundled"
-else
-    echo "  WARNING: gs not found - LilyPond PDF output will fail"
+GS_BIN=""
+if command -v gs > /dev/null 2>&1; then
+    GS_BIN=$(command -v gs)
+elif [ -f "${HOMEBREW_PREFIX}/bin/gs" ]; then
+    GS_BIN="${HOMEBREW_PREFIX}/bin/gs"
 fi
 
 # ── Make bundled dylibs universal ────────────────────────────────────────────
