@@ -306,7 +306,7 @@ gint get_override (GList * g);
 
 void add_font_directory (gchar * fontpath);
 void add_font_file (gchar * fontpath);
-const gchar *get_prefix_dir (void);
+gchar *get_prefix_dir (void);
 gboolean run_file_association (gchar * filenam);
 gchar *remove_extension (gchar * name);
 gchar *substitute_extension (gchar * name, gchar * extension);
