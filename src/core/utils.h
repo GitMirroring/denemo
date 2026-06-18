@@ -358,7 +358,6 @@ gboolean modifier_held_down (gint modifier);
 gboolean shift_held_down (void);
 gboolean control_held_down (void);
 gboolean shift_held_down (void);
-gchar *denemo_get_bindir(void);
 
 #if GTK_MAJOR_VERSION == 2
 #define GdkRGBA GdkColor
