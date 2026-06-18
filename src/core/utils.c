@@ -39,7 +39,7 @@
 #endif
 #include "audio/pitchentry.h"
 #include "command/measure.h"
-#ifdef _MACH_O_
+#ifdef __MACH__
 #include <mach-o/dyld.h>
 #endif
 
@@ -1467,7 +1467,7 @@ get_system_data_dir ()
       g_free (rootdir);
 #else /* not G_OS_WIN32 */
 
-#ifdef _MACH_O_
+#ifdef __MACH__
 
       {
         char path[1024];
@@ -1488,7 +1488,7 @@ get_system_data_dir ()
       DENEMO_datadir = gbr_find_pkg_data_dir (PKGDATADIR, PKGNAME);
 #endif //ENABLE_BINRELOC
 
-#endif //_MACH_O_
+#endif //__MACH__
 #endif /* not G_OS_WIN32 */
       }
     g_print ("Denemo data expected in %s\n", DENEMO_datadir);
@@ -1503,7 +1503,7 @@ get_prefix_dir (void)
 #ifdef G_OS_WIN32
   prefix = g_win32_get_package_installation_directory (NULL, NULL);
 #else /* not G_OS_WIN32 */
-#ifdef _MACH_O_
+#ifdef __MACH__
   {
     char path[1024];
     guint size = sizeof (path);
@@ -1525,7 +1525,7 @@ get_prefix_dir (void)
   prefix = gbr_find_prefix (PREFIX);
 #endif //ENABLE_BINRELOC
 
-#endif //_MACH_O_
+#endif //__MACH__
 #endif //G_OS_WIN32
   return prefix;
 }
@@ -1545,7 +1545,7 @@ get_system_bin_dir (void)
       g_free (rootdir);
 #else /* not G_OS_WIN32 */
 
-#ifdef _MACH_O_
+#ifdef __MACH__
 
       {
         char path[1024];
@@ -1570,7 +1570,7 @@ get_system_bin_dir (void)
       DENEMO_bindir = gbr_find_bin_dir (BINDIR);
 #endif //ENABLE_BINRELOC
 
-#endif //_MACH_O_
+#endif //__MACH__
 #endif /* not G_OS_WIN32 */
     }
   return DENEMO_bindir;
@@ -1588,7 +1588,7 @@ get_system_conf_dir ()
       confdir = g_build_filename (rootdir, "etc", "denemo", NULL);
       g_free (rootdir);
 #else // not G_OS_WIN32
-#ifdef _MACH_O_
+#ifdef __MACH__
 
       {
         char path[1024];
@@ -1610,7 +1610,7 @@ get_system_conf_dir ()
       confdir = g_build_filename (gbr_find_etc_dir (SYSCONFDIR), "denemo", NULL);
 #endif //ENABLE_BINRELOC
 
-#endif //_MACH_O_
+#endif //__MACH__
 #endif // not G_OS_WIN32
     }
   return confdir;
@@ -1628,7 +1628,7 @@ get_system_locale_dir ()
       localedir = g_build_filename (rootdir, "share", "locale", NULL);
       g_free (rootdir);
 #else /* not G_OS_WIN32 */
-#ifdef _MACH_O_
+#ifdef __MACH__
 
       {
         char path[1024];
@@ -3644,7 +3644,7 @@ get_executable_dir ()
 #ifdef G_OS_WIN32
       GetModuleFileNameA (NULL, path, MAX_PATH);
 
-#elif defined _MACH_O_
+#elif defined __MACH__
       guint size = sizeof (path);
       _NSGetExecutablePath (path, &size);
 
