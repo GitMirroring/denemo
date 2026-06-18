@@ -124,6 +124,7 @@ jobs:
         mkdir -p _build_arm64
         cd _build_arm64
         ../configure --prefix=/opt/homebrew \
+          --enable-debug \
           --enable-portmidi \
           --disable-jack \
           --disable-atril \
@@ -155,6 +156,7 @@ jobs:
         mkdir -p _build_x86_64
         cd _build_x86_64
         arch -x86_64 ../configure --prefix=/usr/local \
+          --enable-debug \
           --enable-portmidi \
           --disable-jack \
           --disable-atril \
