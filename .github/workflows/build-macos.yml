@@ -128,7 +128,7 @@ jobs:
           --disable-jack \
           --disable-atril \
           --enable-evince \
-          CFLAGS="-arch arm64" \
+          CFLAGS="-arch arm64 -D_MACH_O_" \
           CXXFLAGS="-arch arm64" \
           LDFLAGS="-arch arm64 -L/opt/homebrew/opt/expat/lib -L/opt/homebrew/opt/libxml2/lib" \
           CPPFLAGS="-I/opt/homebrew/opt/expat/include -I/opt/homebrew/opt/libxml2/include"
@@ -161,7 +161,7 @@ jobs:
           --enable-evince \
           CC="clang -arch x86_64" \
           CXX="clang++ -arch x86_64" \
-          CFLAGS="-arch x86_64" \
+          CFLAGS="-arch x86_64 -D_MACH_O_" \
           CXXFLAGS="-arch x86_64" \
           LDFLAGS="-arch x86_64 -L/usr/local/opt/expat/lib -L/usr/local/opt/libxml2/lib" \
           CPPFLAGS="-I/usr/local/opt/expat/include -I/usr/local/opt/libxml2/include" \
