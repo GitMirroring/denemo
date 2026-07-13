@@ -61,3 +61,12 @@ patch_denemo_evince.sh
 # Build m4 files
 build/*.m4
 build/lt~obsolete.m4
+
+# Compiled object files and binaries
+*.o
+*.lo
+*.a
+*.la
+src/denemo
+src/libaudiobackend.a
+libs/**/*.a

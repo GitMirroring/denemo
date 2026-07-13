@@ -37,4 +37,6 @@ gchar *get_palette_name (gboolean allow_custom);
 gchar *choose_palette_by_name (gboolean allow_custom, gboolean non_showing);
 void place_action_in_palette (gint command_idx, const gchar *name);
 gboolean palette_action_button (DenemoPalette *pal, gchar *label);
+gboolean palette_add_button (DenemoPalette *pal, gchar *label, const gchar *tooltip, gchar *script);
+gboolean palette_add_button_with_icon (DenemoPalette *pal, gchar *label, const gchar *tooltip, gchar *script, gchar *icon);
 #endif

@@ -245,12 +245,8 @@ static void set_image_for_button (GtkWidget *button, gchar *name)
         gtk_widget_destroy (child_widget);
     }
     
-    GdkPixbuf *pb = 
-#ifdef G_OS_WIN32    
-    rsvg_pixbuf_from_file (icon, NULL);
-#else                          
-     gdk_pixbuf_new_from_file(icon, NULL);// Works on GNU/Linux but not windows - pixbuf loader not working...
-#endif
+    GdkPixbuf *pb = rsvg_pixbuf_from_file (icon, NULL); // unified path: bypass gdk-pixbuf's SVG loader module,
+                                                          // which is inconsistently available across platforms
     if(pb)
         gtk_button_set_image(GTK_BUTTON(button),gtk_image_new_from_pixbuf(pb));
     else
@@ -462,6 +458,10 @@ void switch_and_call_out_to_guile (gchar *script)
     }
 gboolean palette_add_button (DenemoPalette *pal, gchar *label, const gchar *tooltip, gchar *script)
 {
+    return palette_add_button_with_icon (pal, label, tooltip, script, NULL);
+}
+gboolean palette_add_button_with_icon (DenemoPalette *pal, gchar *label, const gchar *tooltip, gchar *script, gchar *icon)
+{
     if (already_present(pal, label))
         return FALSE;
     gchar *thescript = g_strdup(script);
@@ -472,13 +472,16 @@ gboolean palette_add_button (DenemoPalette *pal, gchar *label, const gchar *tool
       gtk_widget_set_margin_top (button, 1);
       gtk_widget_set_margin_bottom (button, 1);
 #endif
-    gchar *icon = find_denemo_file (DENEMO_DIR_PIXMAPS, label);
-    if(icon)
+    gchar *icon_name = icon ? icon : label;
+    gchar *iconfile = find_denemo_file (DENEMO_DIR_PIXMAPS, icon_name);
+    if(iconfile)
     {
-        g_signal_connect (button, "realize", G_CALLBACK (fixup_image), label);
+        g_signal_connect (button, "realize", G_CALLBACK (fixup_image), icon_name);
+        if (icon)
+            g_object_set_data (G_OBJECT(button), "icon-filename", (gpointer)g_strdup(icon));
     } else
     {
-        GtkWidget *label_widget = gtk_bin_get_child(GTK_BIN(button));//g_debug("is %s\n", g_type_name(G_TYPE_FROM_INSTANCE(label_widget)));
+        GtkWidget *label_widget = gtk_bin_get_child(GTK_BIN(button));
         gtk_label_set_use_markup (GTK_LABEL(label_widget), TRUE);
     }
     //put button in a list pal->buttons and then call repack_palette.

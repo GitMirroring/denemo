@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <Denemo>
   <palette _name="Select Duration" row-wise="1" limit="1" dock="0" hidden="1">
-    <button label="^&#x1D15D;" _tooltip="Selects &#x1D15D; as the duration for inserting notes or rests" script="(d-Set0)"/>
-    <button label="^&#x1D15E;" _tooltip="Selects &#x1D15E; as the duration for inserting notes or rests" script="(d-Set1)"/>
-    <button label="^&#x1D15F;" _tooltip="Selects &#x1D15F; as the duration for inserting notes or rests" script="(d-Set2)"/>
-    <button label="^&#x1D160;" _tooltip="Selects &#x1D160; as the duration for inserting notes or rests" script="(d-Set3)"/>
-    <button label="^&#x1D161;" _tooltip="Selects &#x1D161; as the duration for inserting notes or rests" script="(d-Set4)"/>
-    <button label="^&#x1D163;" _tooltip="Selects &#x1D163; as the duration for inserting notes or rests" script="(d-Set5)"/>
+    <button label="^&#x1D15D;" icon="duration.semibreve.select.svg" _tooltip="Selects &#x1D15D; as the duration for inserting notes or rests" script="(d-Set0)"/>	  
+    <button label="^&#x1D15E;" icon="duration.minim.select.svg" _tooltip="Selects &#x1D15E; as the duration for inserting notes or rests" script="(d-Set1)"/>
+    <button label="^&#x1D15F;" icon="duration.crotchet.select.svg" _tooltip="Selects &#x1D15F; as the duration for inserting notes or rests" script="(d-Set2)"/>
+    <button label="^&#x1D160;" icon="duration.quaver.select.svg" _tooltip="Selects &#x1D160; as the duration for inserting notes or rests" script="(d-Set3)"/>
+    <button label="^&#x1D161;" icon="duration.semiquaver.select.svg" _tooltip="Selects &#x1D161; as the duration for inserting notes or rests" script="(d-Set4)"/>
+    <button label="^&#x1D163;" icon="duration.hemidemisemiquaver.select.svg" _tooltip="Selects &#x1D163; as the duration for inserting notes or rests" script="(d-Set5)"/>
     <button label="&lt;i&gt;3&lt;/i&gt;" _tooltip="Alternates inserting start triplet and end triplet markers" script="(d-ToggleTripleting)"/>
   </palette>
   <palette _name="General" row-wise="1" limit="1" dock="1" hidden="0">
@@ -48,12 +48,12 @@
     <button label="8va" _tooltip="Inserts an 8va mark (transposing the notes accordingly) or terminates one already started." script="(d-Ottava)"/>
   </palette>
   <palette _name="Insert or Append Duration" row-wise="0" limit="1" dock="1" hidden="0">
-    <button label="&#x25BC;&#x1D15D;" _tooltip="When appending, appends a &#x1D15D; &#10;With the cursor on a note inserts a &#x1D15D;  before the current note&#10;If MIDI-in is active, the note will be pitchless (displays yellow, percussion-sounding)&#10; - the MIDI keyboard will provide the pitch.&#10;Changes prevailing duration." script="(d-0)"/>
-    <button label="&#x25BC;&#x1D15E;" _tooltip="When appending, appends a &#x1D15E; &#10;With the cursor on a note inserts a &#x1D15E;  before the current note&#10;If MIDI-in is active, the note will be pitchless (displays yellow, percussion-sounding)&#10; - the MIDI keyboard will provide the pitch.&#10;Changes prevailing duration." script="(d-1)"/>
-    <button label="&#x25BC;&#x1D15F;" _tooltip="When appending, appends a &#x1D15F; &#10;With the cursor on a note inserts a &#x1D15F;  before the current note&#10;If MIDI-in is active, the note will be pitchless (displays yellow, percussion-sounding)&#10; - the MIDI keyboard will provide the pitch.&#10;Changes prevailing duration." script="(d-2)"/>
-    <button label="&#x25BC;&#x1D160;" _tooltip="When appending, appends a &#x1D160; &#10;With the cursor on a note inserts a &#x1D160;  before the current note&#10;If MIDI-in is active, the note will be pitchless (displays yellow, percussion-sounding)&#10; - the MIDI keyboard will provide the pitch.&#10;Changes prevailing duration." script="(d-3)"/>
-    <button label="&#x25BC;&#x1D161;" _tooltip="When appending, appends a &#x1D161; &#10;With the cursor on a note inserts a &#x1D161;  before the current note&#10;If MIDI-in is active, the note will be pitchless (displays yellow, percussion-sounding)&#10; - the MIDI keyboard will provide the pitch.&#10;Changes prevailing duration." script="(d-4)"/>
-    <button label="&#x25BC;&#x1D162;" _tooltip="When appending, appends a &#x1D162; &#10;With the cursor on a note inserts a &#x1D162;  before the current note&#10;If MIDI-in is active, the note will be pitchless (displays yellow, percussion-sounding)&#10; - the MIDI keyboard will provide the pitch.&#10;Changes prevailing duration." script="(d-5)"/>
+    <button label="&#x25BC;&#x1D15D;" icon="duration.semibreve.append.svg" _tooltip="When appending, appends a &#x1D15D; &#10;With the cursor on a note inserts a &#x1D15D;  before the current note&#10;If MIDI-in is active, the note will be pitchless (displays yellow, percussion-sounding)&#10; - the MIDI keyboard will provide the pitch.&#10;Changes prevailing duration." script="(d-0)"/>
+    <button label="&#x25BC;&#x1D15E;" icon="duration.minim.append.svg" _tooltip="When appending, appends a &#x1D15E; &#10;With the cursor on a note inserts a &#x1D15E;  before the current note&#10;If MIDI-in is active, the note will be pitchless (displays yellow, percussion-sounding)&#10; - the MIDI keyboard will provide the pitch.&#10;Changes prevailing duration." script="(d-1)"/>
+    <button label="&#x25BC;&#x1D15F;" icon="duration.crotchet.append.svg" _tooltip="When appending, appends a &#x1D15F; &#10;With the cursor on a note inserts a &#x1D15F;  before the current note&#10;If MIDI-in is active, the note will be pitchless (displays yellow, percussion-sounding)&#10; - the MIDI keyboard will provide the pitch.&#10;Changes prevailing duration." script="(d-2)"/>
+    <button label="&#x25BC;&#x1D160;" icon="duration.quaver.append.svg" _tooltip="When appending, appends a &#x1D160; &#10;With the cursor on a note inserts a &#x1D160;  before the current note&#10;If MIDI-in is active, the note will be pitchless (displays yellow, percussion-sounding)&#10; - the MIDI keyboard will provide the pitch.&#10;Changes prevailing duration." script="(d-3)"/>
+    <button label="&#x25BC;&#x1D161;" icon="duration.semiquaver.append.svg" _tooltip="When appending, appends a &#x1D161; &#10;With the cursor on a note inserts a &#x1D161;  before the current note&#10;If MIDI-in is active, the note will be pitchless (displays yellow, percussion-sounding)&#10; - the MIDI keyboard will provide the pitch.&#10;Changes prevailing duration." script="(d-4)"/>
+    <button label="&#x25BC;&#x1D162;" icon="duration.demisemiquaver.append.svg" _tooltip="When appending, appends a &#x1D162; &#10;With the cursor on a note inserts a &#x1D162;  before the current note&#10;If MIDI-in is active, the note will be pitchless (displays yellow, percussion-sounding)&#10; - the MIDI keyboard will provide the pitch.&#10;Changes prevailing duration." script="(d-5)"/>
     <button label="&#x25BC;&#x1D13B;" _tooltip="Insert &#x1D13B; rest" script="(d-InsertWholeRest)"/>
     <button label="&#x25BC;&#x1D13C;" _tooltip="Insert &#x1D13C; rest" script="(d-InsertHalfRest)"/>
     <button label="&#x25BC;&#x1D13D;" _tooltip="Insert &#x1D13D; rest" script="(d-InsertQuarterRest)"/>
@@ -63,12 +63,12 @@
     <button label="&#x2022;" _tooltip="Dot, double dot or undot the note at the cursor" script="(d-DotDoubleDotNoDot)"/>
   </palette>
   <palette _name="Edit Duration" row-wise="0" limit="1" dock="1" hidden="0">
-    <button label="&#x25BA; &#x1D15D;" _tooltip="Change the current note to a &#x1D15D;" script="(d-Change0)"/>
-    <button label="&#x25BA; &#x1D15E;" _tooltip="Change the current note to a &#x1D15E;" script="(d-Change1)"/>
-    <button label="&#x25BA; &#x1D15F;" _tooltip="Change the current note to a &#x1D15F;" script="(d-Change2)"/>
-    <button label="&#x25BA; &#x1D160;" _tooltip="Change the current note to a &#x1D160;" script="(d-Change3)"/>
-    <button label="&#x25BA; &#x1D161;" _tooltip="Change the current note to a &#x1D161;" script="(d-Change4)"/>
-    <button label="&#x25BA; &#x1D162;" _tooltip="Change the current note to a &#x1D162;" script="(d-Change5)"/>
+    <button label="&#x25BA; &#x1D15D;" icon="duration.semibreve.change.svg" _tooltip="Change the current note to a &#x1D15D;" script="(d-Change0)"/>
+    <button label="&#x25BA; &#x1D15E;" icon="duration.minim.change.svg" _tooltip="Change the current note to a &#x1D15E;" script="(d-Change1)"/>
+    <button label="&#x25BA; &#x1D15F;" icon="duration.crotchet.change.svg" _tooltip="Change the current note to a &#x1D15F;" script="(d-Change2)"/>
+    <button label="&#x25BA; &#x1D160;" icon="duration.quaver.change.svg" _tooltip="Change the current note to a &#x1D160;" script="(d-Change3)"/>
+    <button label="&#x25BA; &#x1D161;" icon="duration.semiquaver.change.svg" _tooltip="Change the current note to a &#x1D161;" script="(d-Change4)"/>
+    <button label="&#x25BA; &#x1D162;" icon="duration.demisemiquaver.change.svg" _tooltip="Change the current note to a &#x1D162;" script="(d-Change5)"/>
     <button label="&#x2022;" _tooltip="Dot, double dot or undot the note at the cursor" script="(d-DotDoubleDotNoDot)"/>
     <button label="1/2" _tooltip="Halves the duration of the note/chord/rest at the cursor or the selection.&#10;E.g.&#10;Quarter Note becomes Eighth Note.&#10;" script="(d-Diminish)"/>
     <button label="2&#x2217;" _tooltip="Doubles the duration of the note/chord/rest at the cursor or the selection.&#10;E.g.&#10;Quarter Note becomes Half Note." script="(d-Augment)"/>
@@ -253,9 +253,9 @@
     <button label="Add Bass Inversion" _tooltip="Adds a bass note to a chord, while keeping the current lowest note as the root of the chord.&#10;Use this on Chord Symbol staffs to create an inversion of the chord entered." script="(d-AddBassInversion)"/>
     <button label="Flatten Next Bass Note" _tooltip="Use in appending position to flatten the bass note of the next chord (extra to what it would be)." script="(d-FlattenNote)"/>
     <button label="Sharpen Next Bass Note" _tooltip="Use in appending position to sharpen the bass note of the next chord (extra to what it would be)." script="(d-SharpenNote)"/>
-    <button label=" &#x1D15D;" _tooltip="Set the prevailing duration to &#x1D15D; (subsequent chords entered will have this duration)" script="(d-Set0)"/>
-    <button label="&#x1D15E;" _tooltip="Set the prevailing duration to &#x1D15E; (subsequent chords entered will have this duration)" script="(d-Set1)"/>
-    <button label="&#x1D15F;" _tooltip="Set the prevailing duration to &#x1D15F; (subsequent chords entered will have this duration)" script="(d-Set2)"/>
+    <button label=" &#x1D15D;" icon="duration.semibreve.select.svg" _tooltip="Set the prevailing duration to &#x1D15D; (subsequent chords entered will have this duration)" script="(d-Set0)"/>
+    <button label="&#x1D15E;" icon="duration.minim.select.svg" _tooltip="Set the prevailing duration to &#x1D15E; (subsequent chords entered will have this duration)" script="(d-Set1)"/>
+    <button label="&#x1D15F;" icon="duration.crotchet.select.svg" _tooltip="Set the prevailing duration to &#x1D15F; (subsequent chords entered will have this duration)" script="(d-Set2)"/>
     <button label="/" _tooltip="Insert a repeated chord sign." script="(d-InsertQuarterRest)"/>
     <button label="Section Mark" _tooltip="Inserts an arbitrary mark in the score at the cursor.&#10;Any size, font, effect can be chosen.&#10;The text position can be dragged in the print view if needed.&#10;Avoid placing one at the start as it clashes with the time signature - place it after the first note and drag it into position." script="(d-MultiLineTextAnnotation (list (cons 'dimensions &quot;0.5&quot;)(cons 'scale &quot;1.5&quot;) (cons 'text &quot;\\bold \\box \&quot;A\&quot;&quot;)))"/>
     <button label="Fix Number of Lines" _tooltip="Specify the number of lines you want on the page." script="(d-SystemsPerPage)"/>

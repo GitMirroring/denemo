@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 1000">
+  <g><path d="M60,350 L60,650 L260,500 Z" fill="black"/></g>
+  <g transform="translate(320,0)">
+    <g transform="translate(0,800) scale(1,-1)">
+    <path glyph-name="noteHalfUp" d="M112 -145c-63 0 -112 35 -112 96c0 60 54 194 227 194c35 0 64 -10 84 -27v757h30v-827c0 -39 -39 -193 -229 -193zM256 97c-55 0 -222 -91 -222 -148c0 -28 26 -49 53 -49c25 0 61 12 113 47c81 53 105 81 105 104c0 26 -24 46 -49 46z" />
+  </g>
+  </g>
+</svg>
