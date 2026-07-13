@@ -77,3 +77,8 @@ tools/cairo_svg2path
 tools/pageswitcher
 tools/pageturner
 tools/twopageturner
+org.denemo.Denemo.metainfo.xml
+*.diff
+valgrind-*.txt
+gen-supp.txt
+po/.intltool-merge-cache
