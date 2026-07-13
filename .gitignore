@@ -70,3 +70,10 @@ build/lt~obsolete.m4
 src/denemo
 src/libaudiobackend.a
 libs/**/*.a
+
+# Compiled tool binaries (built from tracked .c sources in tools/)
+tools/annotator
+tools/cairo_svg2path
+tools/pageswitcher
+tools/pageturner
+tools/twopageturner

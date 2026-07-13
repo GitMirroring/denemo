@@ -796,17 +796,15 @@ drawfetachar_cr (cairo_t * cr, gunichar uc, double x, double y)
 
 }
 
-
 void
 drawtext_cr (cairo_t * cr, const char *text, double x, double y, double size)
 {
   if (*text)
     {
 #ifdef OBSOLETE_G_OS_WIN32
-      return windows_draw_text (cr, "Denemo", text, x, y, size, FALSE); //these values arrived at by trial and error, to match the previously used code below
+      return windows_draw_text (cr, Denemo.prefs.fontname->str, text, x, y, size, FALSE);
 #else
-      //use the FreeSerif font as it has music symbols - there is no font substitution done by cairo here
-      cairo_select_font_face (cr, "Denemo", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+      cairo_select_font_face (cr, Denemo.prefs.fontname->str, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
       cairo_set_font_size (cr, size);
       cairo_move_to (cr, x, y);
       cairo_show_text (cr, text);

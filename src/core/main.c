@@ -287,17 +287,6 @@ init_environment()
     g_warning("Did not find feta.ttf - perhaps installed in system");
   g_free(fontpath);
 
-  fontpath = find_denemo_file(DENEMO_DIR_FONTS,  "Denemo.ttf");
-  g_warning ("DENEMO_DIR_FONTS resolves to: %s",
-		  find_denemo_file (DENEMO_DIR_FONTS, "") ?
-		  find_denemo_file (DENEMO_DIR_FONTS, "") : "NULL");
-
-  if(fontpath)
-    add_font_file (fontpath);
-  else
-    g_info("Did not find Denemo.ttf - perhaps installed in system");
-  g_free(fontpath);
-
   fontpath = find_denemo_file(DENEMO_DIR_FONTS,  "emmentaler.ttf");
   if(fontpath)
      add_font_file (fontpath);
@@ -368,13 +357,6 @@ init_environment()
       add_font_file (fontpath);
   else
     g_info("Did not find feta.ttf - perhaps installed in system");
-  g_free(fontpath);
-
-  fontpath = find_denemo_file(DENEMO_DIR_FONTS,  "Denemo.ttf");
-  if(fontpath)
-    add_font_file (fontpath);
-  else
-    g_info("Did not find Denemo.ttf - perhaps installed in system");
   g_free(fontpath);
 
   fontpath = find_denemo_file(DENEMO_DIR_FONTS,  "emmentaler.ttf");

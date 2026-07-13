@@ -63,7 +63,7 @@ initprefs (void)
   ret->username = g_string_new (name ? name : "DenemoUser");
   ret->password = g_string_new ("");
 
-  ret->fontname = g_string_new ("Denemo");
+  ret->fontname = g_string_new ("FreeSerif");
   ret->fontsize = 9;
 
 #ifdef G_OS_WIN32
