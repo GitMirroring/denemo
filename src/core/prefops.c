@@ -65,6 +65,9 @@ initprefs (void)
 
   ret->fontname = g_string_new ("Denemo");
   ret->fontsize = 9;
+  ret->use_system_theme = TRUE;          // gboolean, default on
+  ret->uitheme = g_string_new ("default"); // which bundled CSS to use when toggle is off
+
 
 #ifdef G_OS_WIN32
   ret->browser = g_string_new ("");     //use file association
@@ -167,7 +170,6 @@ initprefs (void)
   ret->applytoselection = TRUE;
   ret->quickshortcuts = TRUE;
   ret->progressbardecorations = TRUE;
-
  
 
  /* Read values from personal preferences file if any*/

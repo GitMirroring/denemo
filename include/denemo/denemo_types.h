@@ -467,6 +467,8 @@ typedef struct DenemoPrefs
   GString *ghostscript; /**< for manipulating pdfs */
   GString *fontname; /**< Font name - usually Denemo as this has the required characters */
   gint fontsize; /**< Font size in points used for menus, help text etc */
+  gboolean use_system_theme; /**< TRUE to use the system GTK theme unmodified, FALSE to apply a bundled Denemo UI theme */
+  GString *uitheme; /**< Which bundled UI theme CSS to apply when use_system_theme is FALSE */
   gboolean manualtypeset;/**< typeset on request, not continuously */
   gint typesetrefresh;/**< ms between re-trying typeset */
   gint typesettype;/**< what to re-typeset when not manual typeset */

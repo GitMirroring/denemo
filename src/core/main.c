@@ -538,9 +538,28 @@ main (int argc, char *argv[])
 
   /* initialization of directory relocatability */
   initdir ();
+   /* TEMPORARY: hardcoded theme CSS test - remove once preference-driven version is in place */
+  {
+    GtkCssProvider *provider = gtk_css_provider_new ();
+    GError *error = NULL;
+    gchar *css_path = g_build_filename (PACKAGE_SOURCE_DIR, "themes", "windows.css", NULL);
+    if (gtk_css_provider_load_from_path (provider, css_path, &error))
+    {
+        gtk_style_context_add_provider_for_screen (gdk_screen_get_default (),
+                                                    GTK_STYLE_PROVIDER (provider),
+                                                    GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+        g_message ("Loaded test theme CSS from %s", css_path);
+    }
+    else
+    {
+        g_warning ("Failed to load test theme CSS: %s", error ? error->message : "unknown");
+    }
+    g_free (css_path);
+  }
+
   if (!Denemo.non_interactive)
     check_if_upgrade();
-    
+
   init_environment();
 
   localization_init();

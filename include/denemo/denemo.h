@@ -207,6 +207,7 @@ extern const gchar *Fluidsynth;
 #define SOUNDFONTS_DIR "soundfonts"
 #define PIXMAPS_DIR    "pixmaps"
 #define FONTS_DIR 	"fonts/truetype/denemo"
+#define THEMES_DIR     "themes"
 #define LOCALE_DIR     "po"
 
 
@@ -216,6 +217,7 @@ typedef enum{
   DENEMO_DIR_SOUNDFONTS,
   DENEMO_DIR_PIXMAPS,
   DENEMO_DIR_FONTS,
+  DENEMO_DIR_THEMES,
   DENEMO_DIR_LOCALE,
   DENEMO_DIR_BIN,
   DENEMO_DIR_LILYPOND_INCLUDE

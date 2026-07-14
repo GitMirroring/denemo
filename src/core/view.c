@@ -4130,6 +4130,34 @@ newtab (void)
     project->input_source = INPUTMIDI;
   panic_all ();                 //g_print ("Reset synth as part of newtab()\n");
 }                               /* end of newtab creating a new DenemoProject holding one musical score */
+void apply_ui_theme (void)
+{
+    static GtkCssProvider *provider = NULL;
+    GdkScreen *screen = gdk_screen_get_default ();
+
+    if (provider)
+    {
+        gtk_style_context_remove_provider_for_screen (screen, GTK_STYLE_PROVIDER (provider));
+        g_object_unref (provider);
+        provider = NULL;
+    }
+
+    if (Denemo.prefs.use_system_theme)
+        return; // nothing to load, system theme applies uncontested
+
+    gchar *css_path = find_denemo_file (DENEMO_DIR_THEMES, g_strdup_printf ("%s.css", Denemo.prefs.uitheme->str));
+    if (!css_path)
+        return;
+
+    provider = gtk_css_provider_new ();
+    GError *error = NULL;
+    if (gtk_css_provider_load_from_path (provider, css_path, &error))
+        gtk_style_context_add_provider_for_screen (screen, GTK_STYLE_PROVIDER (provider),
+                                                    GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    else
+        g_warning ("Failed to load theme CSS: %s", error ? error->message : "unknown error");
+    g_free (css_path);
+}
 void hide() { gtk_widget_hide (Denemo.project->buttonboxes);}
 void show() { gtk_widget_show (Denemo.project->buttonboxes);}
 gint visible() { if (Denemo.project) return gtk_widget_get_visible (Denemo.project->buttonboxes); else return -1;}
