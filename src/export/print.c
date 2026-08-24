@@ -238,6 +238,11 @@ gchar *get_lilypond_include_dir (void)
 	{
 	  lilyversion installed_version = string_to_lilyversion (Denemo.lilypond_installed_version);
 	  lilyversion check_version;
+
+
+	  check_version = string_to_lilyversion ("2.24.0");
+	  if (version_check (check_version, installed_version) == GREATER)
+		return "actions/lilypond/2.26";
 	  
 	  check_version = string_to_lilyversion ("2.22.0");
 	  if (version_check (check_version, installed_version) == GREATER)
@@ -946,10 +951,10 @@ export_png (gchar * filename, GChildWatchFunc finish, DenemoProject * gui)
 
   gchar *arguments[] = {
     Denemo.prefs.lilypath->str,
-    "-dgui",
+   // "-dgui",
     "--loglevel=WARN",
     "--png",
-    "-dbackend=eps",
+   // "-dbackend=eps",
     resolution,
     "-o",
     filename,
@@ -1028,7 +1033,7 @@ export_pdf (gchar * filename, DenemoProject * gui)
   /* create arguments to pass to lilypond to create a pdf */
   gchar *arguments[] = {
     Denemo.prefs.lilypath->str,
-    "-dgui",
+    //"-dgui",
     "--loglevel=WARN", "-dno-point-and-click",
     "--pdf",
     local_include,
