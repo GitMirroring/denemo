@@ -1339,6 +1339,13 @@ generate_lily_for_obj (DenemoProject * gui, GtkTextIter * iter, DenemoObject * c
 
                 outputret;
                 directives_insert_postfix_editable (pchord->directives, &open_braces, &prevduration, iter, FALSE, lily_for_obj, TARGET_CHORD, movement_count, measurenum, voice_count, objnum, 0, sbid);
+/* we have to insert chord directive prefix that are on rests - e.g. fermata when they are dragged in the Print View*/
+                directives_insert_prefix_editable (pchord->directives, &open_braces, &prevduration, iter, FALSE, lily_for_obj, TARGET_CHORD, movement_count, measurenum, voice_count, objnum, 0, sbid);
+//and altaffix
+                directives_insert_prefix_altaffix_editable (pchord->directives, &open_braces, &prevduration, iter, FALSE, lily_for_obj, TARGET_CHORD, movement_count, measurenum, voice_count, objnum, 0, sbid);
+                directives_insert_postfix_altaffix_editable (pchord->directives, &open_braces, &prevduration, iter, FALSE, lily_for_obj, TARGET_CHORD, movement_count, measurenum, voice_count, objnum, 0, sbid);
+
+
               }
             else                /* there are notes */
               {
