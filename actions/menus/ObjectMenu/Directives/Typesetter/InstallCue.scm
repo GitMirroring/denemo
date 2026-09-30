@@ -68,7 +68,7 @@ as this will not typeset."))))
                 (set! cuename (RadioBoxMenuList cuename))
                 (if cuename
                 (begin
-                    (d-DirectivePut-score-prefix (cdr cuename) (cdr cuename))
+                    (d-DirectivePut-score-prefix (scheme-escape (cdr cuename)) (cdr cuename))
                     (d-Directive-standalone tag)            
                     (d-DirectivePut-standalone-minpixels tag 30)
                     (d-DirectivePut-standalone-postfix tag (car cuename))
