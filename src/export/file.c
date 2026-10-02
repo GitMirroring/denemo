@@ -116,6 +116,8 @@ supported_file_extensions(gchar* format){
     exts = g_list_append(exts, "*.musicxml");
     exts = g_list_append(exts, "*.mxml");
     exts = g_list_append(exts, "*.MXML");
+    exts = g_list_append(exts, "*.mxl");   /* compressed MusicXML (zip) */
+    exts = g_list_append(exts, "*.MXL");
   }
 
   if(g_strcmp0 ("pdf", format) == 0){
@@ -388,6 +390,20 @@ if (Denemo.project->rhythms && choose_option (_("Music Snippets Can be Kept"), _
     delete_all_rhythms ();
 }
 
+/* Empty the current project, as File->New does (see file_newwrapper), so that an
+ * importer which builds its score by running a script (MusicXML) starts from a
+ * fresh score instead of appending to the one already open.
+ * (importXML does the equivalent itself for REPLACE_SCORE.) */
+static void
+start_new_score (DenemoProject * gui)
+{
+  deletescore (NULL, gui);
+  deleteSchemeText ();
+  delete_conditions (gui);
+  gui->has_script = FALSE;
+  set_enharmonic_position (0);
+}
+
 
 /**
  * The function that actually determines the file type and calls the
@@ -463,8 +479,13 @@ open_for_real (gchar * filename, DenemoProject * gui, DenemoSaveType template, I
         }
       else if (has_extension (filename, ".ly"))
         result = lyinput (filename);
-      else if (has_extension (filename, ".mxml") || has_extension (filename, ".xml") || has_extension (filename, ".musicxml"))
-        musicxml = TRUE, result = mxmlinput (filename);
+      else if (has_extension (filename, ".mxml") || has_extension (filename, ".xml") || has_extension (filename, ".musicxml") || has_extension (filename, ".mxl") || has_extension (filename, ".MXL"))
+        {
+          musicxml = TRUE;
+          if (type == REPLACE_SCORE)
+            start_new_score (gui);
+          result = mxmlinput (filename);
+        }
       else if (has_extension (filename, ".mid") || has_extension (filename, ".midi"))
         result = (type==GUIDED_IMPORT)?guidedImportMidi (filename):importMidi (filename);
       else if (has_extension (filename, ".pdf") || has_extension (filename, ".PDF"))
