@@ -15,6 +15,7 @@
 #include "core/utils.h"
 #include "core/view.h"
 #include "command/lilydirectives.h"
+#include "core/mxl.h"             //for reading compressed .mxl files
 
 /* libxml includes: for libxml2 this should be <libxml.h> */
 #include <libxml/parser.h>
@@ -1436,10 +1437,29 @@ mxmlinput (gchar * filename)
   awaiting_note = g_string_new ("");
   /* Try to parse the file. */
 
-  doc = xmlParseFile (filename);
+  if (mxl_file_is_zip (filename))
+    {
+      /* compressed MusicXML (.mxl): a zip archive whose META-INF/container.xml names the score */
+      gsize size = 0;
+      gchar *data = mxl_extract_score (filename, &size, &err);
+      if (data)
+        {
+          doc = xmlReadMemory (data, size, filename, NULL, XML_PARSE_NONET);
+          g_free (data);
+        }
+      else
+        {
+          g_warning ("Could not extract score from compressed MusicXML file %s: %s", filename, err ? err->message : "unknown error");
+          g_clear_error (&err);
+        }
+    }
+  else
+    doc = xmlParseFile (filename);
   if (doc == NULL)
     {
       g_warning ("Could not read MusicXML file %s", filename);
+      g_string_free (awaiting_note, TRUE);
+      awaiting_note = NULL;
       Denemo.prefs.spillover = spillover;
       return -1;
     }
@@ -1736,6 +1756,11 @@ mxmlinput (gchar * filename)
   (d-SetPrefs (string-append \"<startmidiin>\"(if startmidiin \"1\" \"0\") \"</startmidiin>\"))\n\
   (d-MasterVolume 1)\n\
   ");
+  /* parsing is finished and the script is self-contained: release the XML tree and
+   * the scratch string now, before the (possibly long) Scheme run */
+  xmlFreeDoc (doc);
+  g_string_free (awaiting_note, TRUE);
+  awaiting_note = NULL;
 #ifdef DEVELOPER
   {
     FILE *fp = fopen ("/home/rshann/junk.scm", "w");

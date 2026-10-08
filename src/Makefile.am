@@ -92,6 +92,8 @@ denemo_SOURCES = \
   core/view.c \
   core/view.h \
   core/entries.h \
+  core/mxl.c \
+  core/mxl.h \
   display/accwidths.h \
   display/calculatepositions.c \
   display/calculatepositions.h \
@@ -180,7 +182,7 @@ denemo_SOURCES = \
   ui/markup.h \
   core/menusystem.c \
   core/menusystem.h
-  
+
 nodist_denemo_SOURCES = pathconfig.h
 
 
@@ -196,7 +198,7 @@ denemo_SOURCES += \
 
 
 noinst_LIBRARIES = libaudiobackend.a
-libaudiobackend_a_CFLAGS = -W -Wall -Wno-unused-parameter $(PLATFORM_CFLAGS) 
+libaudiobackend_a_CFLAGS = -W -Wall -Wno-unused-parameter $(PLATFORM_CFLAGS)
 libaudiobackend_a_SOURCES = \
   audio/alsabackend.c \
   audio/alsabackend.h \
@@ -247,11 +249,11 @@ if !HAVE_SMF
 endif
 
 pathconfig.h:  $(top_builddir)/config.status
-	-@rm pathconfig.tmp 
+	-@rm pathconfig.tmp
 	@echo "Generating pathconfig.h..."
 	@echo '#define DENEMO_LOAD_PATH "@denemo_load_path@"' >pathconfig.tmp
 	@echo '#define DENEMO_BIN_PATH  "@denemo_bin_path@"' >>pathconfig.tmp
-	@mv pathconfig.tmp $@	
+	@mv pathconfig.tmp $@
 
 noinst_HEADERS = \
   audio/parseinstruments.h \
