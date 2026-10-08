@@ -404,7 +404,7 @@ titledPiece =
          (if (module-locally-bound? (current-module) ',sym)
              ,sym
              ,exp)))))
-#(define-once denemo-top-margin 6)                     
+#(define-once denemo-top-margin -12)                     
 \paper {
   bookTitleMarkup = \markup \when-property #'header:title {
      { \postscript "
