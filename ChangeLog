@@ -1,5 +1,16 @@
-2023-01-14
 
+2026-09-30
+	Support for LilyPond 2.26
+		Commands that *must* be updated to work with 2.24 include:
+			Book Titles, Score Version, Bold Page Numbers, Tweak Default Appearance <=these will require re-instating (just toggle/edit them)
+			this Scheme script can make the adjustments
+				(d-BookTitle)
+				(if (d-Directive-score? "FiguredBassTweak")(d-FiguredBassTweak))
+				(d-PageNumbersWithInstrument)
+				(d-PageNumbersWithInstrument)
+				(if (d-Directive-score? "ScoreVersion")(d-ScoreVersion))
+					
+2023-01-14
 	Support for LilyPond 2.24
 		Old files will need some Directives updating to typeset without warning on 2.24:
 			Staff Size
@@ -21,7 +32,7 @@
 			Footnote
 			Change Note Shift
 		Commands that *must* be updated to work with 2.24 include:
-			Book Titles, Score Version, Bold Page Numbers, these will require re-instating (just toggle/edit them)
+			Book Titles, Score Version, Bold Page Numbers
 		
     Control Horizontal Spacing
         Per-movement spacing control
