@@ -41,7 +41,9 @@ gboolean continuous_typesetting () {return FALSE;}
 #endif
 #endif
 
-static gint changecount = -1;   //changecount when the playback typeset was last created
+static gint changecount = -1;   //movement->changecount when the playback typeset was last created
+static gint project_changecount = -1;   //project->changecount when the playback typeset was last created
+
 static gboolean RightButtonPressed = FALSE;
 static gboolean LeftButtonPressed = FALSE;
 static gboolean Dragging = FALSE;
@@ -787,6 +789,7 @@ playbackview_finished (G_GNUC_UNUSED GPid pid, G_GNUC_UNUSED gint status, gboole
     {
       gdouble total_time;
       changecount = Denemo.project->movement->changecount;
+      project_changecount = Denemo.project->changecount;
       total_time = load_lilypond_midi (NULL, AllPartsTypeset);//g_print ("MIDI file total time = %.2f\n", total_time);
  
       Denemo.project->movement->smfsync = Denemo.project->movement->changecount;
@@ -916,10 +919,14 @@ static gboolean update_playback_view (void)
     //g_print ("Testing %d not equal %d or %d not equal %d \n", changecount, Denemo.project->changecount, Denemo.project->movement->changecount, Denemo.project->movement->smfsync);
  if ((changecount != Denemo.project->movement->changecount) || (Denemo.project->movement->changecount != Denemo.project->movement->smfsync))
         {
-        call_out_to_guile (PartOnly?"(d-PlaybackView 'part)":"(d-PlaybackView)");//this installs the temporary directives to typeset svg and thendisplay_svg (gdouble scale, gboolean part)
-        Denemo.project->movement->smfsync = Denemo.project->movement->changecount;
-        changecount = Denemo.project->movement->changecount;
-        return TRUE;
+		if (Denemo.project->changecount != project_changecount)
+			{
+			call_out_to_guile (PartOnly?"(d-PlaybackView 'part)":"(d-PlaybackView)");//this installs the temporary directives to typeset svg and thendisplay_svg (gdouble scale, gboolean part)
+			Denemo.project->movement->smfsync = Denemo.project->movement->changecount;
+			changecount = Denemo.project->movement->changecount;
+			project_changecount = Denemo.project->changecount;
+			return TRUE;
+			}
         }
 return FALSE;
 }
@@ -952,11 +959,14 @@ static void button_press (GtkWidget *event_box, GdkEventButton *event)
 		(changecount != Denemo.project->movement->changecount) ||
 		(Denemo.project->movement->changecount != Denemo.project->movement->smfsync) || (Denemo.project->changecount != Denemo.project->lilysync))
        {
-		    typeset_current_movement ();
+		  if (Denemo.project->changecount != project_changecount)
+			{
+			typeset_current_movement ();
             warningdialog (_("Wait for the Print View to update, then choose \"All Parts\" or \"Current Part\" from the Playback View and wait for that to re-typeset, then you can play,"));
             needs_retypeset = TRUE;
             gtk_widget_queue_draw (Denemo.playbackview);
             return;
+			}
        }
 	
     gint x = event->x;
@@ -1179,19 +1189,22 @@ static void button_release (GtkWidget *event_box, GdkEventButton *event)
 
      if ((changecount != Denemo.project->movement->changecount) || (Denemo.project->movement->changecount != Denemo.project->movement->smfsync))
         {
-		    if (Denemo.printstatus->printpid != GPID_NONE)
-				kill_process (Denemo.printstatus->printpid);
-			Denemo.printstatus->printpid = GPID_NONE;
-		    typeset_current_movement ();
-            warningdialog (_("Wait for the Print View to finish typesetting and then choose \"All Parts\" or \"Current Part\" from the Playback View"));
-			return;
-			
-            static gboolean once = TRUE;
-            exportmidi (NULL, Denemo.project->movement);
-            //g_print ("Now d-changecount %d, d-smfsync %d\n", Denemo.project->movement->changecount, Denemo.project->movement->smfsync);
-            if(once)
-                infodialog (_("Switching to simple MIDI - re-typeset for full MIDI."));
-           once = FALSE;
+			if(Denemo.project->changecount != project_changecount)
+				{
+					if (Denemo.printstatus->printpid != GPID_NONE)
+						kill_process (Denemo.printstatus->printpid);
+					Denemo.printstatus->printpid = GPID_NONE;
+					typeset_current_movement ();
+					warningdialog (_("Wait for the Print View to finish typesetting and then choose \"All Parts\" or \"Current Part\" from the Playback View"));
+					return;
+					//The code below seems to be debris!!!
+					static gboolean once = TRUE;
+					exportmidi (NULL, Denemo.project->movement);
+					//g_print ("Now d-changecount %d, d-smfsync %d\n", Denemo.project->movement->changecount, Denemo.project->movement->smfsync);
+					if(once)
+						infodialog (_("Switching to simple MIDI - re-typeset for full MIDI."));
+				   once = FALSE;
+			   }
         }
     GList *g;
     for (g = TheTimings; g;g=g->next)
@@ -1257,6 +1270,8 @@ static void play_button (void)
             return;
         }
     Denemo.project->movement->smfsync = Denemo.project->movement->changecount;
+    project_changecount = Denemo.project->changecount;
+
     call_out_to_guile ("(d-Performance)");
 }
 
