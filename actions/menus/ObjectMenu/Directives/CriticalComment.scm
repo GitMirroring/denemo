@@ -27,6 +27,8 @@
 			(d-DirectivePut-standalone-display tag  (_ "Critical Comment"))
 			(d-DirectivePut-standalone-data tag answer)
 			(d-DirectivePut-standalone-postfix tag lilypond)
+			;; update the commentary here
+			(d-CriticalCommentary)
 			(d-RefreshDisplay)
 			(d-SetSaved #f))
 		#f)))

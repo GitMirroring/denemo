@@ -25,23 +25,27 @@
     (let ((thecomments '())  (tag "CriticalComment"))
      ;;;format-commentary numbers the strings in the list
      (define (format-commentary thelist)
-      (define ret " \\markup \\vspace #1 \\markup \\column {\n")
-      (let loop ((count 0))
-        (if (< count (length thelist))
-          (begin         
-            (set! ret (string-append ret "  \\vspace #0.5 \n\\column { \\line \\large {" (number->string (+ 1 count)) ".  "
-              (list-ref thelist count) "}\n"))
-          (loop (+ 1 count)))))
-     (string-append ret "}\n"))
+		(define ret " \\markup \\vspace #1 \\markup \\column {\n")
+		(let loop ((count 0))
+		(if (< count (length thelist))
+		  (begin         
+			(set! ret (string-append ret "  \\vspace #0.5 \n\\column { \\line \\large {" (number->string (+ 1 count)) ".  "
+			  (list-ref thelist count) "}\n"))
+		  (loop (+ 1 count)))))
+		 (string-append ret "}\n"))
    (let movement ()
     (define movement-number (number->string (d-GetMovement)))
     (define voice 1)
+    (define offset 0)
     (while (d-MoveToStaffUp))
     (d-MoveToBeginning)
     ;;; for each measure go through all the staffs accumulating a list of comments with the movement/staff/bar location prepended to each.
     (let measure ()
-      (define measure-number (number->string (d-GetMeasure)))
+      (define measure-number "0")
       (define thecomment #f)
+      (if (= (d-GetStaff) 1)
+		(set! offset (+ offset (d-GetMeasureNumberOffset))))
+      (set!  measure-number (number->string (+ (d-GetMeasure) offset)))
         (let loop ()
           (if (d-Directive-standalone? tag) 
            (begin
@@ -84,7 +88,7 @@
             (d-DirectivePut-score-postfix "CriticalCommentary" (string-append "\\pageBreak\n\\titledPiece \\markup \""
               (scheme-escape Title) "\"\n\\markup { \\vspace #0.8 \\fill-line {\\postscript #\"-16 3 moveto 24 0 rlineto stroke\"}}\n\\markup {\\italic \\wordwrap-string #\""
               (scheme-escape Prolog) "\" \\vspace #1 }\n"
-              (format-commentary (reverse thecomments))))))))))             
-   (d-PopPosition)
-   (d-DirectiveDelete-score "CriticalCommentsAmended")))
+              (format-commentary (reverse thecomments)))))))))
+   (d-DirectiveDelete-score "CriticalCommentsAmended")
+   (d-PopPosition))))
  
